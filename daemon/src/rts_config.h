@@ -1,0 +1,125 @@
+/**
+ * @file rts_config.h
+ * @author Gabriele Serra
+ * @date 03 Jan 2020
+ * @brief Allows to configure kernel parameters for real-time scheduling 
+ */
+
+#ifndef RTS_CONFIG_H
+#define RTS_CONFIG_H
+
+#define NUM_OF_SETTINGS             3
+#define SETTINGS_CFG                "/usr/share/rtsd/schedconfig.cfg"
+
+#define PROC_RT_PERIOD_SETTING      "sched_rt_period_us"
+#define PROC_RT_PERIOD_FILE         "/proc/sys/kernel/sched_rt_period_us"
+#define PROC_RT_PERIOD_DEFAULT      1000000
+
+#define PROC_RT_RUNTIME_SETTING     "sched_rt_runtime_us"
+#define PROC_RT_RUNTIME_FILE        "/proc/sys/kernel/sched_rt_runtime_us"
+#define PROC_RT_RUNTIME_DEFAULT     950000
+
+#define PROC_RR_TIMESLICE_SETTING   "sched_rr_timeslice_ms"
+#define PROC_RR_TIMESlICE_FILE      "/proc/sys/kernel/sched_rr_timeslice_ms"
+#define PROC_RR_TIMESLICE_DEFAULT   100
+
+/**
+ * @brief Read rt kernel parameters
+ * 
+ * Reads rt_period and rt_runtime from proc files and
+ * write their values in @p rt_period and @p rt_runtime. Returns
+ * -1 in case of errors (leaving untouched params) or 0
+ * in case of success.
+ * 
+ * @param rt_period pointer to int in which leave current proc rt period value
+ * @param rt_runtime pointer to int in which leave current proc rt runtime value
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
+
+/**
+ * @brief Calculate maximum real-time utilization available [0-1]
+ * 
+ * Reads rt_period and rt_runtime from proc files and
+ * calculate maximum utilization available for RT processes normalized from
+ * 0 to 1. Returns -1 in case of errors (leaving untouched param) or 0
+ * in case of success.
+ * 
+ * @param rt_max_util pointer to int in which leave sys max utilization
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_get_rt_kernel_max_util(float* rt_max_util);
+
+/**
+ * @brief Writes rt kernel parameters
+ * 
+ * Writes rt_period and rt_runtime in proc files taking desired
+ * values from @p rt_period and @p rt_runtime. Returns
+ * -1 in case of errors or 0 in case of success.
+ * 
+ * @param rt_period desired value of proc rt period
+ * @param rt_runtime desired value of proc rt runtime
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_set_rt_kernel_params(int rt_period, int rt_runtime);
+
+/**
+ * @brief Restores rt kernel parameters
+ * 
+ * Restores rt_period and rt_runtime in proc files to default values
+ * reading default constants in library. Returns
+ * -1 in case of errors or 0 in case of success.
+ * 
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_restore_rt_kernel_params();
+
+/**
+ * @brief Read rr kernel param
+ * 
+ * Reads rr_timeslice from proc files and
+ * write its values in @p rr_timeslice. Returns
+ * -1 in case of errors (leaving untouched param) or 0
+ * in case of success.
+ * 
+ * @param rr_timeslice pointer to int in which leave current proc rr timeslice
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_get_rr_kernel_param(int* rr_timeslice);
+
+/**
+ * @brief Writes rr kernel parameter
+ * 
+ * Writes rr_timeslice in proc files taking desired
+ * value from @p rr_timeslice. Returns
+ * -1 in case of errors or 0 in case of success.
+ * 
+ * @param rr_timeslice the desired value of rr timeslice
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_set_rr_kernel_param(int rr_timeslice);
+
+/**
+ * @brief Restores rr kernel parameters
+ * 
+ * Restores rr_timeslice in proc files to default values
+ * reading default constant in library. Returns
+ * -1 in case of errors or 0 in case of success.
+ * 
+ * @return -1 in case of error, 0 in case of success
+ */
+int rts_config_restore_rr_kernel_param();
+
+/**
+ * @brief Apply kernel parameters settings specified in cfg file
+ * 
+ * Opens the configuration file, reads the settings specified by the sysadmin
+ * and apply new settings, overriding previous one. Returns 0 if successful,
+ * -1 in case of errors (unable to open file or to specified settins are not
+ * valid)
+ * 
+ * @return 0 if successful, -1 in case of errors
+ */
+int rts_config_apply();
+
+#endif /* RTS_CONFIG_H */
