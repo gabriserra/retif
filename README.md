@@ -22,7 +22,7 @@ This kind of architecture was designed to support various scheduling algorithms,
 
 ## RTS Library APIs
 
-Applications that want to leverage the real-time capabilities provided by the framework will communicate with the RTS Daemon through the shared library `RTS Library`, linked with the application binary. The main functions exposed by the RTS Library are illustrated in table below. In addition, the provided
+Applications that want to leverage the real-time capabilities provided by the framework will communicate with the RTS Daemon through the shared library *RTS Library*, linked with the application binary. The main functions exposed by the RTS Library are illustrated in table below. In addition, the provided
 API contains some utility functions to implement periodic task execution and to query the accepted parameters for each task.
 
 | Function              | Description |
@@ -61,7 +61,7 @@ cd daemon
 make install
 ```
 
-The Daemon will be installed under ```usr/bin```- If you want to uninstall the Daemon you can simply ```make uninstall``` it.
+The Daemon will be installed under `usr/bin` If you want to uninstall the Daemon you can simply `make uninstall` it.
 After Daemon has been installed, you have to install also plugins.
 
 ```
@@ -69,10 +69,10 @@ cd plugins
 make install
 ```
 
-Plugins will be compiled and installed under ```usr/share/rtsd```. 
-In that folder you can find also the ```schedconfig.cfg``` file, that you can use to configure the loadable plugins and various other settings.
+Plugins will be compiled and installed under `usr/share/rtsd`. 
+In that folder you can find also the `schedconfig.cfg` file, that you can use to configure the loadable plugins and various other settings.
 
-At last, if you want to develop you application relying over the framework, you have to install the ```RTS Library```.
+At last, if you want to develop you application relying over the framework, you have to install the **RTS Library**.
 
 ```
 cd ../../lib
@@ -93,7 +93,7 @@ The benchmark folder contains also a `.sh` script that disable frequency scaling
 
 The code sample reported below can be used as "first reference".
 
-```
+```c
 /* Task representation */
 struct rts_task t;
 
@@ -149,13 +149,6 @@ Often, multimedia applications (e.g., sound daemons and CD recording software) u
 
 You can find the configuration in `plugins/schedconfig.cfg`. The configuration file, once modified, must be moved in the library shared folder `usr/share/rtsd`. The `install` target of Makefile will do the work for you.
 
-Often, multimedia applications (e.g., sound daemons and CD recording software) use to launch themselves at a statically configured priority, often because the developer don't have information about periodicity or execution time. Furthemore, often temporal parameters provided by tasks are not precise or tasks might need some additional time-budget in particular execution cases. To overcome these problems and keep the declarative paradigm in mind, the performance of these applications could be measured by the RTS Daemon. Applications then may exploit more effectively real-time scheduling by declaring their activation period through the RTS-API or leave the system schedule in real-time mode but without any temporal guarantees. Consequently, supported scheduling classes are:
-- RT Guaranteed reservation
-- RT Uncontrolled reservation
-- RT Simple
-
-An applicant task, to be admitted to one of the first two scheduling class, must specify some temporal parameters. The daemon will take into account these parameters both for estimating current CPU load and accepting new reservations. Scheduling classes have got an intrisinc priority order, consequently a task scheduled by a plugin of the first class will have a higher priority than a task scheduled with a plugin that belongs to the second class.
-
 ### EDF
 
 > Requires kernel version greater than 3.14
@@ -201,7 +194,7 @@ Stricly required parameters:
 
 The list of contributors can be found in the <a href="https://github.com/gabriserra/declarative-rtd/graphs/contributors">contributors of this project.</a>
 
-I want to thank Prof. [Tommaso Cucinotta](http://retis.sssup.it/~tommaso/eng/index.html) for his extensive support to the work. Without him, the framework would not exist at all.
+> I want to thank Prof. [Tommaso Cucinotta](http://retis.sssup.it/~tommaso/eng/index.html) for his extensive support to the work. Without him, the framework would not exist at all.
 
 ### License
 
