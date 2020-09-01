@@ -10,6 +10,8 @@
 #ifndef USOCKET_H
 #define USOCKET_H
 
+#define _GNU_SOURCE
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -35,10 +37,11 @@
  * single socket descriptor while server will use also the file descriptor set
  */
 struct usocket {
-    int socket;         /** Unix-domain socket descriptor */
-    char* filepath;     /** Filepath string to which unix-socket is binded */
-    int conn_set_max;   /** Current maximum number of descriptor */
-    fd_set conn_set;    /** Set of descriptors to listen */
+    int socket;                         /** Unix-domain socket descriptor */
+    char* filepath;                     /** Path which unix-socket is binded */
+    int conn_set_max;                   /** Current max number of descriptor */
+    fd_set conn_set;                    /** Set of descriptors to listen */
+    struct ucred* ucredp[SET_MAX_SIZE]; /** Credentials for connected clients */  
 };
 
 // ---------------------------------------------
@@ -230,5 +233,16 @@ int usocket_add_connections(struct usocket* us);
  * @param fd descriptor number that will be removed
  */
 void usocket_remove_connection(struct usocket* us, int fd);
+
+/**
+ * @brief Get connected client credentials and stores it
+ * 
+ * Get the credentials of a connected client using the descriptor @p fd and
+ * stores it in the ucred array of @p us
+ * 
+ * @param us pointer to usocket structure that contains ucred array
+ * @param fd descriptor number that will be checked to get credentials
+ */
+int usocket_get_credentials(struct usocket* us, int fd);
 
 #endif

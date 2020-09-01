@@ -8,12 +8,15 @@
  */
 
 #include "usocket.h"
+#include "logger.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/un.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 // ---------------------------------------------
 // COMMON FOR CLIENT / SERVER
@@ -308,6 +311,9 @@ int usocket_add_connections(struct usocket* us) {
     if(newfd < 0)
         return -1;
 
+    if (usocket_get_credentials(us, newfd) < 0)
+        return -1;
+
     FD_SET(newfd, &(us->conn_set));
     us->conn_set_max = us->conn_set_max > newfd ? us->conn_set_max : newfd;
 
@@ -323,4 +329,36 @@ int usocket_add_connections(struct usocket* us) {
  */
 void usocket_remove_connection(struct usocket* us, int fd) {
     FD_CLR(fd, &(us->conn_set));
+}
+
+/**
+ * @internal
+ * 
+ * Get connected client credentials and stores it
+ * 
+ * @endinternal
+ */
+int usocket_get_credentials(struct usocket* us, int fd) {
+    struct ucred* ucredp;
+    socklen_t len;
+    
+    ucredp = calloc(1, sizeof(struct ucred));
+
+    if (ucredp == NULL) 
+    {
+        ERR("Unable to allocate ucred struct. Out of memory.");
+        return -1;
+    }
+
+    // get client credentials
+    if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, ucredp, &len) == -1)
+    {
+        ERR("Unable to get credentials: %s. ", strerror(errno));
+        return -1;
+    }
+
+    INFO("Credentials from %d descriptor: (%d, %d, %d)", ucredp->pid, ucredp->uid, ucredp->gid);
+    us->ucredp[fd] = ucredp;
+
+    return 0;
 }
