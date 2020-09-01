@@ -121,7 +121,7 @@ debug: all
 
 install: all
 	@echo Installing plugins.
-	@if [ ! -d "$(RTSD_DIR)" ]; then echo "RTS-Daemon not installed. Exiting"; exit -1; fi
+	@if [ ! -d "$(RTSD_DIR)" ]; then echo "RTS-Daemon not installed. Exiting"; exit 1; fi
 	@if [ ! -d "$(RTSD_DIR)/plugins" ]; then sudo mkdir $(RTSD_DIR)/plugins; fi
 	@sudo cp $(BDP_PATH)/*.so $(RTSD_DIR)/plugins 
 	@sudo cp schedconfig.cfg $(RTSD_DIR)/schedconfig.cfg
