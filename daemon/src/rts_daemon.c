@@ -25,7 +25,9 @@ static struct rts_reply req_connection(struct rts_daemon* data, int cli_id)
     
     INFO("Received CONNECTION REQ from pid: %d\n", req.payload.ids.pid);
 
+    // TODO: verify that attached pid is really the one that connected
     rts_carrier_set_pid(&(data->chann), cli_id, req.payload.ids.pid);
+
     rep.rep_type = RTS_CONNECTION_OK;
 
     INFO("%d connected with success. Assigned id: %d\n", req.payload.ids.pid, cli_id);
@@ -130,12 +132,21 @@ static struct rts_reply req_task_attach(struct rts_daemon* data, int cli_id)
     
     LOG("Received RSV_ATTACH REQ for res: %d. PID: %d will be attached.\n", 
             req.payload.ids.rsvid, req.payload.ids.pid);
-    
-    if(rts_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid, req.payload.ids.pid) < 0)
+
+    if (rts_scheduler_get_euid() != ..) 
+    {
+        INFO("Received RSV_ATTACH for %d from %d. Unauthorized.\n", ..);
         rep.rep_type = RTS_TASK_ATTACH_ERR;
+    }
+    else if(rts_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid, req.payload.ids.pid) < 0)
+    {
+        rep.rep_type = RTS_TASK_ATTACH_ERR;
+    } 
     else
+    {
         rep.rep_type = RTS_TASK_ATTACH_OK;
-    
+    }
+
     return rep;
 }
 
