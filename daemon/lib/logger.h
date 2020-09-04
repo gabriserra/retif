@@ -14,13 +14,22 @@
 #define LOGGER_H
 
 /**
+ * @brief Represent the place where
+ * redirecting the output.
+ */
+#define LOG_STDOUT  1   // standard output
+#define LOG_SYS     2   // syslog output
+
+/**
  * @brief Represent the current choice
  * 
  * Represent the current choice. Change
  * this define to redirect output toward
  * another channel 
  */
-#define LOG_STDOUT
+#ifndef LOG_OUTPUT
+    #define LOG_OUTPUT LOG_STDOUT
+#endif
 
 /**
  * @brief Represent the log level
@@ -29,7 +38,9 @@
  * this define what level of loggin should
  * be used during daemon lifetime 
  */
-#define LOG_LEVEL 10
+#ifndef LOG_LEVEL
+    #define LOG_LEVEL 10
+#endif
 
 /**
  * @brief Define the different choices
@@ -43,7 +54,7 @@
  * @param str string to be printed
  * @param args variable number of args
  */
-#ifdef LOG_STDOUT
+#if defined(LOG_OUTPUT) && LOG_OUTPUT == LOG_STDOUT
     #if LOG_LEVEL >= 40
         #define LOG(str, args...) printf(str, ##args)
     #endif
@@ -56,7 +67,7 @@
     #if LOG_LEVEL >= 10
         #define ERR(str, args...) printf(str, ##args)
     #endif
-#elif LOG_SYS
+#elif defined(LOG_OUTPUT) && LOG_OUTPUT == LOG_SYS
     #if LOG_LEVEL >= 40
         #define LOG(str, args...) syslog(LOG_DAEMON | LOG_DEBUG, str, args)
     #endif
