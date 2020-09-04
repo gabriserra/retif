@@ -87,8 +87,8 @@ int rts_config_set_rt_kernel_params(int rt_period, int rt_runtime)
     FILE* proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "w");
 
     if(proc_rt_period == NULL || proc_rt_runtime == NULL) {
-        LOG("Error opening proc files in writing mode.\n");
-        LOG("%s", strerror(errno));
+        WARN("Error opening proc files in writing mode.\n");
+        WARN("%s", strerror(errno));
         return -1;
     }
 
@@ -169,8 +169,8 @@ int rts_config_set_rr_kernel_param(int rr_timeslice)
     FILE* proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "w");
 
     if(proc_rr_timeslice == NULL) {
-        LOG("Error opening proc files in writing mode.\n");
-        LOG("%s", strerror(errno));
+        WARN("Error opening proc files in writing mode.\n");
+        WARN("%s", strerror(errno));
         return -1;
     }
 
@@ -246,3 +246,4 @@ int rts_config_apply()
 
     return 0;
 }
+

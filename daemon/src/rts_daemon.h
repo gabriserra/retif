@@ -28,6 +28,7 @@ struct rts_daemon
     struct rts_carrier chann;
     struct rts_scheduler sched;
     struct rts_taskset tasks;
+    struct rts_limits acl;
 };
 
 /**

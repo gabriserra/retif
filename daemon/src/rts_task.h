@@ -30,6 +30,8 @@ struct rts_task
     rts_id_t            id;         /** task id in the system */
     pid_t               ptid;		/** parent tid */
     pid_t               tid;		/** thread/process id */
+    uid_t               euid;       /** effective user id */
+    gid_t               egid;       /** effective group id */
     clockid_t           clk;        /** type of clock to be used [REALTIME, MONOTONIC, ...] */
     uint64_t            cpu;        /** current cpu */
     uint32_t            schedprio;  /** scheduling real prio [LOW_PRIO, HIGH_PRIO] */

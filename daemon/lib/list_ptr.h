@@ -19,6 +19,13 @@
 // ---------------------------------------------
 
 /**
+ * @brief any_t is a pointer to generic
+ * 
+ * This allows you to put arbitrary structures in the list.
+ */
+typedef void* any_t;
+
+/**
  * @brief Represent each node of the list
  * 
  * The structure node contains the pointer of the next node
