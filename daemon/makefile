@@ -40,18 +40,16 @@ INCDIR = -I$(LIB_PATH) -I$(SRC_PATH)
 #---------------------------------------------------
 # Modules loaded
 #---------------------------------------------------
-LDFLAGS = -ldl -lrt -lpthread
+LDFLAGS = -ldl -lrt -lpthread -lprocps
 
 #--------------------------------------------------- 
 # Dependencies
 #---------------------------------------------------
 
-LIB_LSI = list_int
-LIB_LSP = list_ptr
-LIB_SHM = shatomic
+LIB_LSP = list
 LIB_USK = usocket
 
-LIBS = $(LIB_LSI) $(LIB_LSP) $(LIB_SHM) $(LIB_USK)
+LIBS = $(LIB_LSP) $(LIB_USK)
 LIBS_C = $(foreach LIB, $(LIBS), $(LIB_PATH)/$(LIB).c)
 LIBS_O = $(foreach LIB, $(LIBS), $(BDL_PATH)/$(LIB).o)
 

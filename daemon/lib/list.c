@@ -1,45 +1,16 @@
 /**
- * @file list_int.c
+ * @file list.c
  * @author Gabriele Serra
  * @date 11 Oct 2018
- * @brief Contains the implementation of a linked list of integers 
+ * @brief Contains the implementation of a linked list of any_t 
  *
  */
 
-#include "list_int.h"
+#include "list.h"
 #include <stdlib.h>
 #include <syslog.h>
 #include <string.h>
 #include <errno.h>
-
-// -----------------------------------------------------
-// DEBUG METHOD
-// -----------------------------------------------------
-
-#ifdef DEBUG
-
-#include <stdio.h>
-
-/**
- * @internal
- *
- * The functions seek the list and prints each element
- * followed by an arrow ->. Remove #define DEBUG to hide
- * this function
- * 
- * @endinternal
- */
-void print_list(struct list_int* l) {
-    struct node_int* n;
-    
-    for(n = l->root; n != NULL; n = n->next) {
-        printf("%d -> ", n->elem);
-    }
-
-    printf("\n");
-}
-
-#endif
 
 // -----------------------------------------------------
 // PRIVATE METHOD
@@ -54,15 +25,15 @@ void print_list(struct list_int* l) {
  * 
  * @endinternal
  */
-static void* alloc(int count, size_t dimension) {
-	void* ret = calloc(count, dimension);
+static any_t alloc(int count, size_t dimension) {
+	any_t ret = calloc(count, dimension);
 
 	// check if operation was performed
 	if(ret != NULL)
 		return ret;
 
 	// print and exit
-    syslog(LOG_ALERT, "The system is out of memory: %s", strerror(errno));
+	syslog(LOG_ALERT, "The system is out of memory: %s", strerror(errno));
 	exit(-1);
 }
 
@@ -76,9 +47,9 @@ static void* alloc(int count, size_t dimension) {
  * 
  * @endinternal
  */
-static void split(struct node_int* l, struct node_int** l1_ptr, struct node_int** l2_ptr) {
-    struct node_int* fast; 
-    struct node_int* slow; 
+static void split(struct node_ptr* l, struct node_ptr** l1_ptr, struct node_ptr** l2_ptr) {
+    struct node_ptr* fast; 
+    struct node_ptr* slow; 
     
     slow = l; 
     fast = l->next; 
@@ -106,8 +77,8 @@ static void split(struct node_int* l, struct node_int** l1_ptr, struct node_int*
  * 
  * @endinternal
  */
-static struct node_int* merge(struct node_int* l1, struct node_int* l2, int (* cmpfun)(int elem1, int elem2)) {
-    struct node_int* res; 
+static struct node_ptr* merge(struct node_ptr* l1, struct node_ptr* l2, int (* cmpfun)(any_t elem1, any_t elem2)) {
+    struct node_ptr* res; 
   
     if (l1 == NULL) 
         return l1; 
@@ -133,10 +104,10 @@ static struct node_int* merge(struct node_int* l1, struct node_int* l2, int (* c
  * 
  * @endinternal
  */
-static void merge_sort(struct node_int** l_ptr, int (* cmpfun)(int elem1, int elem2)) {
-    struct node_int* l;
-    struct node_int* l1; 
-    struct node_int* l2;
+static void merge_sort(struct node_ptr** l_ptr, int (* cmpfun)(any_t elem1, any_t elem2)) {
+    struct node_ptr* l;
+    struct node_ptr* l1; 
+    struct node_ptr* l2;
 
     l = *l_ptr;     
     
@@ -164,7 +135,7 @@ static void merge_sort(struct node_int** l_ptr, int (* cmpfun)(int elem1, int el
  * 
  * @endinternal
  */
-void list_int_init(struct list_int* l) {
+void list_init(struct list* l) {
     l->n = 0;
     l->root = NULL;
 }
@@ -177,7 +148,7 @@ void list_int_init(struct list_int* l) {
  * 
  * @endinternal
  */
-int list_int_is_empty(struct list_int* l) {
+int list_is_empty(struct list* l) {
     if(!l->n)
         return 1;
     return 0;
@@ -191,7 +162,7 @@ int list_int_is_empty(struct list_int* l) {
  * 
  * @endinternal
  */
-int list_int_get_size(struct list_int* l) {
+int list_get_size(struct list* l) {
     return l->n;
 }
 
@@ -202,14 +173,14 @@ int list_int_get_size(struct list_int* l) {
  * 
  * @endinternal
  */
-void list_int_add_top(struct list_int* l, int elem) {
-    struct node_int* new = alloc(1, sizeof(struct node_int));
+void list_add_top(struct list* l, any_t elem) {
+    struct node_ptr* n = alloc(1, sizeof(struct node_ptr));
 
-    new->next = l->root;
-    new->elem = elem;
+    n->next = l->root;
+    n->elem = elem;
 
     l->n++;
-    l->root = new;
+    l->root = n;
 }
 
 /**
@@ -219,30 +190,29 @@ void list_int_add_top(struct list_int* l, int elem) {
  * in a sorted-way. If the element it's equal to another one,
  * will be put after. The cmpfun pointer function must be a function
  * that return a value greater than 1 is elem1 is greater than elem2,
- * -1 in the opposite case and 0 if elem1 and elem2 are equal. Use
- * int_cmp_asc or int_cmp_dsc if you don't want nothing special.
+ * -1 in the opposite case and 0 if elem1 and elem2 are equal.
  * 
  * @endinternal
  */
-void list_int_add_sorted(struct list_int* l, int elem, int (* cmpfun)(int elem, int lelem)) {
-    struct node_int* seek;
-    struct node_int* prec;
-    struct node_int* new;
+void list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2)) {
+    struct node_ptr* seek;
+    struct node_ptr* prec;
+    struct node_ptr* new;
 
-    if(list_int_is_empty(l) || cmpfun(elem, l->root->elem) < 0) {
-        list_int_add_top(l, elem);
+    if(list_is_empty(l) || cmpfun(elem, l->root->elem) < 0) {
+        list_add_top(l, elem);
         return;
     }
 
     prec = l->root;
-    new = alloc(1, sizeof(struct node_int));
+    new = alloc(1, sizeof(struct node_ptr));
     new->elem = elem;
 
     for(seek = l->root->next; seek != NULL && cmpfun(elem, seek->elem) > 0;) {
         prec = prec->next;
         seek = seek->next;
     }
-        
+
     prec->next = new;
     new->next = seek;
     l->n++;
@@ -256,17 +226,21 @@ void list_int_add_sorted(struct list_int* l, int elem, int (* cmpfun)(int elem, 
  *  
  * @endinternal
  */
-void list_int_remove_top(struct list_int* l) {
-    struct node_int* n;
+any_t list_remove_top(struct list* l) {
+    any_t elem;
+    struct node_ptr* n;
 
-    if(list_int_is_empty(l))
-        return;
+    if(list_is_empty(l))
+        return NULL;
     
     n = l->root;
     l->root = l->root->next;
     l->n--;
     
+    elem = n->elem;
     free(n);
+    
+    return elem;
 }
 
 /**
@@ -277,11 +251,11 @@ void list_int_remove_top(struct list_int* l) {
  *  
  * @endinternal
  */
-int* list_int_get_top_elem(struct list_int* l) {
-    if(list_int_is_empty(l))
+any_t list_get_top_elem(struct list* l) {
+    if(list_is_empty(l))
         return NULL;
-    
-    return &(l->root->elem);
+
+    return l->root->elem;
 }
 
 /**
@@ -292,10 +266,10 @@ int* list_int_get_top_elem(struct list_int* l) {
  * 
  * @endinternal
  */
-int* list_int_get_i_elem(struct list_int* l, unsigned int i) {
-    struct node_int* n;
+any_t list_get_i_elem(struct list* l, unsigned int i) {
+    struct node_ptr* n;
 
-    n = list_int_get_i_node(l, i);
+    n = list_get_i_node(l, i);
 
     if(n == NULL)
         return NULL;
@@ -311,11 +285,11 @@ int* list_int_get_i_elem(struct list_int* l, unsigned int i) {
  * 
  * @endinternal
  */
-struct node_int* list_int_get_i_node(struct list_int* l, unsigned int i) {
+struct node_ptr* list_get_i_node(struct list* l, unsigned int i) {
     int j;
-    struct node_int* n;
+    struct node_ptr* n;
 
-    if(list_int_get_size(l) < i + 1)
+    if(list_get_size(l) < i + 1)
         return NULL;
 
     n = l->root;
@@ -334,7 +308,7 @@ struct node_int* list_int_get_i_node(struct list_int* l, unsigned int i) {
  * 
  * @endinternal
  */
-struct node_int* list_int_get_next_node(struct list_int* l, struct node_int* node) {
+struct node_ptr* list_get_next_node(struct list* l, struct node_ptr* node) {
     if(node == NULL)
         return NULL;
         
@@ -346,41 +320,18 @@ struct node_int* list_int_get_next_node(struct list_int* l, struct node_int* nod
  * 
  * Search the list and return a pointer to the first element
  * equal to "elem". If no equal element are found, the function returns
- * NULL 
+ * NULL. The cmpfun is must be a function that return 0 if elements are equal. 
  * 
  * @endinternal
  */
-int* list_int_search_elem(struct list_int* l, int elem) {
-    struct node_int* n;
+any_t list_search_elem(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2)) {
+    struct node_ptr* n;
 
     for(n = l->root; n != NULL; n = n->next)
-        if(n->elem == elem)
-            return &(n->elem);
+        if(!cmpfun(n->elem, elem))
+            return n->elem;
 
     return NULL;
-}
-
-/**
- * @internal
- * 
- * Seek the list, remove all nodes and frees memory
- * 
- * @endinternal
- */
-void list_int_remove_all(struct list_int* l) {
-    struct node_int* n;
-    struct node_int* p;
-
-    if(list_int_is_empty(l))
-        return;
-
-    for(n = l->root; n != NULL; n = n->next) {
-        p = n;
-        n = n->next;
-        free(p);
-    }
-
-    list_int_init(l);
 }
 
 /**
@@ -389,52 +340,84 @@ void list_int_remove_all(struct list_int* l) {
  * Utilizes an in-place merge sort technique
  * to sort the entire list. The cmpfun pointer function must be a function
  * that return a value greater than 1 is elem1 is greater than elem2,
- * -1 in the opposite case and 0 if elem1 and elem2 are equal. Use
- * cmp_asc or cmp_dsc if you don't want nothing special.
+ * -1 in the opposite case and 0 if elem1 and elem2 are equal.
  * 
  * @endinternal
  */
-void list_int_sort(struct list_int* l, int (* cmpfun)(int elem1, int elem2)) {
+void list_sort(struct list* l, int (* cmpfun)(any_t elem1, any_t elem2)) {
     merge_sort(&(l->root), cmpfun);
 }
 
-// ---------------------------------------------
-// UTILITY
-// ---------------------------------------------
-
 /**
  * @internal
- *
- * Return 1 if elem1 is greater than elem2, -1 in the opposite case
- * or 0 if elem1 is equal to elem2. Can be used as compare function
- * in "list_add_sorted" to reach an ASC sorting.
- *  
+ * 
+ * Removes an element from the list @p l if the given @p key is present. In order
+ * to compare keys, accept a pointer to a function @p cmpfun. Removes only the
+ * first occurence if multiple occurences are present. Returns NULL if no elem
+ * was found or the pointer to the element if it was removed with success. 
+ * 
  * @endinternal
  */
-int int_cmp_asc(int elem1, int elem2) {
-    if(elem1 > elem2)
-        return 1;
-    else if(elem1 < elem2)
-        return -1;
-    else
-        return 0;
+any_t list_remove(struct list* l, any_t key, int (* cmpfun)(any_t elem, any_t key)) {
+    any_t elem;
+    struct node_ptr* seek;
+    struct node_ptr* prec;
+        
+    if(list_is_empty(l))
+        return NULL;
+    
+    if(cmpfun(l->root->elem, key))
+        return list_remove_top(l);
+
+    prec = l->root;
+
+    for(seek = l->root->next; seek != NULL && cmpfun(seek->elem, key) != 0;) {
+        prec = prec->next;
+        seek = seek->next;
+    }
+    
+    if(seek == NULL)
+        return NULL;
+
+    prec->next = seek->next;
+    elem = seek->elem;
+    
+    l->n--;
+    free(seek);
+    
+    return elem;
 }
 
 /**
  * @internal
- *
- * Return 1 if elem1 is greater than elem2, -1 in the opposite case
- * or 0 if elem1 is equal to elem2. Can be used as compare function
- * in "list_add_sorted" to reach an ASC sorting.
- *  
+ * 
+ * Initialized an iterator make pointing to the first element of the list and
+ * returns it
+ * 
  * @endinternal
  */
-int int_cmp_dsc(int elem1, int elem2) {
-    if(elem1 > elem2)
-        return -1;
-    else if(elem1 < elem2)
-        return 1;
-    else
-        return 0;
+iterator_t iterator_init(struct list* l) {
+    return l->root;
 }
 
+/**
+ * @internal
+ * 
+ * Returns the subsequent element of the iterator
+ * 
+ * @endinternal
+ */
+iterator_t iterator_get_next(iterator_t iterator) {
+    return iterator->next;
+}
+
+/**
+ * @internal
+ * 
+ * Returns the element associated with the current position of an iterator
+ * 
+ * @endinternal
+ */
+any_t iterator_get_elem(iterator_t iterator) {
+    return iterator->elem;
+}

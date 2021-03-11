@@ -1,0 +1,8 @@
+- [X] Remove list_int files
+- [X] Remove list_int from Makefiles
+- [X] Rename list_ptr to list
+- [X] Remame all void* to any_t
+- [X] Rename all list_ptr_* fun to list_*
+- [X] Remove atomic.h
+- [x] Remove shatomic
+- [ ] Allow to manage ACL

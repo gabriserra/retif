@@ -72,21 +72,21 @@ uint32_t prio_remap(uint32_t max_prio_in, uint32_t min_prio_in,
 static uint32_t least_loaded_cpu(struct rts_plugin* this)
 {
     int cpu_num;
-    float free_edf_max;
-    int free_edf_max_cpu;
+    float free_rm_max;
+    int free_rm_max_cpu;
 
-    free_edf_max_cpu = this->cpulist[0];
-    free_edf_max = this->util_free_percpu[free_edf_max_cpu];
+    free_rm_max_cpu = this->cpulist[0];
+    free_rm_max = this->util_free_percpu[free_rm_max_cpu];
 
     for(int i = 1; i < this->cpunum; i++)
     {
         cpu_num = this->cpulist[i];
 
-        if (this->util_free_percpu[cpu_num] > free_edf_max)
-            free_edf_max_cpu = cpu_num;
+        if (this->util_free_percpu[cpu_num] > free_rm_max)
+            free_rm_max_cpu = cpu_num;
     }
 
-    return free_edf_max_cpu;
+    return free_rm_max_cpu;
 }
 
 static float eval_util_missing(struct rts_plugin* this, float task_util)
