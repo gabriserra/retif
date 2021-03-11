@@ -17,6 +17,7 @@
 #endif
 
 typedef uint32_t rts_id_t;
+typedef uint32_t plgid_t;
 
 enum REQ_TYPE 
 {

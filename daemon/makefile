@@ -30,7 +30,7 @@ OUT = $(BDR_PATH)/$(DAEMON)
 # Options passed to the compiler
 #---------------------------------------------------
 CFLAGS = -Wall -std=gnu99 -O3
-DBGFLAGS = -g -O0
+DBGFLAGS = -g -O0 -D LOG_OUTPUT=LOG_STDOUT -D LOG_LEVEL=40
 
 #---------------------------------------------------
 # Load library path

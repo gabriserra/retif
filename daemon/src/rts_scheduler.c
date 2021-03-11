@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <proc/readproc.h>
 #include "logger.h"
 #include "rts_scheduler.h"
 #include "rts_taskset.h"
@@ -96,14 +97,14 @@ int rts_scheduler_init(struct rts_scheduler* s, struct rts_taskset* ts)
 
     if (rts_config_apply() < 0)
     {
-        ERR("Unable to apply param configurations. Abort.\n");
-        return -1;
+        WARN("Unable to apply param configurations. Daemon will continue.\n");
     }
     
     if (rts_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
     {
-        ERR("Unable to read rt proc files. Abort.\n");
-        return -1;
+        WARN("Unable to read rt proc files.\n");
+        WARN("Daemon will continue assuming 95% as max utilization.\n");
+        sys_rt_util = 0.95;
     }
     
     s->taskset                  = ts;
@@ -209,4 +210,27 @@ int rts_scheduler_task_destroy(struct rts_scheduler* s, rts_id_t rts_id)
     rts_task_destroy(t);
         
     return RTS_OK;
+}
+
+int rts_scheduler_get_euid(pid_t pid)
+{
+    proc_t proc_info;
+    PROCTAB* ptp;
+
+    memset(&proc_info, 0, sizeof(proc_info));
+    ptp = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
+
+    if (ptp == NULL)
+    {
+        ERR("Unable to read /proc fs. Can't check euid for %d\n", pid);
+        return -1;
+    }
+
+    if (readproc(ptp, &proc_info) == NULL)
+    {
+        ERR("Can't find %d in /proc fs. Process/thread exists?", pid);
+        return -1;
+    }
+
+    return proc_info.euid;
 }
