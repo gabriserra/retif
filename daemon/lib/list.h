@@ -1,21 +1,29 @@
 /**
- * @file list_int.h
+ * @file list.h
  * @author Gabriele Serra
  * @date 11 Oct 2018
- * @brief Contains the interface of a linked list of integers 
+ * @brief Contains the interface of a linked list of any_t 
  *
  * This file contains the interface of a simple implementation of a
- * linked list of integers. This implementation utilizes only function
- * part of standard library. In case of critical error, the system log
+ * linked list of any_t. This is useful to store in the list any custom
+ * element, using the a cast to (any_t). This implementation utilizes only 
+ * function part of standard library. In case of critical error, the system log
  * mechanism is used to warn the user.
  */
 
-#ifndef LIST_INT_H
-#define LIST_INT_H
+#ifndef LIST_H
+#define LIST_H
 
 // ---------------------------------------------
 // DATA STRUCTURES
 // ---------------------------------------------
+
+/**
+ * @brief any_t is a pointer to generic
+ * 
+ * This allows you to put arbitrary structures in the list.
+ */
+typedef void* any_t;
 
 /**
  * @brief Represent each node of the list
@@ -24,9 +32,9 @@
  * in the list and the integer element. If next is NULL
  * that node is the last one.
  */
-struct node_int {
-    struct node_int*    next;   /** contains the pointer to next node in list */
-    int                 elem;   /** contains the integer element */
+struct node_ptr {
+    struct node_ptr*    next;   /** contains the pointer to next node in list */
+    any_t               elem;   /** contains the void pointer to the element */
 };
 
 /**
@@ -37,10 +45,19 @@ struct node_int {
  * number of element present in the list. If root is NULL
  * the list is empty.
  */
-struct list_int {
+struct list {
     int                 n;      /** contains the number of node in the list */
-    struct node_int*    root;   /** contains the pointer to root node of the list */
+    struct node_ptr*    root;   /** contains the pointer to root node of the list */
 };
+
+/**
+ * @brief Represent an iterator object
+ * 
+ * The iterator_t type represent an iterator, used to seek in easy
+ * way the list.
+ */
+
+typedef struct node_ptr* iterator_t;
 
 // ---------------------------------------------
 // MAIN METHODS
@@ -55,7 +72,7 @@ struct list_int {
  * 
  * @param l pointer to the list to be initialized
  */
-void list_int_init(struct list_int* l);
+void list_init(struct list* l);
 
 /**
  * @brief Check if the list is empty
@@ -66,7 +83,7 @@ void list_int_init(struct list_int* l);
  * @param l pointer to list to be used to be used
  * @return 1 if empty, 0 otherwise
  */
-int list_int_is_empty(struct list_int* l);
+int list_is_empty(struct list* l);
 
 /**
  * @brief Return the size of the list
@@ -77,7 +94,7 @@ int list_int_is_empty(struct list_int* l);
  * @param l pointer to list to be used to be used
  * @return the size of the list or 0 if empty
  */
-int list_int_get_size(struct list_int* l);
+int list_get_size(struct list* l);
 
 /**
  * @brief Add the provided element to the top of the list
@@ -85,9 +102,9 @@ int list_int_get_size(struct list_int* l);
  * Add the provided element to the top of the list
  * 
  * @param l pointer to list to be used
- * @param elem integer element to be added to the list
+ * @param elem void pointer to element to be added to the list
  */
-void list_int_add_top(struct list_int* l, int elem);
+void list_add_top(struct list* l, any_t elem);
 
 /**
  * @brief Add the element to the list in a sorted way
@@ -96,14 +113,13 @@ void list_int_add_top(struct list_int* l, int elem);
  * in a sorted-way. If the element it's equal to another one,
  * will be put after. The cmpfun pointer function must be a function
  * that return a value greater than 1 is elem1 is greater than elem2,
- * -1 in the opposite case and 0 if elem1 and elem2 are equal. Use
- * cmp_asc or cmp_dsc if you don't want nothing special.
+ * -1 in the opposite case and 0 if elem1 and elem2 are equal.
  * 
  * @param l pointer to list to be used
- * @param elem integer element to be added to the list
+ * @param elem void pointer to element to be added to the list
  * @param cmpfun pointer to the function that will be used to compare elements
  */
-void list_int_add_sorted(struct list_int* l, int elem, int (* cmpfun)(int elem1, int elem2));
+void list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2));
 
 /**
  * @brief Remove the top element of the list
@@ -113,7 +129,7 @@ void list_int_add_sorted(struct list_int* l, int elem, int (* cmpfun)(int elem1,
  * 
  * @param l: pointer to list to be used
  */
-void list_int_remove_top(struct list_int* l);
+any_t list_remove_top(struct list* l);
 
 /**
  * @brief Return a pointer to the element contained in the first node
@@ -124,7 +140,7 @@ void list_int_remove_top(struct list_int* l);
  * @param l pointer to list to be used
  * @return pointer to the element contained in the first node of the list
  */
-int* list_int_get_top_elem(struct list_int* l);
+any_t list_get_top_elem(struct list* l);
 
 /**
  * @brief Return the pointer to the element contained in the i-th node
@@ -136,7 +152,7 @@ int* list_int_get_top_elem(struct list_int* l);
  * @param i the index of the elem to be retrivied
  * @return pointer to the element contained in the i-th node of the list
  */
-int* list_int_get_i_elem(struct list_int* l, unsigned int i);
+any_t list_get_i_elem(struct list* l, unsigned int i);
 
 /**
  * @brief Return the pointer to the i-th node
@@ -148,7 +164,7 @@ int* list_int_get_i_elem(struct list_int* l, unsigned int i);
  * @param i the index of the node to be retrivied
  * @return pointer to the i-th node of the list
  */
-struct node_int* list_int_get_i_node(struct list_int* l, unsigned int i);
+struct node_ptr* list_get_i_node(struct list* l, unsigned int i);
 
 /**
  * @brief Return the pointer to the node adjacent in the list
@@ -160,29 +176,21 @@ struct node_int* list_int_get_i_node(struct list_int* l, unsigned int i);
  * @param node the index of the node that will be used to get the adjacent
  * @return pointer to the adjacent node of the one passed
  */
-struct node_int* list_int_get_next_node(struct list_int* l, struct node_int* node);
+struct node_ptr* list_get_next_node(struct list* l, struct node_ptr* node);
 
 /**
  * @brief Search for the first element and return a pointer to it
  * 
  * Search the list and return a pointer to the first element
  * equal to "elem". If no equal element are found, the function returns
- * NULL 
+ * NULL. The cmpfun is must be a function that return 0 if elements are equal.
  * 
  * @param l pointer to list to be used
- * @param elem the elem that will be searched for
+ * @param elem a pointer to the elem that will be searched for
+ * @param cmpfun pointer to the function that will be used to compare elements
  * @return pointer to the first element equal to "elem" or NULL if not found
  */
-int* list_int_search_elem(struct list_int* l, int elem);
-
-/**
- * @brief Remove all elements inside the list and frees memory
- * 
- * Seek the list, remove all nodes and frees memory
- * 
- * @param l pointer to list to be used
- */
-void list_int_remove_all(struct list_int* l);
+any_t list_search_elem(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2));
 
 /**
  * @brief Sort (in place) the list
@@ -190,43 +198,57 @@ void list_int_remove_all(struct list_int* l);
  * Utilizes an in-place merge sort technique
  * to sort the entire list. The cmpfun pointer function must be a function
  * that return a value greater than 1 is elem1 is greater than elem2,
- * -1 in the opposite case and 0 if elem1 and elem2 are equal. Use
- * cmp_asc or cmp_dsc if you don't want nothing special.
- * 
+ * -1 in the opposite case and 0 if elem1 and elem2 are equal.
  * 
  * @param l pointer to list to be used
  * @param cmpfun pointer to the function that will be used to compare elements
  */
-void list_int_sort(struct list_int* l, int (* cmpfun)(int elem1, int elem2));
-
-// ---------------------------------------------
-// UTILITY
-// ---------------------------------------------
+void list_sort(struct list* l, int (* cmpfun)(any_t elem1, any_t elem2));
 
 /**
- * @brief Compare two integer elements
+ * @brief Removes and returns the searched element from the list
  * 
- * Return 1 if elem1 is greater than elem2, -1 in the opposite case
- * or 0 if elem1 is equal to elem2. Can be used as compare function
- * in "list_add_sorted" to reach an ASC sorting.
+ * Removes an element from the list @p l if the given @p key is present. In order
+ * to compare keys, accept a pointer to a function @p cmpfun. Removes only the
+ * first occurence if multiple occurences are present. Returns NULL if no elem
+ * was found or the pointer to the element if it was removed with success. 
  * 
- * @param elem1 the first integer element
- * @param elem2 the second integer element
- * @return 1 if elem1 > elem2, 0 if elem1 == elem2, -1 if elem1 < elem2
+ * @param l pointer to the list
+ * @param key pointer to the element that must be used as key
+ * @param cmpfun pointer to a function used to compare keys
+ * @return NULL if no elem was found or a pointer to the element if removed
  */
-int int_cmp_asc(int elem1, int elem2);
+any_t list_remove(struct list* l, any_t key, int (* cmpfun)(any_t elem, any_t key));
 
 /**
- * @brief Compare two integer elements
+ * @brief Initializes an iterator to point at the list root
  * 
- * Return -1 if elem1 is greater than elem2, 1 in the opposite case
- * or 0 if elem1 is equal to elem2. Can be used as compare function
- * in "list_add_sorted" to reach an DSC sorting.
+ * Initializes an iterator make pointing to the first element of the list and
+ * returns it
  * 
- * @param elem1 the first integer element
- * @param elem2 the second integer element
- * @return -1 if elem1 > elem2, 0 if elem1 == elem2, 1 if elem1 < elem2
+ * @param l the list that must be seeked
  */
-int int_cmp_dsc(int elem1, int elem2);
+iterator_t iterator_init(struct list* l);
+
+/**
+ * @brief Return the next element of the iterator
+ * 
+ * Returns the subsequent element of the iterator
+ * 
+ * @param iterator the iterator to advance
+ * @return an iterator advanced by one position
+ */
+iterator_t iterator_get_next(iterator_t iterator);
+
+/**
+ * @brief Returns the element associated with the iterator
+ * 
+ * Returns the element associated with the current position of an iterator
+ * 
+ * @param iterator the iterator that points to the position of interest
+ * @return the pointer to the element at the position pointer by iterator
+ */
+any_t iterator_get_elem(iterator_t iterator);
 
 #endif
+

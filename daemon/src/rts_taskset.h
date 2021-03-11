@@ -6,14 +6,14 @@
  *
  * This file contains the interface of a simple implementation of a taskset
  * namely a list taskset real time task. This is useful to store in the taskset any custom
- * element, using the a cast to (void*). This implementation utilizes list_ptr.h, 
- * an implementation of linked list of void* element.
+ * element, using the a cast to (any_t). This implementation utilizes list.h, 
+ * an implementation of linked list of any_t element.
  */
 
 #ifndef RTS_TASKSET_H
 #define RTS_TASKSET_H
 
-#include "list_ptr.h"
+#include "list.h"
 #include "rts_task.h"
 
 // ---------------------------------------------
@@ -23,11 +23,11 @@
 /**
  * @brief Represent the taskset object
  * 
- * The structure rts_taskset contains a list_ptr. Inside
+ * The structure rts_taskset contains a list. Inside
  * the taskset will be placed rt_tasks.
  */
 struct rts_taskset {
-    struct list_ptr tasks; /** the rt_task list  */
+    struct list tasks; /** the rt_task list  */
 };
 
 // ---------------------------------------------
