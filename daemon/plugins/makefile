@@ -39,10 +39,9 @@ LDFLAGS = -lm
 #--------------------------------------------------- 
 # Dependencies
 #---------------------------------------------------
-LIB_LSI = list_int
 LIB_LSP = list
 
-LIBS = $(LIB_LSI) $(LIB_LSP)
+LIBS = $(LIB_LSP)
 LIBS_C = $(foreach LIB, $(LIBS), $(LIB_PATH)/$(LIB).c)
 LIBS_O = $(foreach LIB, $(LIBS), $(BDL_PATH)/$(LIB).o)
 
