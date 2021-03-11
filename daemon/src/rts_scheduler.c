@@ -103,7 +103,7 @@ int rts_scheduler_init(struct rts_scheduler* s, struct rts_taskset* ts)
     if (rts_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
     {
         WARN("Unable to read rt proc files.\n");
-        WARN("Daemon will continue assuming 95% as max utilization.\n");
+        WARN("Daemon will continue assuming 95%% as max utilization.\n");
         sys_rt_util = 0.95;
     }
     
