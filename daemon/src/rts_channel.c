@@ -86,7 +86,8 @@ void rts_carrier_update(struct rts_carrier* c)
     n = usocket_get_maxfd(&(c->sock));
     memset(&(c->last_n), 0, n+1);
     
-    usocket_recvall(&(c->sock), (void*)&(c->last_req), (int*)&(c->last_n), sizeof(struct rts_request));
+    if (usocket_recvall(&(c->sock), (void*)&(c->last_req), (int*)&(c->last_n), sizeof(struct rts_request)) < 0)
+        return;
     
     for(i = 0; i <= n; i++) 
     {
@@ -204,4 +205,26 @@ pid_t rts_carrier_get_pid(struct rts_carrier* c, int cli_id)
 void rts_carrier_set_pid(struct rts_carrier* c, int cli_id, pid_t pid) 
 {
     c->client[cli_id].pid = pid;
+}
+
+/**
+ * @internal
+ * 
+ * Dump the connection state and PID of each client connected
+ * 
+ * @endinternal
+ */
+void rts_carrier_dump(struct rts_carrier* c)
+{
+    struct rts_client* client;
+
+    for (int i = 0; i < CHANNEL_MAX_SIZE; i++)
+    {
+        client = &(c->client[i]);
+
+        if (client->pid == 0)
+            continue;
+        
+        LOG("-> Client %d - PID: %d - STATE: %d\n", i, client->pid, client->pid);
+    }
 }

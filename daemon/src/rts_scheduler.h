@@ -63,7 +63,7 @@ int rts_scheduler_task_detach(struct rts_scheduler* s, rts_id_t rts_id);
 
 int rts_scheduler_task_destroy(struct rts_scheduler* s, rts_id_t rts_id);
 
-int rts_scheduler_get_euid(pid_t pid); 
+void rts_scheduler_dump(struct rts_scheduler* s);
 
 #endif	// RTS_SCHEDULER_H
 

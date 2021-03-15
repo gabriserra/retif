@@ -42,15 +42,16 @@ static struct rts_reply req_connection(struct rts_daemon* data, int cli_id)
  */
 static struct rts_reply req_task_create(struct rts_daemon* data, int cli_id) 
 {
-    int rts_id, res;
+    int rts_id, res, pid;
     struct rts_reply rep;
     struct rts_request req;
 
     req = rts_carrier_get_req(&(data->chann), cli_id);
     
-    LOG("Received RSV_CREATE REQ from pid: %d\n", req.payload.ids.pid);
+    LOG("Received RSV_CREATE REQ from client: %d\n", cli_id);
 
-    res = rts_scheduler_task_create(&(data->sched), &req.payload.param, req.payload.ids.pid);
+    pid = data->chann.client[cli_id].pid;
+    res = rts_scheduler_task_create(&(data->sched), &req.payload.param, pid);
     rts_id = data->sched.last_task_id;
 
     if(res == RTS_NO) 
@@ -63,7 +64,7 @@ static struct rts_reply req_task_create(struct rts_daemon* data, int cli_id)
     {
         rep.rep_type = RTS_TASK_CREATE_PART;
         rep.payload = rts_id;
-        LOG("Reservation created with min budget. Res. id: %d\n", rts_id);
+        LOG("Task created with min budget. Res. id: %d\n", rts_id);
     }
     else 
     {
@@ -352,6 +353,24 @@ void rts_daemon_loop(struct rts_daemon* data)
         for(int i = 0; i <= rts_carrier_get_conn(&(data->chann)); i++)
             rts_daemon_handle_req(data, i);
     }
+}
+
+/**
+ * @internal
+ * 
+ * Dumps all daemon data info such as connected proccesses,
+ * tasks, scheduling plugins and so on.
+ * 
+ * @endinternal
+ */
+void rts_daemon_dump(struct rts_daemon* data) 
+{
+    LOG("###### SYS INFO ######\n");
+    rts_scheduler_dump(&(data->sched));
+    LOG("######################\n");
+    LOG("###### CONNECTION INFO ######\n");
+    rts_carrier_dump(&(data->chann));
+    LOG("#############################\n");
 }
 
 /**

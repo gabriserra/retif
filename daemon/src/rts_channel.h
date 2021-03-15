@@ -175,4 +175,13 @@ pid_t rts_carrier_get_pid(struct rts_carrier* c, int cli_id);
  */
 void rts_carrier_set_pid(struct rts_carrier* c, int cli_id, pid_t pid);
 
+/**
+ * @brief Dumps the connection info
+ * 
+ * Dump the connection state and PID of each client connected
+ * 
+ * @param c pointer to channel data structure of the daemon
+ */
+void rts_carrier_dump(struct rts_carrier* c);
+
 #endif	// RTS_CHANNEL_H
