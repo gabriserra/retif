@@ -40,7 +40,7 @@ INCDIR = -I$(LIB_PATH) -I$(SRC_PATH)
 #---------------------------------------------------
 # Modules loaded
 #---------------------------------------------------
-LDFLAGS = -ldl -lrt -lpthread -lprocps
+LDFLAGS = -ldl -lrt -lpthread
 
 #--------------------------------------------------- 
 # Dependencies

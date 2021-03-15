@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <proc/readproc.h>
 #include "logger.h"
 #include "rts_scheduler.h"
 #include "rts_taskset.h"
@@ -212,25 +211,34 @@ int rts_scheduler_task_destroy(struct rts_scheduler* s, rts_id_t rts_id)
     return RTS_OK;
 }
 
-int rts_scheduler_get_euid(pid_t pid)
+void rts_scheduler_dump(struct rts_scheduler* s)
 {
-    proc_t proc_info;
-    PROCTAB* ptp;
+    struct rts_task* t;
+    iterator_t it;
 
-    memset(&proc_info, 0, sizeof(proc_info));
-    ptp = openproc(PROC_FILLSTATUS | PROC_PID, &pid);
-
-    if (ptp == NULL)
+    LOG("Number of CPUs: %d\n", s->num_of_cpu);
+    LOG("Number of plugins: %d\n", s->num_of_plugins);
+    
+    for (int i = 0; i < s->num_of_plugins; i++)
     {
-        ERR("Unable to read /proc fs. Can't check euid for %d\n", pid);
-        return -1;
+        LOG("-> Plugin: %s | %s\n", s->plugin[i].name, s->plugin[i].path);
+        
+        for (int j = 0; j < s->plugin[i].cputot; j++)
+            LOG("--> CPU %d - Free: %f - Task count: %d\n", 
+                s->plugin[i].cpulist[j],
+                s->plugin[i].util_free_percpu[j],
+                s->plugin[i].task_count_percpu[j]);
     }
 
-    if (readproc(ptp, &proc_info) == NULL)
+    LOG("Tasks:\n");
+    it = rts_taskset_iterator_init(s->taskset);
+    
+    while(it != NULL)
     {
-        ERR("Can't find %d in /proc fs. Process/thread exists?", pid);
-        return -1;
+        t = rts_taskset_iterator_get_elem(it);
+        LOG("Task:\n");
+        LOG("-> Plugin %d\n", t->pluginid);
+        LOG("-> CPU %ld - PID %d - TID %d \n", t->cpu, t->ptid, t->tid);
+        it = rts_taskset_iterator_get_next(it);
     }
-
-    return proc_info.euid;
 }

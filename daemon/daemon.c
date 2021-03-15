@@ -24,6 +24,17 @@ void term()
 }
 
 /**
+ * @brief When daemon is signaled with a SIGTTOU, dump debug info
+ */
+void output()
+{
+    INFO("\n--------------------------\n");
+    INFO("RTS daemon info dump\n");
+    INFO("--------------------------\n");
+    rts_daemon_dump(&data);
+}
+
+/**
  * @brief Main daemon routine, initializes data and starts loop
  */
 int main(int argc, char* argv[]) 
@@ -36,6 +47,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     
+    signal(SIGTTOU, output);
     signal(SIGINT, term);
     rts_daemon_loop(&data);
     

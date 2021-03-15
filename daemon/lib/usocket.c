@@ -357,7 +357,7 @@ int usocket_get_credentials(struct usocket* us, int fd) {
         return -1;
     }
 
-    INFO("Credentials from %d descriptor: (%d, %d, %d)", ucredp->pid, ucredp->uid, ucredp->gid);
+    INFO("Credentials from %d descriptor: (%d, %d, %d)\n", fd, ucredp->pid, ucredp->uid, ucredp->gid);
     us->ucredp[fd] = ucredp;
 
     return 0;

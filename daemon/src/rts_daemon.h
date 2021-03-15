@@ -51,6 +51,16 @@ int rts_daemon_init(struct rts_daemon* data);
 void rts_daemon_loop(struct rts_daemon* data);
 
 /**
+ * @brief Dumps all daemon info
+ * 
+ * Dumps all daemon data info such as connected proccesses,
+ * tasks, scheduling plugins and so on.
+ * 
+ * @param data main daemon data structure   
+ */
+void rts_daemon_dump(struct rts_daemon* data);
+
+/**
  * @brief Tear down daemon safely
  * 
  * Stops all services of daemon safely, freeing memory,
