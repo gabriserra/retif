@@ -307,6 +307,7 @@ void rts_daemon_handle_req(struct rts_daemon* data, int cli_id)
         return;
     
     sent = rts_daemon_process_req(data, cli_id);
+    rts_carrier_req_clear(&(data->chann), cli_id);
 
     if(sent <= 0)
         rts_carrier_set_state(&(data->chann), cli_id, ERROR);    

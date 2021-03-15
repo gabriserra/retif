@@ -59,7 +59,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
  */
 static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin) 
 {
-    int i;
+    int i, j;
     int num_cpu;
     char buffer[CFG_COLUMN_MAX];
 
@@ -73,6 +73,10 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
         plg[i].cpulist            = calloc(num_cpu, sizeof(int));
         plg[i].util_free_percpu   = calloc(num_cpu, sizeof(int));
         plg[i].task_count_percpu  = calloc(num_cpu, sizeof(int));
+
+        // set free util to 1
+        for (j = 0; j < num_cpu; j++)
+            plg[i].util_free_percpu[j] = 1;
 
         safe_file_read(f, "%s", 1, buffer);
         read_plg_name(buffer, plg[i].name);

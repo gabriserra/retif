@@ -77,7 +77,7 @@ static uint32_t least_loaded_cpu(struct rts_plugin* this)
     free_edf_max_cpu = this->cpulist[0];
     free_edf_max = this->util_free_percpu[free_edf_max_cpu];
 
-    for(int i = 1; i < this->cpunum; i++)
+    for(int i = 1; i < this->cputot; i++)
     {
         cpu_num = this->cpulist[i];
 
@@ -92,7 +92,7 @@ static float eval_util_missing(struct rts_plugin* this, float task_util)
 {
     int cpu_min;
 
-    for(int i = 0; i < this->cpunum; i++)
+    for(int i = 0; i < this->cputot; i++)
         if(task_util <= this->util_free_percpu[this->cpulist[i]])
             return 0;
 
@@ -238,6 +238,7 @@ void rts_plg_task_schedule(struct rts_plugin* this, struct rts_taskset* ts, stru
     }
 
     this->util_free_percpu[t->cpu] -= t->acceptedu;
+    this->task_count_percpu[t->cpu]++;
 }
 
 /**
@@ -305,6 +306,7 @@ int rts_plg_task_detach(struct rts_task* t)
 int rts_plg_task_release(struct rts_plugin* this, struct rts_taskset* ts, struct rts_task* t) 
 {
     this->util_free_percpu[t->cpu] += t->acceptedu;
+    this->task_count_percpu[t->cpu]--;
     t->pluginid = -1;
 
     if (sched_getscheduler(t->tid) != SCHED_DEADLINE) // means no attached flow of ex.

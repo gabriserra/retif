@@ -162,6 +162,18 @@ int rts_carrier_is_updated(struct rts_carrier* c, int cli_id)
 /**
  * @internal
  * 
+ * Clears the request of @p cli_id setting last num of bytes received to 0
+ * 
+ * @endinternal
+ */
+void rts_carrier_req_clear(struct rts_carrier* c, int cli_id)
+{
+    c->last_n[cli_id] = 0;
+}
+
+/**
+ * @internal
+ * 
  * Returns the current state of the client associated with descriptor @p cli_id
  * 
  * @endinternal
