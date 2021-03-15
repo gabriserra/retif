@@ -39,7 +39,7 @@ uint32_t least_loaded_cpu(struct rts_plugin* this)
     num_of_rr_min_cpu = this->cpulist[0];
     num_of_rr_min = this->task_count_percpu[num_of_rr_min_cpu];
 
-    for(int i = 1; i < this->cpunum; i++)
+    for(int i = 1; i < this->cputot; i++)
     {
         cpu_num = this->cpulist[i];
 

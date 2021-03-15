@@ -130,6 +130,17 @@ struct rts_request rts_carrier_get_req(struct rts_carrier* c, int cli_id);
 int rts_carrier_is_updated(struct rts_carrier* c, int cli_id);
 
 /**
+ * @brief Clears the request of @p cli_id
+ * 
+ * Reset the client request, so that the request will be recognized
+ * as served
+ * 
+ * @param c pointer to channel data structure of the daemon
+ * @param cli_id id descriptor of the client
+ */
+void rts_carrier_req_clear(struct rts_carrier* c, int cli_id);
+
+/**
  * @brief Returns the current state of the client 
  * 
  * Returns the current state of the client associated with descriptor @p cli_id

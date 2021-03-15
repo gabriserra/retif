@@ -24,6 +24,7 @@ static int rts_scheduler_test_and_assign(struct rts_scheduler* s, struct rts_tas
             rts_taskset_add_top(s->taskset, t);
             s->plugin[i].rts_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
+            free(results);
             return RTS_OK;
         }
     }
@@ -37,11 +38,13 @@ static int rts_scheduler_test_and_assign(struct rts_scheduler* s, struct rts_tas
             rts_taskset_add_top(s->taskset, t);
             s->plugin[i].rts_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
+            free(results);
             return RTS_PARTIAL;
         }
     }
 
     // means no plugin available
+    free(results);
     return RTS_NO;
 }
 
@@ -58,6 +61,7 @@ static int rts_scheduler_test_and_modify(struct rts_scheduler* s, struct rts_tas
             s->plugin[i].rts_plg_task_release(&(s->plugin[i]), s->taskset, t);
             s->plugin[i].rts_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
+            free(results);
             return RTS_OK;
         }
     }
@@ -71,11 +75,13 @@ static int rts_scheduler_test_and_modify(struct rts_scheduler* s, struct rts_tas
             s->plugin[i].rts_plg_task_release(&(s->plugin[i]), s->taskset, t);
             s->plugin[i].rts_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
+            free(results);
             return RTS_PARTIAL;
         }
     }
 
     // means no plugin available
+    free(results);
     return RTS_NO;
 }
 
