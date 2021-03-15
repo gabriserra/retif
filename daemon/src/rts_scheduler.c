@@ -244,7 +244,7 @@ void rts_scheduler_dump(struct rts_scheduler* s)
         t = rts_taskset_iterator_get_elem(it);
         LOG("Task:\n");
         LOG("-> Plugin %d\n", t->pluginid);
-        LOG("-> CPU %ld - PID %d - TID %d \n", t->cpu, t->ptid, t->tid);
+        LOG("-> CPU %ld - PID %d - TID %d - Util: %f \n", t->cpu, t->ptid, t->tid, t->acceptedu);
         it = rts_taskset_iterator_get_next(it);
     }
 }

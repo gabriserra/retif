@@ -237,6 +237,6 @@ void rts_carrier_dump(struct rts_carrier* c)
         if (client->pid == 0)
             continue;
         
-        LOG("-> Client %d - PID: %d - STATE: %d\n", i, client->pid, client->pid);
+        LOG("-> Client %d - PID: %d - STATE: %d\n", i, client->pid, client->state);
     }
 }
