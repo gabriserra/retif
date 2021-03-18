@@ -4,5 +4,7 @@ bin
 # Ignore editor preferences
 .vscode
 
-# Ignore experimental results
-.csv
+# Ignore experimental results and benchmark binaries
+*.csv
+benchmark_attach
+benchmark_create
