@@ -28,9 +28,28 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     int cnum;
     int cmax;
     char* token;
+    char* init;
+    char* end;
 
     cnum = 0;
     cmax = get_nprocs();
+
+    init = strtok(line, "-");
+    end = strtok(NULL, "-");
+
+    // cpu expressed in num-num format
+    if (init != NULL && end != NULL)
+    {
+        cnum = atoi(end) - atoi(init) + 1;
+        for (int i = 0; i <= cnum; i++)
+            cpulist[i] = atoi(init) + i;
+
+        *cputotnum = cnum;
+        
+        return;
+    }
+
+    // cpu expressed in num,num,num format
     token = strtok(line, ",");
 
     while (token != NULL)
