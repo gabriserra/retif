@@ -353,7 +353,7 @@ int usocket_get_credentials(struct usocket* us, int fd) {
     // get client credentials
     if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, ucredp, &len) == -1)
     {
-        ERR("Unable to get credentials: %s. ", strerror(errno));
+        ERR("Unable to get credentials: %s. \n", strerror(errno));
         return -1;
     }
 

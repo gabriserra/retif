@@ -64,25 +64,29 @@ function generate_conf() {
         sed -i -e "s/LIMIT/$3/g" "$CWD/configs/schedconfig.cfg"
     fi
     
-    mv -f "$CWD/configs/schedconfig.cfg" "$SCHED_CFG" 
+    sudo mv -f "$CWD/configs/schedconfig.cfg" "$SCHED_CFG" 
 }
 
 function do_benchmark () {
-    # $1 output file name
+    # $1 benchmark name
+    # $2 output file name
 
     # to avoid interference with test tasks, run them using a lower priority
     # nice -n +20 stress --cpu 4
     
-    # bootstrap daemon (pin on CPU 1) and let it run in background
-    sudo taskset 0x00000010 chrt -r 99 rtsd 
+    # bootstrap daemon (pin on CPU 0) and let it run in background
+    sudo taskset 0x00000001 chrt -r 99 rtsd &
     DPID=$!
 
-    # execute benchmark 0 (pin on CPU 0)
-    sudo taskset 0x00000001 chrt -r 99 ./benchmark "$1"
-    sudo chown "$USER" "$1"
+    # wait daemon is up and running
+    sleep 1s
+
+    # execute benchmark (pin on CPU 1-7)
+    sudo taskset 0x000000FE chrt -r 99 ./"$1" "$2"
+    sudo chown "$USER" "$2"
 
     # tear down daemon
-    kill -INT $DPID
+    sudo kill -INT $DPID
 }
 
 ################################################################################
@@ -155,7 +159,7 @@ for i in $(seq 0 $TEST_NUM); do FILES+=("results/benchmark$i.csv"); done
 #disable_powersaving
 #disable_turbo
 #disable_hyperthreading
-#load_msr
+load_msr
 benchmarks_setup
 
 ################################################################################
@@ -165,19 +169,19 @@ benchmarks_setup
 # benchmark 0 -> attach time
 
 generate_conf 0
-do_benchmark "${FILES[0]}"
+do_benchmark "benchmark_attach" "${FILES[0]}"
 
 # benchmark 1 -> fixed config
 
 generate_conf 1
-do_benchmark "${FILES[1]}"
+do_benchmark "benchmark_create" "${FILES[1]}"
 
 # benchmark 2 -> EDF with variable core num
 
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 2 EDF "$i"
-    do_benchmark "${FILES[2]}"
+    do_benchmark "benchmark_create" "${FILES[2]}"
 done
 
 # benchmark 3 -> RM with variable core num
@@ -185,7 +189,7 @@ done
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 3 RM "$i"
-    do_benchmark "${FILES[3]}"
+    do_benchmark "benchmark_create" "${FILES[3]}"
 done
 
 # benchmark 4 -> FP with variable core num
@@ -193,5 +197,5 @@ done
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 4 RM "$i"
-    do_benchmark "${FILES[4]}"
+    do_benchmark "benchmark_create" "${FILES[4]}"
 done
