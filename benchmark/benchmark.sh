@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# enable if you want line by line execution
+# set -x
+# trap read debug
+
 ################################################################################
 # BENCHMARK TEST PLAN
 ################################################################################
@@ -56,8 +60,8 @@ function generate_conf() {
     cp "$CWD/configs/benchmark$N.cfg" "$CWD/configs/schedconfig.cfg" 
 
     if [ "$1" != 0 ] && [ "$1" != 1 ]; then
-        sed -i -e "s/PLG/$2/g" "$CWD/schedconfig.cfg"
-        sed -i -e "s/LIMIT/$3/g" "$CWD/schedconfig.cfg"
+        sed -i -e "s/PLG/$2/g" "$CWD/configs/schedconfig.cfg"
+        sed -i -e "s/LIMIT/$3/g" "$CWD/configs/schedconfig.cfg"
     fi
     
     mv -f "$CWD/configs/schedconfig.cfg" "$SCHED_CFG" 
