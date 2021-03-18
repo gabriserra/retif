@@ -3,3 +3,6 @@ bin
 
 # Ignore editor preferences
 .vscode
+
+# Ignore experimental results
+.csv

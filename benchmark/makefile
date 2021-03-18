@@ -1,7 +1,8 @@
 #--------------------------------------------------- 
 # Target file
 #---------------------------------------------------
-BENCHMARK = benchmark
+BENCHMARK_CRE = benchmark_create
+BENCHMARK_ATT = benchmark_attach
 
 #---------------------------------------------------
 # Compiler
@@ -18,6 +19,7 @@ DBGFLAGS = -g -O0
 # Modules loaded
 #---------------------------------------------------
 LIB_RTS = -lrts
+LIB_PTH = -lpthread
 
 #--------------------------------------------------- 
 # Dependencies
@@ -35,12 +37,15 @@ debug: CFLAGS += $(DBGFLAGS)
 
 .PHONY: all debug clean
 
-all: $(BENCHMARK)
+all: $(BENCHMARK_CRE) $(BENCHMARK_ATT)
 	
-$(BENCHMARK): 
-	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK).c $(LIB_RTS) -o $@
+$(BENCHMARK_CRE): 
+	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK_CRE).c $(LIB_RTS) -o $@
+
+$(BENCHMARK_ATT):
+	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK_ATT).c  $(LIB_RTS) $(LIB_PTH) -o $@
 
 debug: all
 
 clean:
-	@rm -rf $(BENCHMARK)
+	@rm -rf $(BENCHMARK_CRE) $(BENCHMARK_ATT)
