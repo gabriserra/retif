@@ -135,7 +135,11 @@ int main(int argc, char* argv[])
             tsc_before = rte_get_tsc_cycles();
             ret = rts_task_attach(&(t[i]), tids[i]);
             tsc_after = rte_get_tsc_cycles();
-            fprintf(output, "%ld,", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+
+            if (i == T_NUM -1)
+                fprintf(output, "%ld", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+            else
+                fprintf(output, "%ld,", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
 
             if (ret < 0)
                 print_err("# Benchmark error - Unable to attach thread");
