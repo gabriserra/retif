@@ -11,6 +11,7 @@
 #include <librts.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "rte_cycles.h"
 
@@ -54,16 +55,23 @@ int main(int argc, char* argv[])
     struct rts_params p;
     struct rts_task t[T_NUM];
 
-    if (argc < 2)
+    if (argc < 3)
     {
-        printf("# Error - Wrong number of args. Usage %s <filename>\n", argv[0]);
+        printf("# Error - Wrong number of args. Usage %s <filename> <cpu>\n", argv[0]);
         return -1;
     }
 
-    output = fopen(argv[1], "a");
-
-    if (output == NULL)
-        print_err("# Error - Unable to open output file.\n");
+    if (access(argv[1], F_OK) == 0)
+    {
+        output = fopen(argv[1], "a");
+    }
+    else
+    {
+        output = fopen(argv[1], "w");
+        fprintf(output, "cpu,rip");
+        for (int i = 0; i < T_NUM; i++) fprintf(output, ",t%d", i);
+        fprintf(output, "\n");
+    }
 
     #ifdef TSC
     uint64_t tsc_before, tsc_after, tsc_freq;
@@ -79,6 +87,7 @@ int main(int argc, char* argv[])
     for (int bn = 0; bn < B_NUM; bn++)
     {
         printf("# Benchmark - %d \n", bn);
+        fprintf(output, "%s,%d", argv[2], bn+1);
 
         for (int i = 0; i < T_NUM; i++)
         {
@@ -88,11 +97,6 @@ int main(int argc, char* argv[])
             rts_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
             rts_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
             rts_params_set_priority(&p, rand_bounded(T_PRIORI_MIN, T_PRIORI_MAX));
-
-            tsc_before = rte_get_tsc_cycles();
-            ret = rts_task_create(&(t[i]), &p);
-            tsc_after = rte_get_tsc_cycles();
-            fprintf(output, "%ld,", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
 
             #ifndef TSC
                 struct timespec tp_before;
@@ -105,7 +109,7 @@ int main(int argc, char* argv[])
                 tsc_before = rte_get_tsc_cycles();
                 ret = rts_task_create(&(t[i]), &p);
                 tsc_after = rte_get_tsc_cycles();
-                fprintf(output, "%ld,", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+                fprintf(output, ",%ld", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
             #endif
 
             if (ret < 0)

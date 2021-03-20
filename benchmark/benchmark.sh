@@ -70,6 +70,7 @@ function generate_conf() {
 function do_benchmark () {
     # $1 benchmark name
     # $2 output file name
+    # $3 cpu num
 
     # to avoid interference with test tasks, run them using a lower priority
     # nice -n +20 stress --cpu 4
@@ -82,7 +83,7 @@ function do_benchmark () {
     sleep 1s
 
     # execute benchmark (pin on CPU 1-7)
-    sudo taskset 0x000000FE chrt -r 99 ./"$1" "$2"
+    sudo taskset 0x000000FE chrt -r 99 ./"$1" "$2" "$3"
     sudo chown "$USER" "$2"
 
     # tear down daemon
@@ -169,19 +170,19 @@ benchmarks_setup
 # benchmark 0 -> attach time
 
 generate_conf 0
-do_benchmark "benchmark_attach" "${FILES[0]}"
+do_benchmark "benchmark_attach" "${FILES[0]}" ""
 
 # benchmark 1 -> fixed config
 
 generate_conf 1
-do_benchmark "benchmark_create" "${FILES[1]}"
+do_benchmark "benchmark_create" "${FILES[1]}" "$MAX_CPU_NUM"
 
 # benchmark 2 -> EDF with variable core num
 
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 2 EDF "$i"
-    do_benchmark "benchmark_create" "${FILES[2]}"
+    do_benchmark "benchmark_create" "${FILES[2]}" "$i"
 done
 
 # benchmark 3 -> RM with variable core num
@@ -189,7 +190,7 @@ done
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 3 RM "$i"
-    do_benchmark "benchmark_create" "${FILES[3]}"
+    do_benchmark "benchmark_create" "${FILES[3]}" "$i"
 done
 
 # benchmark 4 -> FP with variable core num
@@ -197,5 +198,5 @@ done
 for i in $(seq $MAX_CPU_NUM); 
 do
     generate_conf 4 RM "$i"
-    do_benchmark "benchmark_create" "${FILES[4]}"
+    do_benchmark "benchmark_create" "${FILES[4]}" "$i"
 done
