@@ -1,8 +1,7 @@
 #--------------------------------------------------- 
 # Target file
 #---------------------------------------------------
-BENCHMARK_CRE = benchmark_create
-BENCHMARK_ATT = benchmark_attach
+BENCHMARK = benchmark
 
 #---------------------------------------------------
 # Compiler
@@ -37,15 +36,12 @@ debug: CFLAGS += $(DBGFLAGS)
 
 .PHONY: all debug clean
 
-all: $(BENCHMARK_CRE) $(BENCHMARK_ATT)
+all: $(BENCHMARK)
 	
-$(BENCHMARK_CRE): 
-	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK_CRE).c $(LIB_RTS) -o $@
-
-$(BENCHMARK_ATT):
-	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK_ATT).c  $(LIB_RTS) $(LIB_PTH) -o $@
+$(BENCHMARK):
+	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK).c  $(LIB_RTS) $(LIB_PTH) -o $@
 
 debug: all
 
 clean:
-	@rm -rf $(BENCHMARK_CRE) $(BENCHMARK_ATT)
+	@rm -rf $(BENCHMARK)
