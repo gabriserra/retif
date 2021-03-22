@@ -12,22 +12,20 @@
 # 0)
 # - Evaluate latency to call "sched_setscheduler" w/o daemon support
 # - Evaluate latency to "attach" a thread with given TID to a logic task
+# -- Vary task num (1-1024)
 # 
 # EVALUATE CREATE OVERHEAD
 # 1)
-# - Enable a set of plugins with a given set of CPUs
+# - Enable only EDF plugin performing 500 trials
+# -- Vary CPUs num (1-20)
 # -- Vary task num (1-1024)
 # 2)
-# - Enable only EDF plugin performing 500 trials
-# -- Vary CPUs num (1-40)
+# - Enable only RM plugin performing 500 trials
+# -- Vary CPUs num (1-20)
 # -- Vary task num (1-1024)
 # 3)
-# - Enable only RM plugin performing 500 trials
-# -- Vary CPUs num (1-40)
-# -- Vary task num (1-1024)
-# 4)
 # - Enable only FP plugin performing 500 trials
-# -- Vary CPUs num (1-40)
+# -- Vary CPUs num (1-20)
 # -- Vary task num (1-1024)
 
 ################################################################################
@@ -47,30 +45,25 @@ function benchmarks_setup() {
 }
 
 function generate_conf() {
-    # $1 test number
-    # $2 plugin name
-    # $3 cpu limit
+    # $1 plugin name
+    # $2 cpu limit
 
-    if [ "$1" == 0 ] || [ "$1" == 1 ]; then
-        N=$1
-    else
-        N="n"
-    fi
-    
-    cp "$CWD/configs/benchmark$N.cfg" "$CWD/configs/schedconfig.cfg" 
+    cp "$CWD/configs/benchmark.cfg" "$CWD/configs/schedconfig.cfg" 
 
-    if [ "$1" != 0 ] && [ "$1" != 1 ]; then
-        sed -i -e "s/PLG/$2/g" "$CWD/configs/schedconfig.cfg"
-        sed -i -e "s/LIMIT/$3/g" "$CWD/configs/schedconfig.cfg"
-    fi
+    sed -i -e "s/PLG/$1/g" "$CWD/configs/schedconfig.cfg"
+    sed -i -e "s/LIMIT/$2/g" "$CWD/configs/schedconfig.cfg"
     
     sudo mv -f "$CWD/configs/schedconfig.cfg" "$SCHED_CFG" 
 }
 
 function do_benchmark () {
-    # $1 benchmark name
-    # $2 output file name
-    # $3 cpu num
+    # $1 output file name
+    # $2 cpu num
+    # $3 test type (create / attach)
+    # $4 policy
+        # define SCHED_FIFO		1
+        # define SCHED_RR		2
+        # define SCHED_DD		6
 
     # to avoid interference with test tasks, run them using a lower priority
     # nice -n +20 stress --cpu 4
@@ -83,8 +76,8 @@ function do_benchmark () {
     sleep 1s
 
     # execute benchmark (pin on CPU 1-7)
-    sudo taskset 0x000000FE chrt -r 99 ./"$1" "$2" "$3"
-    sudo chown "$USER" "$2"
+    sudo taskset 0x0000000E chrt -r 99 ./benchmark "$1" "$2" "$3" "$4"
+    sudo chown "$USER" "$1"
 
     # tear down daemon
     sudo kill -INT $DPID
@@ -98,6 +91,19 @@ function load_msr() {
     if ! lsmod | grep "msr" &> /dev/null ; then
         sudo modprobe msr
     fi
+}
+
+function set_min_freq() {
+    # Sets "performance" as the new cpufreq governor
+    for CPU_FREQ_GOVERNOR in $(ls /sys/devices/system/cpu/cpufreq/); 
+    do
+        sudo cp /sys/devices/system/cpu/cpufreq/"$CPU_FREQ_GOVERNOR"/scaling_{max,min}_freq
+    done
+
+    sleep 3s
+
+    # Displays CPU frequency for each core 
+    grep -E '^model name|^cpu MHz' /proc/cpuinfo
 }
 
 function disable_powersaving() {
@@ -139,7 +145,7 @@ function disable_hyperthreading() {
     # Which physical core is assigned to each logical core by checking
     grep -H . /sys/devices/system/cpu/cpu*/topology/thread_siblings_list
 
-    Cores 0-4, 1-5, 2-6 and 3-7 are siblings, hence I will disable half of them
+    # Cores 0-4, 1-5, 2-6 and 3-7 are siblings, hence I will disable half of them
     for i in {4..7}; do
         echo -n 0 | sudo tee /sys/devices/system/cpu/cpu${i}/online > /dev/null;
     done
@@ -149,13 +155,13 @@ function disable_hyperthreading() {
 # SETUP
 ################################################################################
 
-TEST_NUM=4
-MAX_CPU_NUM=8
+MAX_TEST_NUM=3
+MAX_CPU_NUM=3
 SCHED_CFG="/usr/share/rtsd/schedconfig.cfg"
 CWD=$(pwd)
 FILES=()
 
-for i in $(seq 0 $TEST_NUM); do FILES+=("results/benchmark$i.csv"); done
+for i in $(seq 0 $MAX_TEST_NUM); do FILES+=("results/benchmark$i.csv"); done
 
 #disable_powersaving
 #disable_turbo
@@ -167,36 +173,34 @@ benchmarks_setup
 # PERFORM BENCHMARKS
 ################################################################################
 
-# benchmark 0 -> attach time
-
-generate_conf 0
-do_benchmark "benchmark_attach" "${FILES[0]}" ""
-
-# benchmark 1 -> fixed config
-
-generate_conf 1
-do_benchmark "benchmark_create" "${FILES[1]}" "$MAX_CPU_NUM"
-
-# benchmark 2 -> EDF with variable core num
+# benchmark 0 -> attach vs sched_setscheduler
 
 for i in $(seq $MAX_CPU_NUM); 
 do
-    generate_conf 2 EDF "$i"
-    do_benchmark "benchmark_create" "${FILES[2]}" "$i"
+    generate_conf EDF "$i"
+    do_benchmark "${FILES[0]}" "$i" "attach" "6"
 done
 
-# benchmark 3 -> RM with variable core num
+# benchmark 1 -> EDF with variable core num
 
 for i in $(seq $MAX_CPU_NUM); 
 do
-    generate_conf 3 RM "$i"
-    do_benchmark "benchmark_create" "${FILES[3]}" "$i"
+    generate_conf EDF "$i"
+    do_benchmark "${FILES[1]}" "$i" "attach" ""
 done
 
-# benchmark 4 -> FP with variable core num
+# benchmark 2 -> RM with variable core num
 
 for i in $(seq $MAX_CPU_NUM); 
 do
-    generate_conf 4 RM "$i"
-    do_benchmark "benchmark_create" "${FILES[4]}" "$i"
+    generate_conf RM "$i"
+    do_benchmark "${FILES[2]}" "$i" "attach" ""
+done
+
+# benchmark 3 -> RR with variable core num
+
+for i in $(seq $MAX_CPU_NUM); 
+do
+    generate_conf RR "$i"
+    do_benchmark "${FILES[3]}" "$i" "attach" ""
 done

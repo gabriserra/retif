@@ -15,7 +15,7 @@ from matplotlib import cm
 
 repetition  = 500
 cpumaxnum   = 8
-tasknum     = 1024
+tasknum     = 4
 
 ##############################
 # PLOT PARAMETERS
@@ -69,6 +69,8 @@ def plotData(filename, ax, title="", xlabel="", ylabel=""):
     df = openDF(filename)
     multi = df.set_index(['cpu', 'rip'])
 
+    # https://stackoverflow.com/questions/24954117/advanced-averaging-with-multiindex-dataframe-in-pandas
+
     x = range(1, tasknum+1)
     y = range(1, cpumaxnum+1)
     x, y = np.meshgrid(x, y)
@@ -97,4 +99,4 @@ def mainPlotData():
     plotData("results/benchmark2.csv", ax, title="", xlabel="", ylabel="")
     plt.show()
 
-
+mainPlotAttach()

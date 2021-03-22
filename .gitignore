@@ -6,5 +6,3 @@ bin
 
 # Ignore experimental results and benchmark binaries
 *.csv
-benchmark_attach
-benchmark_create
