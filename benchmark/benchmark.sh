@@ -65,9 +65,6 @@ function do_benchmark () {
         # define SCHED_RR		2
         # define SCHED_DD		6
 
-    # to avoid interference with test tasks, run them using a lower priority
-    # nice -n +20 stress --cpu 4
-    
     # bootstrap daemon (pin on CPU 0) and let it run in background
     sudo taskset 0x00000001 chrt -r 99 rtsd &
     DPID=$!
@@ -75,8 +72,8 @@ function do_benchmark () {
     # wait daemon is up and running
     sleep 1s
 
-    # execute benchmark (pin on CPU 1-7)
-    sudo taskset 0x0000000E chrt -r 99 ./benchmark "$1" "$2" "$3" "$4"
+    # execute benchmark (pin on CPU 1)
+    sudo taskset 0x00000010 chrt -r 99 ./benchmark "$1" "$2" "$3" "$4"
     sudo chown "$USER" "$1"
 
     # tear down daemon
@@ -88,7 +85,7 @@ function do_benchmark () {
 ################################################################################
 
 function load_msr() {
-    if ! lsmod | grep "msr" &> /dev/null ; then
+    if ! lsmod | grep -w "msr" &> /dev/null ; then
         sudo modprobe msr
     fi
 }
@@ -103,7 +100,7 @@ function set_min_freq() {
     sleep 3s
 
     # Displays CPU frequency for each core 
-    grep -E '^model name|^cpu MHz' /proc/cpuinfo
+    # grep -E '^model name|^cpu MHz' /proc/cpuinfo
 }
 
 function disable_powersaving() {
@@ -112,9 +109,6 @@ function disable_powersaving() {
     do [ -f "$CPU_FREQ_GOVERNOR" ] || continue;
         sudo echo -n performance | sudo tee "$CPU_FREQ_GOVERNOR" > /dev/null;
     done
-
-    # Displays CPU frequency for each core 
-    grep -E '^model name|^cpu MHz' /proc/cpuinfo
 }
 
 function disable_turbo() {
@@ -151,21 +145,34 @@ function disable_hyperthreading() {
     done
 }
 
+function print_cpus_freq() {
+    # Displays CPU frequency for each core 
+    grep -E '^model name|^cpu MHz' /proc/cpuinfo
+}
+
 ################################################################################
 # SETUP
 ################################################################################
 
 MAX_TEST_NUM=3
-MAX_CPU_NUM=3
+MAX_CPU_NUM_CREATE=20
+MAX_CPU_NUM_ATTACH=3
 SCHED_CFG="/usr/share/rtsd/schedconfig.cfg"
 CWD=$(pwd)
 FILES=()
 
+if [ "$1" == "-freq" ]; then
+    disable_powersaving
+    disable_turbo
+    set_min_freq
+    disable_hyperthreading
+    print_cpus_freq
+    
+    exit
+fi
+
 for i in $(seq 0 $MAX_TEST_NUM); do FILES+=("results/benchmark$i.csv"); done
 
-#disable_powersaving
-#disable_turbo
-#disable_hyperthreading
 load_msr
 benchmarks_setup
 
@@ -173,9 +180,12 @@ benchmarks_setup
 # PERFORM BENCHMARKS
 ################################################################################
 
+# to keep cpu load constant spawn background workload (and then frequency)
+nice -n +19 stress --cpu 4
+
 # benchmark 0 -> attach vs sched_setscheduler
 
-for i in $(seq $MAX_CPU_NUM); 
+for i in $(seq $MAX_CPU_NUM_ATTACH); 
 do
     generate_conf EDF "$i"
     do_benchmark "${FILES[0]}" "$i" "attach" "6"
@@ -183,7 +193,7 @@ done
 
 # benchmark 1 -> EDF with variable core num
 
-for i in $(seq $MAX_CPU_NUM); 
+for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf EDF "$i"
     do_benchmark "${FILES[1]}" "$i" "attach" ""
@@ -191,7 +201,7 @@ done
 
 # benchmark 2 -> RM with variable core num
 
-for i in $(seq $MAX_CPU_NUM); 
+for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf RM "$i"
     do_benchmark "${FILES[2]}" "$i" "attach" ""
@@ -199,7 +209,7 @@ done
 
 # benchmark 3 -> RR with variable core num
 
-for i in $(seq $MAX_CPU_NUM); 
+for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf RR "$i"
     do_benchmark "${FILES[3]}" "$i" "attach" ""

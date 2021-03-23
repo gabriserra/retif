@@ -58,7 +58,7 @@ int schedule(struct rts_params* p, int tid, int policy)
     memset(&attr, 0, sizeof(attr));
 
     CPU_ZERO(&my_set);
-    CPU_SET(1, &my_set);
+    CPU_SET(2, &my_set);
 
     if(sched_setaffinity(tid, sizeof(cpu_set_t), &my_set) < 0)
         return -1;
@@ -120,7 +120,7 @@ void* do_something(void* t_id)
     tids[(long)t_id] = syscall(SYS_gettid);
     __sync_synchronize();
     spawned++;
-    sleep(1000);
+    sleep(1000000);
 
     return NULL;
 }
