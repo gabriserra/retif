@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
     {
         output = fopen(argv[1], "w");
         fprintf(output, "cpu,rip");
-        if (strcmp(argv[3], "attach") == 0)
+        if (strcmp(argv[3], "create") == 0)
             for (int i = 0; i < T_NUM; i++) fprintf(output, ",t%d", i);
         else
             for (int i = 0; i < T_NUM; i++) fprintf(output, ",t%d_sys,t%d", i, i);

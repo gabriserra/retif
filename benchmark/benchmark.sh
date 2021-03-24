@@ -196,7 +196,7 @@ done
 for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf EDF "$i"
-    do_benchmark "${FILES[1]}" "$i" "attach" ""
+    do_benchmark "${FILES[1]}" "$i" "create" ""
 done
 
 # benchmark 2 -> RM with variable core num
@@ -204,7 +204,7 @@ done
 for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf RM "$i"
-    do_benchmark "${FILES[2]}" "$i" "attach" ""
+    do_benchmark "${FILES[2]}" "$i" "create" ""
 done
 
 # benchmark 3 -> RR with variable core num
@@ -212,5 +212,5 @@ done
 for i in $(seq $MAX_CPU_NUM_CREATE); 
 do
     generate_conf RR "$i"
-    do_benchmark "${FILES[3]}" "$i" "attach" ""
+    do_benchmark "${FILES[3]}" "$i" "create" ""
 done
