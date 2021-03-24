@@ -73,11 +73,12 @@ function do_benchmark () {
     sleep 1s
 
     # execute benchmark (pin on CPU 1)
-    sudo taskset 0x00000010 chrt -r 99 ./benchmark "$1" "$2" "$3" "$4"
+    sudo taskset 0x00000002 chrt -r 99 ./benchmark "$1" "$2" "$3" "$4"
     sudo chown "$USER" "$1"
 
     # tear down daemon
     sudo kill -INT $DPID
+    sudo killall rtsd
 }
 
 ################################################################################
@@ -181,7 +182,7 @@ benchmarks_setup
 ################################################################################
 
 # to keep cpu load constant spawn background workload (and then frequency)
-nice -n +19 stress --cpu 4
+nice -n +19 stress --cpu 4 &
 
 # benchmark 0 -> attach vs sched_setscheduler
 
@@ -214,3 +215,5 @@ do
     generate_conf RR "$i"
     do_benchmark "${FILES[3]}" "$i" "create" ""
 done
+
+sudo killall stress
