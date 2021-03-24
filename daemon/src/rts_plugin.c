@@ -45,7 +45,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
         if (cnum >= cmax)
         {
             ERR("Your configuration include a greater number of CPU than present.\n");
-            break;
+            return;
         }
         
         for (int i = 0; i <= cnum; i++)

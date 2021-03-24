@@ -156,7 +156,7 @@ function print_cpus_freq() {
 ################################################################################
 
 MAX_TEST_NUM=3
-MAX_CPU_NUM_CREATE=20
+MAX_CPU_NUM_CREATE=3
 MAX_CPU_NUM_ATTACH=3
 SCHED_CFG="/usr/share/rtsd/schedconfig.cfg"
 CWD=$(pwd)
