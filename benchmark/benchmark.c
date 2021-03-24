@@ -139,6 +139,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    printf("> Benchmark CPU: %s\n", argv[2]);
+
     if (access(argv[1], F_OK) == 0)
     {
         output = fopen(argv[1], "a");
@@ -168,7 +170,8 @@ int main(int argc, char* argv[])
                 print_err("# Error - Unable to create pthreads.\n");
 
     // wait till other threads are ready
-    while(spawned != T_NUM);
+    if (strcmp(argv[3], "attach") == 0)
+        while(spawned != T_NUM);
 
     printf("# Benchmark started ..... !\n");
     srand(RAND_SEED);
