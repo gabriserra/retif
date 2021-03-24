@@ -41,6 +41,13 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     if (init != NULL && end != NULL)
     {
         cnum = atoi(end) - atoi(init) + 1;
+        
+        if (cnum >= cmax)
+        {
+            ERR("Your configuration include a greater number of CPU than present.\n");
+            break;
+        }
+        
         for (int i = 0; i <= cnum; i++)
             cpulist[i] = atoi(init) + i;
 
@@ -56,7 +63,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     {
         if (cnum >= cmax)
         {
-            WARN("Your configuration include a greater number of CPU than present.\n");
+            ERR("Your configuration include a greater number of CPU than present.\n");
             break;
         }
 
