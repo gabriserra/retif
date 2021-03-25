@@ -194,14 +194,14 @@ void list_add_top(struct list* l, any_t elem) {
  * 
  * @endinternal
  */
-void list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2)) {
+struct node_ptr* list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2)) {
     struct node_ptr* seek;
     struct node_ptr* prec;
     struct node_ptr* new;
 
     if(list_is_empty(l) || cmpfun(elem, l->root->elem) < 0) {
         list_add_top(l, elem);
-        return;
+        return l->root;
     }
 
     prec = l->root;
@@ -216,6 +216,8 @@ void list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any
     prec->next = new;
     new->next = seek;
     l->n++;
+
+    return new;
 }
 
 /**

@@ -141,6 +141,21 @@ void rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task) {
 /**
  * @internal
  *
+ * The function allocate memory and add the task in the taskset 
+ * in a sorted-way. Task with absolute deadline lower will be placed 
+ * before task with absolute deadline greater. If there is another task
+ * already in the taskset with equal deadline, the new task will be  
+ * put after.
+ * 
+ * @endinternal
+ */
+struct node_ptr* rts_taskset_add_sorted_prio(struct rts_taskset* ts, struct rts_task* task) {
+    return list_add_sorted(&(ts->tasks), (void*) task, rts_taskset_cmp_priority_asc);
+}
+
+/**
+ * @internal
+ *
  * Remove the first task of the taskset and frees memory.
  * If the taskset is empty, this function does nothing.
  * 

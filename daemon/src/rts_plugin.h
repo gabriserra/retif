@@ -78,6 +78,7 @@ struct rts_plugin
     int                         cputot;
     float*                      util_free_percpu;
     int*                        task_count_percpu;
+    struct rts_taskset*         tasks;
     rts_plg_task_init_pfun      rts_plg_task_init;
     rts_plg_task_accept_pfun    rts_plg_task_accept;
     rts_plg_task_change_pfun    rts_plg_task_change;
