@@ -104,6 +104,8 @@ void rts_taskset_add_sorted_dl(struct rts_taskset* ts, struct rts_task* task);
  */
 void rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task);
 
+struct node_ptr* rts_taskset_add_sorted_prio(struct rts_taskset* ts, struct rts_task* task);
+
 /**
  * @brief Remove the top element of the taskset
  * 

@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "rts_utils.h"
 #include "rts_plugin.h"
+#include "rts_taskset.h"
 
 // -----------------------------------------------------------------------------
 // PRIVATE INTERNAL METHODS
@@ -96,13 +97,18 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
         // TODO: Find a way to limit max str
         // TODO: Check plugin priory windows are consistent with order
 
-        plg[i].cpulist            = calloc(num_cpu, sizeof(int));
-        plg[i].util_free_percpu   = calloc(num_cpu, sizeof(int));
-        plg[i].task_count_percpu  = calloc(num_cpu, sizeof(int));
+        plg[i].cpulist              = calloc(num_cpu, sizeof(int));
+        plg[i].util_free_percpu     = calloc(num_cpu, sizeof(int));
+        plg[i].task_count_percpu    = calloc(num_cpu, sizeof(int));
+        plg[i].tasks                = calloc(num_cpu, sizeof(struct rts_taskset));
 
         // set free util to 1
         for (j = 0; j < num_cpu; j++)
             plg[i].util_free_percpu[j] = 1;
+
+        // initialize tasksets per cpu
+        for (j = 0; j < num_cpu; j++)
+            rts_taskset_init(&plg[i].tasks[j]);
 
         safe_file_read(f, "%s", 1, buffer);
         read_plg_name(buffer, plg[i].name);

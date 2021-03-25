@@ -119,7 +119,7 @@ void list_add_top(struct list* l, any_t elem);
  * @param elem void pointer to element to be added to the list
  * @param cmpfun pointer to the function that will be used to compare elements
  */
-void list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2));
+struct node_ptr* list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_t elem1, any_t elem2));
 
 /**
  * @brief Remove the top element of the list

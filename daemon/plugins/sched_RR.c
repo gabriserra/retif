@@ -11,6 +11,73 @@
 // UTILITY INTERNAL METHODS
 // -----------------------------------------------------------------------------
 
+#define MAX_CPU 32
+#define MAX_PRIO 100
+
+#define GET_BIT_VAL(bitval, bitpos) (((0x1 << bitpos) & bitval) >> bitpos) 
+#define SET_BIT_VAL(bitval, bitpos) ((0x1 << bitpos) | bitval) 
+struct priorities 
+{ 
+    uint64_t low; 
+    uint64_t high; 
+};
+
+static int n_per_prio[MAX_CPU][MAX_PRIO] = { 0 }; // TODO this will be dynamic
+static unsigned int dist_prio[MAX_CPU] = { 0 };
+
+unsigned int is_prio_unique(struct priorities* list, unsigned int priority)
+{
+    int bit_value;
+
+    if (priority > 63)
+        bit_value = GET_BIT_VAL(list->high, (priority - 63));
+    else
+        bit_value = GET_BIT_VAL(list->low, priority);
+
+    return (bit_value == 0);
+}
+
+void set_prio_unique(struct priorities* list, unsigned int priority)
+{
+    if (priority > 63)
+        list->high = SET_BIT_VAL(list->high, (priority - 63));
+    else
+        list->low = SET_BIT_VAL(list->low, priority);
+}
+
+/*
+static int count_unique_priorities(struct rts_plugin* this, struct rts_taskset* ts, unsigned int cpu, struct rts_taskset* rr_tasks)
+{
+    struct rts_task* t_rr;
+    iterator_t iterator;
+    unsigned int dist_prio;
+    struct priorities prio_list;
+
+    dist_prio = 0;
+    memset(&prio_list, 0, sizeof(prio_list));
+
+    iterator = rts_taskset_iterator_init(ts);
+        
+    for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+    {
+        t_rr = rts_taskset_iterator_get_elem(iterator);
+
+        if (t_rr->cpu != cpu || t_rr->pluginid != this->id)
+            continue;
+
+        rts_taskset_add_sorted_prio(rr_tasks, t_rr);
+
+        if (is_prio_unique(&prio_list, t_rr->params.priority))
+        {
+            dist_prio++;
+            set_prio_unique(&prio_list, t_rr->params.priority);
+        }
+    }
+
+    return dist_prio;
+}
+*/
+
 /**
  * @brief Given min/max plugin prio, normalize @p prio in that window
  */
@@ -22,7 +89,7 @@ uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio)
 
     max_rr_prio = sched_get_priority_max(SCHED_RR);
     min_rr_prio = sched_get_priority_min(SCHED_RR);
-    slope = (max_prio_s - min_prio_s) / (float)(max_rr_prio - min_rr_prio);
+    slope = (max_prio_s - min_prio_s + 1) / (float)(max_rr_prio - min_rr_prio + 1);
     
     return min_prio_s + slope * (prio - min_rr_prio);
 }
@@ -48,6 +115,49 @@ uint32_t least_loaded_cpu(struct rts_plugin* this)
     }
 
     return num_of_rr_min_cpu;
+}
+
+static void assign_priorities(struct rts_plugin* this, unsigned int cpu)
+{
+    unsigned int curr_prio; // real prio
+    unsigned int prec_prio; // user prio
+    
+    iterator_t iterator;
+    struct rts_task* t_rr;
+
+    curr_prio = this->prio_min-1;
+    prec_prio = -1;
+
+    iterator = rts_taskset_iterator_init(&this->tasks[cpu]);
+    
+    if (dist_prio[cpu] > (this->prio_max - this->prio_min) + 1)
+    {
+        for (; iterator != NULL; iterator = iterator_get_next(iterator))
+        {
+            t_rr = rts_taskset_iterator_get_elem(iterator);
+            rts_task_set_real_priority(t_rr,
+                prio_remap(this->prio_max, this->prio_min, t_rr->params.priority));
+        }
+    }
+    else
+    {
+        for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+        {
+            t_rr = rts_taskset_iterator_get_elem(iterator);
+
+            if (prec_prio == rts_task_get_priority(t_rr))
+            {
+                rts_task_set_real_priority(t_rr, curr_prio);
+            }
+            else
+            {
+                rts_task_set_real_priority(t_rr, ++curr_prio);
+                prec_prio = rts_task_get_priority(t_rr);
+            }
+        }
+
+    }
+
 }
 
 uint8_t has_another_preference(struct rts_plugin* this, struct rts_task* t)
@@ -99,16 +209,30 @@ int rts_plg_task_change(struct rts_plugin* this, struct rts_taskset* ts, struct 
  */
 void rts_plg_task_schedule(struct rts_plugin* this, struct rts_taskset* ts, struct rts_task* t) 
 {
-    uint32_t priority;
+    unsigned int cpu = least_loaded_cpu(this);
 
-    priority = rts_task_get_priority(t);
-    rts_task_set_cpu(t, least_loaded_cpu(this));
+    rts_task_set_cpu(t, cpu);
+    
     t->pluginid = this->id;
 
-    if (priority == 0)
-        rts_task_set_real_priority(t, this->prio_min);
+    n_per_prio[cpu][t->params.priority]++;
+
+    struct node_ptr* inserted = 
+        rts_taskset_add_sorted_prio(&this->tasks[cpu], t);
+
+    if (n_per_prio[cpu][t->params.priority] == 1)
+    {
+        dist_prio[cpu]++;
+        assign_priorities(this, cpu);
+    }
     else
-        rts_task_set_real_priority(t, prio_remap(this->prio_max, this->prio_min, priority));
+    {
+        // if (inserted->next == NULL)
+        //     rts_task_set_real_priority(t, this->prio_max);
+        // else
+            rts_task_set_real_priority(t, rts_task_get_real_priority(
+                (struct rts_task*)inserted->next->elem));
+    }
 
     this->task_count_percpu[t->cpu]++;
 }
@@ -165,6 +289,13 @@ int rts_plg_task_detach(struct rts_task* t)
 int rts_plg_task_release(struct rts_plugin* this, struct rts_taskset* ts, struct rts_task* t) 
 {
     this->task_count_percpu[t->cpu]--;
+
+    n_per_prio[t->cpu][t->params.priority]--;
+
+    if (n_per_prio[t->cpu][t->params.priority] == 0)
+        dist_prio[t->cpu]--;
+
+    rts_taskset_remove_by_rsvid(&this->tasks[t->cpu], t->id);
     t->pluginid = -1;
 
     if (sched_getscheduler(t->tid) != SCHED_RR) // means no attached flow of ex.
