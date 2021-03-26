@@ -89,6 +89,7 @@ uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio)
 
     max_rr_prio = sched_get_priority_max(SCHED_RR);
     min_rr_prio = sched_get_priority_min(SCHED_RR);
+    
     slope = (max_prio_s - min_prio_s + 1) / (float)(max_rr_prio - min_rr_prio + 1);
     
     return min_prio_s + slope * (prio - min_rr_prio);

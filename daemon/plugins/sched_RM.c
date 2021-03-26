@@ -14,6 +14,11 @@
 #define PERIOD_MAX_US INT_MAX // as defined in /proc/sys/kernel/sched_rt_period_us
 #define PERIOD_MIN_US 1
 
+#define MAX_CPU 32
+#define MAX_PRIO 100
+
+static unsigned int dist_prio[MAX_CPU] = { 0 };
+
 //------------------------------------------------------------------------------
 // HYPERBOLIC BOUND: perform the sched. analysis under fp
 //------------------------------------------------------------------------------
@@ -53,17 +58,13 @@ unsigned int hyperbolic_bound(struct rts_taskset* ts)
 /**
  * @brief Given min/max plugin prio, normalize @p prio in that window
  */
-uint32_t prio_remap(uint32_t max_prio_in, uint32_t min_prio_in, 
-                    uint32_t max_prio_out, uint32_t min_prio_out, uint32_t prio_in) 
+uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio, unsigned cpu) 
 {
     float slope;
+        
+    slope = (max_prio_s - min_prio_s + 1) / (float)(dist_prio[cpu]-1);
     
-    if (max_prio_in - min_prio_in == 0)
-        slope = 1;
-    else
-        slope = (max_prio_out - min_prio_out) / (float)(max_prio_in - min_prio_in);
-    
-    return min_prio_out + (slope * (float)(prio_in - min_prio_in));
+    return min_prio_s + slope * prio;
 }
 
 /**
@@ -122,63 +123,85 @@ static int utilization_test(struct rts_plugin* this, float task_util)
         return RTS_NO;
 }
 
-static int count_unique_periods(struct rts_plugin* this, struct rts_taskset* ts, unsigned free_cpu)
-{
-    struct rts_task* t_rm;
-    iterator_t iterator;
-    unsigned int dist_prio;
-    unsigned int prec_period;
+// static int count_unique_periods(struct rts_plugin* this, struct rts_taskset* ts, unsigned free_cpu)
+// {
+//     struct rts_task* t_rm;
+//     iterator_t iterator;
+//     unsigned int dist_prio;
+//     unsigned int prec_period;
 
-    prec_period = -1;
-    dist_prio = 0;    
-    iterator = rts_taskset_iterator_init(ts);
+//     prec_period = -1;
+//     dist_prio = 0;    
+//     iterator = rts_taskset_iterator_init(ts);
         
-    for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
-    {
-        t_rm = rts_taskset_iterator_get_elem(iterator);
+//     for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+//     {
+//         t_rm = rts_taskset_iterator_get_elem(iterator);
 
-        if (t_rm->cpu != free_cpu || t_rm->pluginid != this->id)
-            continue;
+//         if (t_rm->cpu != free_cpu || t_rm->pluginid != this->id)
+//             continue;
 
-        if (t_rm->params.period != prec_period)
-            dist_prio++;
+//         if (t_rm->params.period != prec_period)
+//             dist_prio++;
 
-        prec_period = t_rm->params.period;
-    }
+//         prec_period = t_rm->params.period;
+//     }
 
-    return dist_prio;
-}
+//     return dist_prio;
+// }
 
-static void assign_priorities(struct rts_plugin* this, struct rts_taskset* ts)
+static void assign_priorities(struct rts_plugin* this, unsigned int cpu)
 {
-    unsigned int free_cpu;
-    unsigned int dist_prio;
-    unsigned int curr_prio;
-    unsigned int prec_period;
+    unsigned int curr_prio;   // real prio
+    unsigned int prec_period; // user data
+    unsigned int dist_prio_idx;
+    
     iterator_t iterator;
     struct rts_task* t_rm;
 
-    free_cpu = least_loaded_cpu(this);
-    dist_prio = count_unique_periods(this, ts, free_cpu);
-
-    curr_prio = 0;
+    curr_prio = this->prio_min-1;
     prec_period = -1;
+    dist_prio_idx = 0;
 
-    iterator = rts_taskset_iterator_init(ts);
+    iterator = rts_taskset_iterator_init(&this->tasks[cpu]);
 
-    for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+    if (dist_prio[cpu] > (this->prio_max - this->prio_min) + 1)
     {
-        t_rm = rts_taskset_iterator_get_elem(iterator);
+        for (; iterator != NULL; iterator = iterator_get_next(iterator))
+        {
+            t_rm = rts_taskset_iterator_get_elem(iterator);
+            
+            if (prec_period == rts_task_get_period(t_rm))
+            {
+                rts_task_set_real_priority(t_rm, curr_prio);
+            }
+            else
+            {
+                curr_prio = prio_remap(this->prio_max, this->prio_min, dist_prio_idx++, cpu);
+                rts_task_set_real_priority(t_rm, curr_prio);
+                prec_period = rts_task_get_period(t_rm);
+            }
+        }
 
-        if (t_rm->cpu != free_cpu)
-            continue;
-
-        if (t_rm->params.deadline != prec_period || t_rm->pluginid != this->id)
-            curr_prio++;
-
-        prec_period = rts_task_get_period(t_rm);
-        t_rm->schedprio = prio_remap(dist_prio, 1, this->prio_max, this->prio_min, curr_prio);
     }
+    else
+    {
+        for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+        {
+            t_rm = rts_taskset_iterator_get_elem(iterator);
+
+            if (prec_period == rts_task_get_period(t_rm))
+            {
+                rts_task_set_real_priority(t_rm, curr_prio);
+            }
+            else
+            {
+                rts_task_set_real_priority(t_rm, ++curr_prio);
+                prec_period = rts_task_get_period(t_rm);
+            }
+        }
+    }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -247,19 +270,39 @@ int rts_plg_task_change(struct rts_plugin* this, struct rts_taskset* ts, struct 
 void rts_plg_task_schedule(struct rts_plugin* this, struct rts_taskset* ts, struct rts_task* t)  
 {
     float task_util;
-
+    unsigned int cpu;
+    
+    cpu = least_loaded_cpu(this);
     task_util = rts_task_get_util(t);
 
-    rts_taskset_remove_top(ts);
-    rts_taskset_add_sorted_pr(ts, t);
-
-    assign_priorities(this, ts);
-
-    t->cpu = least_loaded_cpu(this);
-    t->acceptedt = rts_task_get_runtime(t);    
-    t->acceptedu = task_util != -1 ? task_util : 0;
+    rts_task_set_cpu(t, cpu);
     t->pluginid = this->id;
 
+    struct node_ptr* inserted = 
+        rts_taskset_add_sorted_pr(&this->tasks[cpu], t);
+
+    if (inserted->next != NULL)
+    {
+        struct rts_task* next = (struct rts_task*)inserted->next->elem;
+
+        if (rts_task_get_period(next) == t->params.period)
+        {
+            rts_task_set_real_priority(t, rts_task_get_real_priority(next));
+        }
+        else
+        {
+            dist_prio[cpu]++;
+            assign_priorities(this, cpu);
+        }
+    }
+    else
+    {
+        dist_prio[cpu]++;
+        assign_priorities(this, cpu);
+    }
+
+    t->acceptedt = rts_task_get_runtime(t);    
+    t->acceptedu = task_util != -1 ? task_util : 0;
     this->util_free_percpu[t->cpu] -= t->acceptedu;
     this->task_count_percpu[t->cpu]++;
 }
@@ -315,14 +358,32 @@ int rts_plg_task_detach(struct rts_task* t)
  */
 int rts_plg_task_release(struct rts_plugin* this, struct rts_taskset* ts, struct rts_task* t) 
 {
-    t->pluginid = -1;
-    this->task_count_percpu[t->cpu]--;
+    iterator_t iterator;
+    struct rts_task* t_rm;
     
+    iterator = rts_taskset_iterator_init(&this->tasks[t->cpu]);
+
+    for (; iterator != NULL; iterator = iterator_get_next(iterator)) 
+    {
+        t_rm = rts_taskset_iterator_get_elem(iterator);
+        if (t_rm->params.period == t->params.period 
+            && t_rm->id != t->id)
+        {
+            dist_prio[t->cpu]--;
+            break;
+        }
+    }
+
     if (t->acceptedu != 0)
         this->util_free_percpu[t->cpu] += t->acceptedu;
     
+    rts_taskset_remove_by_rsvid(&this->tasks[t->cpu], t->id);
+
+    t->pluginid = -1;
+    this->task_count_percpu[t->cpu]--;
+
     if (sched_getscheduler(t->tid) != SCHED_FIFO) // means no attached flow of ex.
         return RTS_OK;
-    
+
     return rts_plg_task_detach(t);
 }

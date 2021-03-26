@@ -134,8 +134,8 @@ void rts_taskset_add_sorted_dl(struct rts_taskset* ts, struct rts_task* task) {
  * 
  * @endinternal
  */
-void rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task) {
-    list_add_sorted(&(ts->tasks), (void*) task, rts_taskset_cmp_period_asc);
+struct node_ptr* rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task) {
+    return list_add_sorted(&(ts->tasks), (void*) task, rts_taskset_cmp_period_dsc);
 }
 
 /**
