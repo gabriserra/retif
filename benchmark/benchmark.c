@@ -29,7 +29,7 @@
 #define T_BUDGET_MIN    1
 #define T_BUDGET_MAX    4
 #define T_PERIOD_MIN    1024
-#define T_PERIOD_MAX    2048
+#define T_PERIOD_MAX    10240
 #define T_PRIORI_MIN    10
 #define T_PRIORI_MAX    50
 
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
                 ret = rts_task_create(&(t[i]), &p);
                 clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
                 if (strcmp(argv[3], "create") == 0)
-                    fprintf(output, ",%ld,", tp_after.tv_nsec - tp_before.tv_nsec);
+                    fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
             #else
                 tsc_before = rte_get_tsc_cycles();
                 ret = rts_task_create(&(t[i]), &p);
