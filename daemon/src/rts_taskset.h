@@ -102,7 +102,7 @@ void rts_taskset_add_sorted_dl(struct rts_taskset* ts, struct rts_task* task);
  * @param ts pointer to taskset to be used
  * @param task pointer to the task to be added to the taskset
  */
-void rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task);
+struct node_ptr* rts_taskset_add_sorted_pr(struct rts_taskset* ts, struct rts_task* task);
 
 struct node_ptr* rts_taskset_add_sorted_prio(struct rts_taskset* ts, struct rts_task* task);
 
