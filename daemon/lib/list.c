@@ -199,7 +199,7 @@ struct node_ptr* list_add_sorted(struct list* l, any_t elem, int (* cmpfun)(any_
     struct node_ptr* prec;
     struct node_ptr* new;
 
-    if(list_is_empty(l) || cmpfun(elem, l->root->elem) < 0) {
+    if(list_is_empty(l) || cmpfun(elem, l->root->elem) <= 0) {
         list_add_top(l, elem);
         return l->root;
     }
