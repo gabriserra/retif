@@ -19,11 +19,7 @@ DBGFLAGS = -g -O0
 #---------------------------------------------------
 LIB_RTS = -lrts
 LIB_PTH = -lpthread
-
-#--------------------------------------------------- 
-# Dependencies
-#---------------------------------------------------
-LIB_RTE = rte_cycles
+LIB_RTE = -lrdtsc
 
 #--------------------------------------------------- 
 # Target-specific variables
@@ -39,7 +35,7 @@ debug: CFLAGS += $(DBGFLAGS)
 all: $(BENCHMARK)
 	
 $(BENCHMARK):
-	$(CC) $(CFLAGS) $(LIB_RTE).c $(BENCHMARK).c  $(LIB_RTS) $(LIB_PTH) -o $@
+	$(CC) $(CFLAGS) $(BENCHMARK).c $(LIB_RTE) $(LIB_RTS) $(LIB_PTH) -o $@
 
 debug: all
 
