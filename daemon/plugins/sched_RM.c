@@ -10,6 +10,7 @@
 #include <sys/sysinfo.h>
 #include <limits.h>
 #include "rts_taskset.h"
+#include "rts_utils.h"
 
 #define PERIOD_MAX_US INT_MAX // as defined in /proc/sys/kernel/sched_rt_period_us
 #define PERIOD_MIN_US 1
@@ -339,7 +340,7 @@ int rts_plg_task_detach(struct rts_task* t)
 
     CPU_ZERO(&my_set);
     
-    for(int i = 0; i < get_nprocs(); i++)
+    for(int i = 0; i < get_nprocs2(); i++)
         CPU_SET(i, &my_set);
     
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)

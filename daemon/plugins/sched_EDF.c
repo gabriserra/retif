@@ -15,6 +15,7 @@
 #include "rts_taskset.h"
 #include "rts_plugin.h"
 #include "rts_types.h"
+#include "rts_utils.h"
 
 // -----------------------------------------------------------------------------
 // LIBC FOR SCHED_DEADLINE
@@ -37,9 +38,6 @@
     #define __NR_sched_setattr		380
     #define __NR_sched_getattr		381
 #endif
-
-#define MILLI_TO_NANO(var) var * 1000 * 1000
-#define MICRO_TO_NANO(var) var * 1000
 
 struct sched_attr 
 {
@@ -286,7 +284,7 @@ int rts_plg_task_detach(struct rts_task* t)
 
     CPU_ZERO(&my_set);
     
-    for(int i = 0; i < get_nprocs(); i++)
+    for(int i = 0; i < get_nprocs2(); i++)
         CPU_SET(i, &my_set);
     
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)

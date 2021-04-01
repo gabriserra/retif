@@ -33,7 +33,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     char* end;
 
     cnum = 0;
-    cmax = get_nprocs();
+    cmax = get_nprocs2();
 
     init = strtok(line, "-");
     end = strtok(NULL, "-");
@@ -90,7 +90,7 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
     int num_cpu;
     char buffer[CFG_COLUMN_MAX];
 
-    num_cpu = get_nprocs();
+    num_cpu = get_nprocs2();
 
     for (i = 0; i < num_of_plugin; i++)
     {
@@ -128,7 +128,7 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
  */
 static void load_symbols(struct rts_plugin* plg, unsigned int index, void* dl_ptr)
 {
-    int cpunum = get_nprocs();
+    int cpunum = get_nprocs2();
 
     plg[index].id                       = index;
     plg[index].cpunum                   = cpunum;
