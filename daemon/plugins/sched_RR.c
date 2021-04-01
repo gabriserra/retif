@@ -6,6 +6,7 @@
 #include <sys/sysinfo.h>
 #include "rts_taskset.h"
 #include "rts_types.h"
+#include "rts_utils.h"
 
 // -----------------------------------------------------------------------------
 // UTILITY INTERNAL METHODS
@@ -270,7 +271,7 @@ int rts_plg_task_detach(struct rts_task* t)
 
     CPU_ZERO(&my_set);
     
-    for(int i = 0; i < get_nprocs(); i++)
+    for(int i = 0; i < get_nprocs2(); i++)
         CPU_SET(i, &my_set);
     
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)

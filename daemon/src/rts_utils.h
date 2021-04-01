@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #define _GNU_SOURCE
+#define N_PROC_OVERRIDE 3
 
 // -----------------------------------------------------------------------------
 // DEFINE TIME CONSTANT (IF UNAVAILABLE IN LIBC)
@@ -167,6 +168,8 @@ void compute_for(uint32_t exec_milli_max);
 void wait_next_activation(struct timespec* t_act, uint32_t period_milli);
 
 void set_timer(uint32_t milli);
+
+int get_nprocs2(void);
 
 
 #endif	// RTS_UTILS_H

@@ -14,8 +14,8 @@ from matplotlib import cm
 ##############################
 
 repetition  = 500
-cpumaxnum   = 8
-tasknum     = 4
+cpumaxnum   = 3
+tasknum     = 1024
 
 ##############################
 # PLOT PARAMETERS
@@ -33,7 +33,7 @@ colors      = ["red", "green", "blue", "purple"]
 
 def openDF(filename, separator=","):
     path = os.path.dirname(os.path.realpath(__file__))
-    df = pd.read_csv(path + "/" + filename, sep=separator)
+    df = pd.read_csv(path + "/" + filename)
 
     return df
 
@@ -76,8 +76,11 @@ def plotData(filename, ax, title="", xlabel="", ylabel=""):
     x, y = np.meshgrid(x, y)
     z = multi.groupby(level=['cpu']).mean().dropna()
 
-    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm,
-        linewidth=0, antialiased=False)
+    #ax.set_zlim(50000, 180000)
+    surf = ax.plot_surface(x, y, z, ccount=10, cmap=cm.coolwarm,
+        linewidth=0.5, antialiased=False)
+
+    ax.view_init(30, 140)
 
 ##############################
 # MAIN
@@ -96,7 +99,7 @@ def mainPlotData():
     plt.rcParams['font.size']   = fontSize
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
-    plotData("results/benchmark2.csv", ax, title="", xlabel="", ylabel="")
+    plotData("results/benchmark3.csv", ax, title="", xlabel="", ylabel="")
     plt.show()
 
-mainPlotAttach()
+mainPlotData()

@@ -114,7 +114,7 @@ int rts_scheduler_init(struct rts_scheduler* s, struct rts_taskset* ts)
     
     s->taskset                  = ts;
     s->last_task_id             = 0;
-    s->num_of_cpu               = get_nprocs();
+    s->num_of_cpu               = get_nprocs2();
 
     return rts_plugins_init(&(s->plugin), &(s->num_of_plugins));
 }

@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include <string.h>
 #include <stdarg.h>
+#include <sys/sysinfo.h>
 #include "logger.h"
 #include "rts_utils.h"
 
@@ -290,4 +291,13 @@ void set_timer(uint32_t milli) {
     t.it_interval.tv_usec = MILLI_TO_MICRO(milli);
 
     setitimer(ITIMER_REAL, &t, NULL);
+}
+
+int get_nprocs2(void) 
+{
+#ifdef N_PROC_OVERRIDE
+    return N_PROC_OVERRIDE;
+#else
+    return get_nprocs();
+#endif
 }
