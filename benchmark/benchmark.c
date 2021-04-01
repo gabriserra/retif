@@ -19,8 +19,7 @@
 #include <sys/syscall.h>
 #include <linux/types.h>
 #include <sys/sysinfo.h>
-
-#include "rte_cycles.h"
+#include <librdtsc/rdtsc.h>
 
 #define TSC
 #define B_NUM           500
@@ -158,7 +157,11 @@ int main(int argc, char* argv[])
 
     #ifdef TSC
     uint64_t tsc_before, tsc_after, tsc_freq;
-    tsc_freq = rte_get_tsc_hz();
+    
+    if (rdtsc_init() != 0)
+        print_err("# Unable to read TSC frequency. \n");
+
+    tsc_freq = rdtsc_get_tsc_hz();
     printf("# TSC frequency: %ld\n", tsc_freq);
     #endif
 
@@ -199,11 +202,11 @@ int main(int argc, char* argv[])
                 if (strcmp(argv[3], "create") == 0)
                     fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
             #else
-                tsc_before = rte_get_tsc_cycles();
+                tsc_before = rdtsc();
                 ret = rts_task_create(&(t[i]), &p);
-                tsc_after = rte_get_tsc_cycles();
+                tsc_after = rdtsc();
                 if (strcmp(argv[3], "create") == 0)
-                    fprintf(output, ",%ld", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+                    fprintf(output, ",%ld", rdtsc_elapsed_ns(tsc_before, tsc_after));
             #endif
 
             if (ret < 0)
@@ -217,10 +220,10 @@ int main(int argc, char* argv[])
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
                     fprintf(output, ",%ld,", tp_after.tv_nsec - tp_before.tv_nsec);
                 #else
-                    tsc_before = rte_get_tsc_cycles();
+                    tsc_before = rdtsc();
                     ret = schedule(&p, tids[i], atoi(argv[4]));
-                    tsc_after = rte_get_tsc_cycles();
-                    fprintf(output, ",%ld", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+                    tsc_after = rdtsc();
+                    fprintf(output, ",%ld", rdtsc_elapsed_ns(tsc_before, tsc_after));
                 #endif
 
                 if (ret < 0)
@@ -237,10 +240,10 @@ int main(int argc, char* argv[])
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
                     fprintf(output, ",%ld,", tp_after.tv_nsec - tp_before.tv_nsec);
                 #else
-                    tsc_before = rte_get_tsc_cycles();
+                    tsc_before = rdtsc();
                     ret = rts_task_attach(&(t[i]), tids[i]);
-                    tsc_after = rte_get_tsc_cycles();
-                    fprintf(output, ",%ld", rte_get_tsc_elapsed(tsc_before, tsc_after, tsc_freq));
+                    tsc_after = rdtsc();
+                    fprintf(output, ",%ld", rdtsc_elapsed_ns(tsc_before, tsc_after));
                 #endif
 
                 if (ret < 0)
