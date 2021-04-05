@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_before);
                     ret = schedule(&p, tids[i], atoi(argv[4]));
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
-                    fprintf(output, ",%ld,", tp_after.tv_nsec - tp_before.tv_nsec);
+                    fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
                 #else
                     tsc_before = rdtsc();
                     ret = schedule(&p, tids[i], atoi(argv[4]));
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_before);
                     ret = rts_task_attach(&(t[i]), tids[i]);
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
-                    fprintf(output, ",%ld,", tp_after.tv_nsec - tp_before.tv_nsec);
+                    fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
                 #else
                     tsc_before = rdtsc();
                     ret = rts_task_attach(&(t[i]), tids[i]);
