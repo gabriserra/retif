@@ -91,11 +91,11 @@ function load_msr() {
     fi
 }
 
-function set_min_freq() {
+function set_freq() {
     # Sets "performance" as the new cpufreq governor
     for CPU_FREQ_GOVERNOR in $(ls /sys/devices/system/cpu/cpufreq/); 
     do
-        sudo cp /sys/devices/system/cpu/cpufreq/"$CPU_FREQ_GOVERNOR"/scaling_{max,min}_freq
+        sudo echo 2000000 | sudo tee /sys/devices/system/cpu/cpufreq/"$CPU_FREQ_GOVERNOR"/scaling_{max,min}_freq
     done
 
     sleep 3s
@@ -156,8 +156,8 @@ function print_cpus_freq() {
 ################################################################################
 
 MAX_TEST_NUM=3
-MAX_CPU_NUM_CREATE=3
-MAX_CPU_NUM_ATTACH=3
+MAX_CPU_NUM_CREATE=19
+MAX_CPU_NUM_ATTACH=19
 SCHED_CFG="/usr/share/rtsd/schedconfig.cfg"
 CWD=$(pwd)
 FILES=()
@@ -165,7 +165,7 @@ FILES=()
 if [ "$1" == "-freq" ]; then
     disable_powersaving
     disable_turbo
-    set_min_freq
+    set_freq
     disable_hyperthreading
     print_cpus_freq
     

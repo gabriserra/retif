@@ -6,8 +6,9 @@ import tikzplotlib
 import pandas as pd
 from cycler import cycler
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib import colors
+import matplotlib.pyplot as plt
 
 ##############################
 # PLOT PARAMETERS
@@ -17,7 +18,7 @@ lineWidth   = 1.5
 markerSize  = 3
 fontFamily  = 'serif'
 fontSize    = 9
-colors      = ["red", "green", "blue", "purple"]
+#colors      = ["red", "green", "blue", "purple"]
 titles      = ["EDF Plugin", "RM Plugin", "RR Plugin"]
 
 
@@ -58,8 +59,6 @@ def plotAttach(filename, ax, title="", xlabel="", ylabel=""):
     plt.plot(range(1,1025), y_retif)
     plt.plot(range(1,1025), y_sys)
 
-    
-
     #plt.plot(i, y[i])
 
     return
@@ -79,7 +78,7 @@ def plotAttach(filename, ax, title="", xlabel="", ylabel=""):
     #ax.set_xticklabels(labels)
     ax.grid()
 
-def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel=""):
+def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel="", zlim=[15, 40]):
     
     # open the file
     df = openDF(filename)
@@ -91,7 +90,7 @@ def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel=""):
     multi = df.set_index(['cpu', 'rip'])
     
     # compute average over repetition
-    z = multi.groupby(level=['cpu']).mean().dropna()
+    z = multi.groupby(level=['cpu']).mean().dropna().divide(1000)
     
     # create mesh grid
     x = range(1, len(z.columns)+1)
@@ -99,11 +98,12 @@ def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel=""):
 
     x, y = np.meshgrid(x, y)
 
-    # TODO: set fixed limits
-    #ax.set_zlim(50000, 180000)
-
+    # set fixed limits
+    ax.set_zlim(zlim[0], zlim[1])
+    ax.set_ylim(0, 21)
+    
     # set ticks step, title and labels
-    ax.yaxis.set_ticks(np.arange(1, len(z)+1, 1.0))
+    ax.yaxis.set_ticks(np.arange(0, len(z)+2, 5.0))
     ax.set_title(title, pad=0.5)    
     ax.set_xlabel(xlabel, fontsize=fontSize)
     ax.set_ylabel(ylabel, fontsize=fontSize)
@@ -111,7 +111,7 @@ def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel=""):
 
     # plot 3d surface
     surf = ax.plot_surface(x, y, z, ccount=10, cmap=cm.coolwarm,
-        linewidth=0.5, antialiased=False)
+        linewidth=0.5, antialiased=False, norm=colors.PowerNorm(0.5, vmin=13.5, vmax=30))
 
     # rotate view
     ax.view_init(30, 140)
@@ -124,7 +124,7 @@ def mainAttachPlot(filename, title):
     
     fig, ax = plt.subplots()
 
-    plotAttach("results/benchmark0.csv", ax, title="", xlabel="", ylabel="")
+    plotAttach(filename, ax, title="", xlabel="", ylabel="")
     
     #plt.legend()
 
@@ -143,11 +143,11 @@ def mainCreatePlot(filename, titles, xLab, yLab, zLab):
     fig, ax = plt.subplots(1, 3, subplot_kw={"projection": "3d"}, figsize=(15, 5))
 
     for i, f in enumerate(dataFiles):
-        createPlot(f, ax[i], titles[i], xLab, yLab, zLab)
+        createPlot(f, ax[i], titles[i], xLab, yLab, zLab, [15, 40])
 
     # plt.savefig(filename + "_fig.png")
     plt.show()
 
 
-#mainCreatePlot("results/benchmark", titles, "Task number", "CPU number", "Latency (μs)")
-mainAttachPlot("results/benchmark0.csv", "ATTACH")
+mainCreatePlot("results/benchmark", titles, "Task number", "CPU number", "Latency (μs)")
+#mainAttachPlot("results_arm/benchmark0.csv", "ATTACH")
