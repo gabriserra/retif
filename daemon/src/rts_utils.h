@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #define _GNU_SOURCE
-#define N_PROC_OVERRIDE 3
+#define N_PROC_OVERRIDE 20
 
 // -----------------------------------------------------------------------------
 // DEFINE TIME CONSTANT (IF UNAVAILABLE IN LIBC)
