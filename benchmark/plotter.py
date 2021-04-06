@@ -18,7 +18,6 @@ lineWidth   = 1.5
 markerSize  = 3
 fontFamily  = 'serif'
 fontSize    = 9
-#colors      = ["red", "green", "blue", "purple"]
 titles      = ["EDF Plugin", "RM Plugin", "RR Plugin"]
 
 
@@ -78,19 +77,27 @@ def plotAttach(filename, ax, title="", xlabel="", ylabel=""):
     #ax.set_xticklabels(labels)
     ax.grid()
 
-def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel="", zlim=[15, 40]):
+def createPlot(filename, ax, title="", xlabel="", ylabel="", zlabel="", zlim=[15, 40], filter=True):
     
     # open the file
     df = openDF(filename)
 
-    # TODO: filter out outliers 1/99
-    
     # open the df as a multi index table
     # https://stackoverflow.com/questions/24954117/advanced-averaging-with-multiindex-dataframe-in-pandas
     multi = df.set_index(['cpu', 'rip'])
     
-    # compute average over repetition
-    z = multi.groupby(level=['cpu']).mean().dropna().divide(1000)
+    # filter out outliers 1%/99%
+    if filter:
+        filt_df = multi.loc[:]
+        low = .01
+        high = .99
+        quant_df = filt_df.quantile([low, high])
+        filt_df = filt_df.apply(lambda x: x[(x>quant_df.loc[low,x.name]) & (x < quant_df.loc[high,x.name])], axis=0)
+    else:
+        filt_df = multi
+    
+    # compute average over repetition and bring all to microsec
+    z = filt_df.groupby(level=['cpu']).mean().dropna().divide(1000)
     
     # create mesh grid
     x = range(1, len(z.columns)+1)
@@ -145,9 +152,9 @@ def mainCreatePlot(filename, titles, xLab, yLab, zLab):
     for i, f in enumerate(dataFiles):
         createPlot(f, ax[i], titles[i], xLab, yLab, zLab, [15, 40])
 
-    # plt.savefig(filename + "_fig.png")
-    plt.show()
+    plt.savefig(filename + "_fig.png")
+    #plt.show()
 
 
-mainCreatePlot("results/benchmark", titles, "Task number", "CPU number", "Latency (μs)")
+mainCreatePlot("results_arm/benchmark", titles, "Task number", "CPU number", "Latency (μs)")
 #mainAttachPlot("results_arm/benchmark0.csv", "ATTACH")
