@@ -1,5 +1,6 @@
 # Ignore build folder
 bin
+build
 
 # Ignore editor preferences
 .vscode
