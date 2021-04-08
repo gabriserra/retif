@@ -9,6 +9,8 @@ foreach(PLUGIN IN ITEMS
         ${PLUGIN}.c
     )
 
+    set_target_properties(${PLUGIN} PROPERTIES PREFIX "")
+
     target_include_directories(${PLUGIN}
         PRIVATE
         ../src
