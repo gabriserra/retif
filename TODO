@@ -6,3 +6,4 @@
 - [X] Remove atomic.h
 - [x] Remove shatomic
 - [ ] Allow to manage ACL
+- [ ] Implement list search with hash-map
