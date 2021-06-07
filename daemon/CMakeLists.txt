@@ -1,4 +1,3 @@
-# add_subdirectory(common)
 add_subdirectory(plugins)
 
 add_executable(retifd
@@ -18,10 +17,8 @@ target_include_directories(retifd
 )
 
 target_link_libraries(retifd
-    PUBLIC
-    ${CMAKE_DL_LIBS}
-
     PRIVATE
+    ${CMAKE_DL_LIBS}
     retif_channel
     retif_common
 )

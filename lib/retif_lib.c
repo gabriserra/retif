@@ -4,7 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "retif_lib.h"
+#include "retif.h"
 #include "retif_channel.h"
 
 // -----------------------------------------------------------------------------
