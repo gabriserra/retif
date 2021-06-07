@@ -1,5 +1,5 @@
-#ifndef RTS_LIB_H
-#define RTS_LIB_H
+#ifndef retif_LIB_H
+#define retif_LIB_H
 
 #include <stdint.h>
 #include <time.h>
@@ -39,10 +39,10 @@
 // STRUCT UTILS
 // -----------------------------------------------------------------------------
 
-#ifndef RTS_PUBLIC_TYPES
-#define RTS_PUBLIC_TYPES
+#ifndef retif_PUBLIC_TYPES
+#define retif_PUBLIC_TYPES
 
-struct rts_params
+struct retif_params
 {
     uint64_t    runtime;                        // required runtime [microseconds]
     uint64_t    des_runtime;                    // desired runtime [microseconds]
@@ -53,14 +53,14 @@ struct rts_params
     uint8_t     ignore_admission;               // preference to avoid test
 };
 
-struct rts_task
+struct retif_task
 {
     uint32_t            task_id;        // task id assigned by daemon
     uint32_t            dmiss;		    // num of deadline misses
     uint64_t            acc_runtime;    // accepted runtime
-    struct rts_access*  c;              // channel used to communicate with daemon
-    struct rts_params   p;              // preferred scheduling parameters
-    struct timespec     at;	            // next activation time 
+    struct retif_access*  c;              // channel used to communicate with daemon
+    struct retif_params   p;              // preferred scheduling parameters
+    struct timespec     at;	            // next activation time
     struct timespec     dl; 	        // absolute deadline
 };
 
@@ -70,61 +70,60 @@ struct rts_task
 // GETTER / SETTER
 // -----------------------------------------------------------------------------
 
-void rts_params_init(struct rts_params *p);
+void retif_params_init(struct retif_params *p);
 
-void rts_params_set_runtime(struct rts_params* p, uint64_t runtime);
+void retif_params_set_runtime(struct retif_params* p, uint64_t runtime);
 
-uint64_t rts_params_get_runtime(struct rts_params* p);
+uint64_t retif_params_get_runtime(struct retif_params* p);
 
-void rts_params_set_des_runtime(struct rts_params* p, uint64_t runtime);
+void retif_params_set_des_runtime(struct retif_params* p, uint64_t runtime);
 
-uint64_t rts_params_get_des_runtime(struct rts_params* p);
+uint64_t retif_params_get_des_runtime(struct retif_params* p);
 
-void rts_params_set_period(struct rts_params* p, uint64_t period);
+void retif_params_set_period(struct retif_params* p, uint64_t period);
 
-uint64_t rts_params_get_period(struct rts_params* p);
+uint64_t retif_params_get_period(struct retif_params* p);
 
-void rts_params_set_deadline(struct rts_params*p, uint64_t deadline);
+void retif_params_set_deadline(struct retif_params*p, uint64_t deadline);
 
-uint64_t rts_params_get_deadline(struct rts_params* p);
+uint64_t retif_params_get_deadline(struct retif_params* p);
 
-void rts_params_set_priority(struct rts_params* p, uint32_t priority);
+void retif_params_set_priority(struct retif_params* p, uint32_t priority);
 
-uint32_t rts_params_get_priority(struct rts_params* p);
+uint32_t retif_params_get_priority(struct retif_params* p);
 
-void rts_params_set_scheduler(struct rts_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
+void retif_params_set_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
 
-void rts_params_get_scheduler(struct rts_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
+void retif_params_get_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
 
-void rts_params_ignore_admission(struct rts_params* p, uint8_t ignore_admission);
+void retif_params_ignore_admission(struct retif_params* p, uint8_t ignore_admission);
 
 // -----------------------------------------------------------------------------
 // COMMUNICATION WITH DAEMON
 // -----------------------------------------------------------------------------
 
-int rts_daemon_connect();
+int retif_daemon_connect();
 
-void rts_task_init(struct rts_task* t);
+void retif_task_init(struct retif_task* t);
 
-int rts_task_create(struct rts_task* t, struct rts_params* p);
+int retif_task_create(struct retif_task* t, struct retif_params* p);
 
-int rts_task_change(struct rts_task* t, struct rts_params* p);
+int retif_task_change(struct retif_task* t, struct retif_params* p);
 
-int rts_task_attach(struct rts_task* t, pid_t pid);
+int retif_task_attach(struct retif_task* t, pid_t pid);
 
-int rts_task_detach(struct rts_task* t);
+int retif_task_detach(struct retif_task* t);
 
-int rts_task_destroy(struct rts_task* t);
+int retif_task_destroy(struct retif_task* t);
 
 // -----------------------------------------------------------------------------
 // LOCAL COMMUNICATIONS
 // -----------------------------------------------------------------------------
 
-void rts_task_start(struct rts_task* t);
+void retif_task_start(struct retif_task* t);
 
-void rts_task_wait_period(struct rts_task* t);
+void retif_task_wait_period(struct retif_task* t);
 
-uint64_t rts_task_get_accepted_runtime(struct rts_task* t);
+uint64_t retif_task_get_accepted_runtime(struct retif_task* t);
 
-#endif	// RTS_LIB_H
-
+#endif	// retif_LIB_H

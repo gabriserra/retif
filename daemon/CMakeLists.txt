@@ -1,18 +1,15 @@
-add_subdirectory(lib)
+# add_subdirectory(common)
 add_subdirectory(plugins)
 
 add_executable(retifd
     daemon.c
-
-    src/rts_channel.c
-    src/rts_config.c
-    src/rts_daemon.c
-    src/rts_plugin.c
-    src/rts_scheduler.c
-    src/rts_task.c
-    src/rts_taskset.c
-    src/rts_utils.c
-
+    src/retif_config.c
+    src/retif_daemon.c
+    src/retif_plugin.c
+    src/retif_scheduler.c
+    src/retif_task.c
+    src/retif_taskset.c
+    src/retif_utils.c
 )
 
 target_include_directories(retifd
@@ -25,5 +22,6 @@ target_link_libraries(retifd
     ${CMAKE_DL_LIBS}
 
     PRIVATE
-    retifd_common
+    retif_channel
+    retif_common
 )
