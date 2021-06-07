@@ -6,9 +6,9 @@
 #include <string.h>
 #include <sys/sysinfo.h>
 #include "logger.h"
-#include "rts_utils.h"
-#include "rts_plugin.h"
-#include "rts_taskset.h"
+#include "retif_utils.h"
+#include "retif_plugin.h"
+#include "retif_taskset.h"
 
 // -----------------------------------------------------------------------------
 // PRIVATE INTERNAL METHODS
@@ -42,18 +42,18 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     if (init != NULL && end != NULL)
     {
         cnum = atoi(end) - atoi(init) + 1;
-        
+
         if (cnum >= cmax)
         {
             ERR("Your configuration include a greater number of CPU than present.\n");
             return;
         }
-        
+
         for (int i = 0; i <= cnum; i++)
             cpulist[i] = atoi(init) + i;
 
         *cputotnum = cnum;
-        
+
         return;
     }
 
@@ -70,7 +70,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
 
         cpulist[cnum] = atoi(token);
         token = strtok(NULL, ",");
-        cnum++;            
+        cnum++;
     }
 
     *cputotnum = cnum;
@@ -78,13 +78,13 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
 
 /**
  * @internal
- * 
- * Reads plugins names and priority pools from schedcfg file and fills 
+ *
+ * Reads plugins names and priority pools from schedcfg file and fills
  * given plugin structure
- * 
+ *
  * @endinternal
  */
-static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin) 
+static void read_conf(FILE* f, struct retif_plugin* plg, int num_of_plugin)
 {
     int i, j;
     int num_cpu;
@@ -100,7 +100,7 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
         plg[i].cpulist              = calloc(num_cpu, sizeof(int));
         plg[i].util_free_percpu     = calloc(num_cpu, sizeof(int));
         plg[i].task_count_percpu    = calloc(num_cpu, sizeof(int));
-        plg[i].tasks                = calloc(num_cpu, sizeof(struct rts_taskset));
+        plg[i].tasks                = calloc(num_cpu, sizeof(struct retif_taskset));
 
         // set free util to 1
         for (j = 0; j < num_cpu; j++)
@@ -108,7 +108,7 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
 
         // initialize tasksets per cpu
         for (j = 0; j < num_cpu; j++)
-            rts_taskset_init(&plg[i].tasks[j]);
+            retif_taskset_init(&plg[i].tasks[j]);
 
         safe_file_read(f, "%s", 1, buffer);
         read_plg_name(buffer, plg[i].name);
@@ -121,39 +121,39 @@ static void read_conf(FILE* f, struct rts_plugin* plg, int num_of_plugin)
 
 /**
  * @internal
- * 
+ *
  * Loads dinamically all symbols needed by a plugin
- * 
+ *
  * @endinternal
  */
-static void load_symbols(struct rts_plugin* plg, unsigned int index, void* dl_ptr)
+static void load_symbols(struct retif_plugin* plg, unsigned int index, void* dl_ptr)
 {
     int cpunum = get_nprocs2();
 
     plg[index].id                       = index;
     plg[index].cpunum                   = cpunum;
     plg[index].dl_ptr                   = dl_ptr;
-    plg[index].rts_plg_task_init        = dlsym(dl_ptr, RTS_API_INIT);
-    plg[index].rts_plg_task_accept      = dlsym(dl_ptr, RTS_API_ACCEPT);
-    plg[index].rts_plg_task_change      = dlsym(dl_ptr, RTS_API_CHANGE);
-    plg[index].rts_plg_task_release     = dlsym(dl_ptr, RTS_API_RELEASE);
-    plg[index].rts_plg_task_schedule    = dlsym(dl_ptr, RTS_API_SCHEDULE);
-    plg[index].rts_plg_task_attach      = dlsym(dl_ptr, RTS_API_ATTACH);
-    plg[index].rts_plg_task_detach      = dlsym(dl_ptr, RTS_API_DETACH);
+    plg[index].retif_plg_task_init        = dlsym(dl_ptr, retif_API_INIT);
+    plg[index].retif_plg_task_accept      = dlsym(dl_ptr, retif_API_ACCEPT);
+    plg[index].retif_plg_task_change      = dlsym(dl_ptr, retif_API_CHANGE);
+    plg[index].retif_plg_task_release     = dlsym(dl_ptr, retif_API_RELEASE);
+    plg[index].retif_plg_task_schedule    = dlsym(dl_ptr, retif_API_SCHEDULE);
+    plg[index].retif_plg_task_attach      = dlsym(dl_ptr, retif_API_ATTACH);
+    plg[index].retif_plg_task_detach      = dlsym(dl_ptr, retif_API_DETACH);
 }
 
 /**
  * @internal
- * 
+ *
  * Takes plugin structure as input and loads all static libraries needed
- * 
+ *
  * @endinternal
  */
-static int load_libraries(struct rts_plugin* plg, int num_of_plugin) 
+static int load_libraries(struct retif_plugin* plg, int num_of_plugin)
 {
     void* dl_ptr;
-    
-    for(int i = 0; i < num_of_plugin; i++) 
+
+    for(int i = 0; i < num_of_plugin; i++)
     {
         strcpy(plg[i].path, PLUGIN_PREFIX);
         strcat(plg[i].path, plg[i].name);
@@ -166,10 +166,10 @@ static int load_libraries(struct rts_plugin* plg, int num_of_plugin)
             ERR("Unable to open %s plugin. %s\n", plg[i].path, strerror(errno));
             return -1;
         }
-        
+
         load_symbols(plg, i, dl_ptr);
     }
-    
+
     return 0;
 }
 
@@ -179,55 +179,55 @@ static int load_libraries(struct rts_plugin* plg, int num_of_plugin)
 
 /**
  * @internal
- * 
+ *
  * Initializes plugins data structure reading settings from config file and
  * loading dynamically symbols from shared lib. Return -1 if unable to open
  * config file or options specified are not valid, 0 in case of success.
- * 
+ *
  * @endinternal
  */
-int rts_plugins_init(struct rts_plugin** plgs, int* num_of_plugins) 
+int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins)
 {
     FILE* f;
     int num_plugin;
-    
+
     f = fopen(PLUGIN_CFG, "r");
-    
+
     if(f == NULL)
     {
         ERR("Unable to open cfg file. %s. Are plugins installed?\n", strerror(errno));
         return -1;
     }
-        
+
     go_to_settings_head(f); // skip kernel param settings
     go_to_settings_head(f);
-    
+
     num_plugin  = count_num_of_settings(f);
 
     (*num_of_plugins)           = num_plugin;
-    (*plgs)                     = calloc(num_plugin, sizeof(struct rts_plugin));
-        
+    (*plgs)                     = calloc(num_plugin, sizeof(struct retif_plugin));
+
     read_conf(f, *plgs, num_plugin);
-    
+
     if (load_libraries(*plgs, num_plugin) < 0)
         return -1;
-    
+
     fclose(f);
-    
+
     return 0;
 }
 
 /**
  * @internal
- * 
+ *
  * Closes dynamic library opened in init phase and free allocated memory.
  * Must be used when tearing down daemon
- * 
+ *
  * @endinternal
  */
-void rts_plugins_destroy(struct rts_plugin* plgs, int plugin_num)
-{    
-    for(int i = 0; i < plugin_num; i++) 
+void retif_plugins_destroy(struct retif_plugin* plgs, int plugin_num)
+{
+    for(int i = 0; i < plugin_num; i++)
     {
         free(plgs[i].util_free_percpu);
         free(plgs[i].cpulist);
@@ -235,4 +235,3 @@ void rts_plugins_destroy(struct rts_plugin* plgs, int plugin_num)
         dlclose(plgs[i].dl_ptr);
     }
 }
-

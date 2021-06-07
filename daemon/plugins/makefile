@@ -3,13 +3,13 @@
 #---------------------------------------------------
 CC = gcc
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Install paths
 #---------------------------------------------------
 SYS_SHARE_PATH = /usr/share
 RTSD_DIR = $(SYS_SHARE_PATH)/rtsd
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Project paths
 #---------------------------------------------------
 SRC_PATH =  ../src
@@ -36,7 +36,7 @@ INCDIR = -I$(LIB_PATH) -I$(SRC_PATH)
 #---------------------------------------------------
 LDFLAGS = -lm
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Dependencies
 #---------------------------------------------------
 LIB_LSP = list
@@ -45,10 +45,10 @@ LIBS = $(LIB_LSP)
 LIBS_C = $(foreach LIB, $(LIBS), $(LIB_PATH)/$(LIB).c)
 LIBS_O = $(foreach LIB, $(LIBS), $(BDL_PATH)/$(LIB).o)
 
-SRC_PLG = rts_plugin
-SRC_TSK = rts_task
-SRC_TSS = rts_taskset
-SRC_UTS = rts_utils
+SRC_PLG = retif_plugin
+SRC_TSK = retif_task
+SRC_TSS = retif_taskset
+SRC_UTS = retif_utils
 
 SRCS = $(SRC_PLG) $(SRC_TSK) $(SRC_TSS) $(SRC_UTS)
 SRCS_O = $(foreach SRC, $(SRCS), $(BDS_PATH)/$(SRC).o)
@@ -65,12 +65,12 @@ PLG_RR_B = $(BDP_PATH)/$(PLG_RR)
 
 PLGS_SO = $(PLG_EDF_B).so $(PLG_RM_B).so $(PLG_FP_B).so $(PLG_RR_B).so
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Target-specific variables
 #---------------------------------------------------
 debug: CFLAGS += $(DBGFLAGS)
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Compile and create objects
 #---------------------------------------------------
 
@@ -85,7 +85,7 @@ paths:
 	@if [ ! -d "$(BDP_PATH)" ]; then mkdir $(BDP_PATH); fi
 	@if [ ! -d "$(BDL_PATH)" ]; then mkdir $(BDL_PATH); fi
 	@if [ ! -d "$(BDS_PATH)" ]; then mkdir $(BDS_PATH); fi
-	
+
 $(PLG_EDF_B).so: $(PLG_EDF_B).o $(LIBS_O) $(SRCS_O)
 	$(CC) $(CFLAGS) -shared $^ -o $@
 
@@ -122,7 +122,7 @@ install: all
 	@echo Installing plugins.
 	@if [ ! -d "$(RTSD_DIR)" ]; then echo "RTS-Daemon not installed. Exiting"; exit 1; fi
 	@if [ ! -d "$(RTSD_DIR)/plugins" ]; then sudo mkdir $(RTSD_DIR)/plugins; fi
-	@sudo cp $(BDP_PATH)/*.so $(RTSD_DIR)/plugins 
+	@sudo cp $(BDP_PATH)/*.so $(RTSD_DIR)/plugins
 	@sudo cp schedconfig.cfg $(RTSD_DIR)/schedconfig.cfg
 	@echo Done!
 

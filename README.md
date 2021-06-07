@@ -14,7 +14,7 @@ In the article you can find the basic idea, the theoretical explanation and some
 
 ## Architecture
 
-The main portion of the entire architecture is the central decision authority, the **RTS-Daemon**. By means of an API provided by the user-library *RTS-Library*, an application can connect to the RTS daemon and exploit its services. The RTS-Library then is the primary means that an application has of communicating its real-time requirements to the framework. These requirements are then passed to the RTS Daemon, which in turn communicates requirements to the various *plugins* as needed. 
+The main portion of the entire architecture is the central decision authority, the **RTS-Daemon**. By means of an API provided by the user-library *RTS-Library*, an application can connect to the RTS daemon and exploit its services. The RTS-Library then is the primary means that an application has of communicating its real-time requirements to the framework. These requirements are then passed to the RTS Daemon, which in turn communicates requirements to the various *plugins* as needed.
 
 ![Architecture](docs/schema.png)
 
@@ -27,23 +27,23 @@ API contains some utility functions to implement periodic task execution and to 
 
 | Function              | Description |
 | -------------------   | ------------- |
-| `rts_task_create`     | Performs task admission test and applies the specified `rts_params` to the new task.  |
-| `rts_task_change`     | Performs a new task admission test with the specified `rts_params`; in case of failure the task maintains its old parameters. |
-| `rts_task_release`    | Releases a task, freeing its resources and detaching the attached POSIX thread, if any.  |
-| `rts_task_attach`     | Attaches a POSIX thread id to the given task.  |
-| `rts_task_detach`     | Detaches the POSIX thread assigned to a task; after this call, the thread runs with a non real-time priority and the task reference can then be attached to another POSIX thread.  |
+| `retif_task_create`     | Performs task admission test and applies the specified `retif_params` to the new task.  |
+| `retif_task_change`     | Performs a new task admission test with the specified `retif_params`; in case of failure the task maintains its old parameters. |
+| `retif_task_release`    | Releases a task, freeing its resources and detaching the attached POSIX thread, if any.  |
+| `retif_task_attach`     | Attaches a POSIX thread id to the given task.  |
+| `retif_task_detach`     | Detaches the POSIX thread assigned to a task; after this call, the thread runs with a non real-time priority and the task reference can then be attached to another POSIX thread.  |
 
-Applications can declare the scheduling parameters of each real-time task by filling an instance of the opaque type `rts_params`, using the functions described in table below.
+Applications can declare the scheduling parameters of each real-time task by filling an instance of the opaque type `retif_params`, using the functions described in table below.
 
 | Parameter             | Unit          | Getter / Setter                                               |
 | -------------------   | ------------- | ---------------                                               |
-| Runtime               | microseconds  |`rts_params_get_runtime` / `rts_params_set_runtime`            |
-| Desired Runtime       | microseconds  |`rts_params_get_des_runtime` / `rts_params_set_des_runtime`    |
-| Period                | microseconds  |`rts_params_get_period` / `rts_params_set_period`              |
-| Relative Deadline     | microseconds  |`rts_params_get_deadline` / `rts_params_set_deadline`          |
-| Priority              | -             |`rts_params_get_priority` / `rts_params_set_priority`          |
-| Scheduling Plugin     | -             |`rts_params_set_scheduler` / `rts_params_get_scheduler`        |
-| Ignore Admission Test | -             |`rts_params_ignore_admission`                                  |
+| Runtime               | microseconds  |`retif_params_get_runtime` / `retif_params_set_runtime`            |
+| Desired Runtime       | microseconds  |`retif_params_get_des_runtime` / `retif_params_set_des_runtime`    |
+| Period                | microseconds  |`retif_params_get_period` / `retif_params_set_period`              |
+| Relative Deadline     | microseconds  |`retif_params_get_deadline` / `retif_params_set_deadline`          |
+| Priority              | -             |`retif_params_get_priority` / `retif_params_set_priority`          |
+| Scheduling Plugin     | -             |`retif_params_set_scheduler` / `retif_params_get_scheduler`        |
+| Ignore Admission Test | -             |`retif_params_ignore_admission`                                  |
 
 ## Getting started
 
@@ -69,7 +69,7 @@ cd plugins
 make install
 ```
 
-Plugins will be compiled and installed under `usr/share/rtsd`. 
+Plugins will be compiled and installed under `usr/share/rtsd`.
 In that folder you can find also the `schedconfig.cfg` file, that you can use to configure the loadable plugins and various other settings.
 
 At last, if you want to develop you application relying over the framework, you have to install the **RTS Library**.
@@ -95,46 +95,46 @@ The code sample reported below can be used as "first reference".
 
 ```c
 /* Task representation */
-struct rts_task t;
+struct retif_task t;
 
 /* Task parameters */
-struct rts_params p;
+struct retif_params p;
 
 /* Initialize data structures */
-rts_task_init(&t);
-rts_params_init(&p);
+retif_task_init(&t);
+retif_params_init(&p);
 
 /* Set task parameters with actual param */
-rts_param_set_period        (&p, T_PERIOD);
-rts_param_set_runtime       (&p, T_RUNTIME);
-rts_param_set_des_runtime   (&p, T_DES_RUNTIME);
-rts_param_set_deadline      (&p, T_DEADLINE);
+retif_param_set_period        (&p, T_PERIOD);
+retif_param_set_runtime       (&p, T_RUNTIME);
+retif_param_set_des_runtime   (&p, T_DES_RUNTIME);
+retif_param_set_deadline      (&p, T_DEADLINE);
 
 /* Test for admission */
-if (rts_task_create(&t, &p) != RTS_OK)
+if (retif_task_create(&t, &p) != retif_OK)
   /* We can abort, or retry with different parameters */
   return;
 
 /* On success we attach an execution flow to the task specification */
-rts_task_attach(&t, gettid());
+retif_task_attach(&t, gettid());
 
 /* Signals that a task begins its execution */
-rts_task_start(&t);
+retif_task_start(&t);
 
 while(!computation_ended()) {
   /* Task runs the desired actions*/
   mandatory_computation();
 
   /* Enabling optional computation depending on the accepted runtime */
-  if (rts_task_get_accepted_runtime(&t) > T_RUNTIME)
+  if (retif_task_get_accepted_runtime(&t) > T_RUNTIME)
     optional_computation();
 
   /* Suspend execution waiting for the next period */
-  rts_task_wait_period(&t);
+  retif_task_wait_period(&t);
 }
 
 /* Cleanup */
-rts_task_release(&t);
+retif_task_release(&t);
 ```
 
 ## Plugins

@@ -1,4 +1,4 @@
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Target file
 #---------------------------------------------------
 DAEMON = rtsd
@@ -8,14 +8,14 @@ DAEMON = rtsd
 #---------------------------------------------------
 CC = gcc
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Install paths
 #---------------------------------------------------
 SYS_BIN_PATH = /usr/bin
 SYS_SHARE_PATH = /usr/share
 RTSD_DIR = $(SYS_SHARE_PATH)/$(DAEMON)
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Project paths
 #---------------------------------------------------
 SRC_PATH =  src
@@ -42,7 +42,7 @@ INCDIR = -I$(LIB_PATH) -I$(SRC_PATH)
 #---------------------------------------------------
 LDFLAGS = -ldl -lrt -lpthread
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Dependencies
 #---------------------------------------------------
 
@@ -53,27 +53,27 @@ LIBS = $(LIB_LSP) $(LIB_USK)
 LIBS_C = $(foreach LIB, $(LIBS), $(LIB_PATH)/$(LIB).c)
 LIBS_O = $(foreach LIB, $(LIBS), $(BDL_PATH)/$(LIB).o)
 
-SRC_CHN = rts_channel
-SRC_DAE = rts_daemon
-SRC_PLG = rts_plugin
-SRC_SCH = rts_scheduler
-SRC_TSK = rts_task
-SRC_TSS = rts_taskset
-SRC_TYP = rts_types
-SRC_UTS = rts_utils
-SRC_CNF = rts_config
+SRC_CHN = retif_channel
+SRC_DAE = retif_daemon
+SRC_PLG = retif_plugin
+SRC_SCH = retif_scheduler
+SRC_TSK = retif_task
+SRC_TSS = retif_taskset
+SRC_TYP = retif_types
+SRC_UTS = retif_utils
+SRC_CNF = retif_config
 
 SRCS = $(SRC_CHN) $(SRC_DAE) $(SRC_PLG) $(SRC_SCH) $(SRC_TSK) $(SRC_TSS) $(SRC_UTS) $(SRC_CNF)
 SRCS_C = $(foreach SRC, $(SRCS), $(SRC_PATH)/$(SRC).c)
 SRCS_O = $(foreach SRC, $(SRCS), $(BDS_PATH)/$(SRC).o)
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Target-specific variables
 #---------------------------------------------------
 
 debug: CFLAGS += $(DBGFLAGS)
 
-#--------------------------------------------------- 
+#---------------------------------------------------
 # Compile and create objects
 #---------------------------------------------------
 
@@ -87,12 +87,12 @@ paths:
 	if [ ! -d "$(BDL_PATH)" ]; then mkdir $(BDL_PATH); fi
 	if [ ! -d "$(BDS_PATH)" ]; then mkdir $(BDS_PATH); fi
 
-$(OUT): $(OUT).o $(LIBS_O) $(SRCS_O) 
+$(OUT): $(OUT).o $(LIBS_O) $(SRCS_O)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 $(OUT).o:
 	$(CC) $(INCDIR) -c $(CFLAGS) daemon.c -o $@
-	
+
 $(LIBS_O): $(BDL_PATH)/%.o: $(LIB_PATH)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -118,5 +118,3 @@ uninstall:
 
 clean:
 	@rm -rf $(BIN_PATH)
-	
-
