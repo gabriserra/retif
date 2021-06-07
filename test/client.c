@@ -27,34 +27,34 @@ uint32_t rand_bounded(uint32_t min, uint32_t max)
 
 void daemon_connect()
 {
-    if (rts_daemon_connect() < 0)
+    if (retif_daemon_connect() < 0)
         print_err("# Error - Unable to connect with daemon.\n");
     else
         printf("# Connected with daemon.\n");
 }
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
     uint32_t ret;
-    struct rts_params p;
-    struct rts_task t;
+    struct retif_params p;
+    struct retif_task t;
 
     daemon_connect();
 
-    rts_params_init(&p);
-    rts_task_init(&t);
+    retif_params_init(&p);
+    retif_task_init(&t);
 
-    rts_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
-    rts_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
-    
-    ret = rts_task_create(&t, &p);
+    retif_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
+    retif_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
+
+    ret = retif_task_create(&t, &p);
 
     if (ret < 0)
         print_err("# Daemon was unable to serve the request.");
 
     while(!getc(stdin));
 
-    rts_task_destroy(&t);
-   
+    retif_task_destroy(&t);
+
     return 0;
 }

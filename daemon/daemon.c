@@ -9,17 +9,17 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "logger.h"
-#include "rts_daemon.h"
+#include "retif_daemon.h"
 
-struct rts_daemon data;
+struct retif_daemon data;
 
 /**
  * @brief When daemon is signaled with a SIGINT, tear down it
  */
-void term() 
+void term()
 {
     INFO("\nRTS daemon was interrupted. It will destroy data and stop.\n");
-    rts_daemon_destroy(&data);    
+    retif_daemon_destroy(&data);
     exit(EXIT_SUCCESS);
 }
 
@@ -31,25 +31,25 @@ void output()
     INFO("\n--------------------------\n");
     INFO("RTS daemon info dump\n");
     INFO("--------------------------\n");
-    rts_daemon_dump(&data);
+    retif_daemon_dump(&data);
 }
 
 /**
  * @brief Main daemon routine, initializes data and starts loop
  */
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
     INFO("rts-daemon - Daemon started.\n");
-    
-    if(rts_daemon_init(&data) < 0)
+
+    if(retif_daemon_init(&data) < 0)
     {
         ERR("Unexpected error in initialization phase.\n");
         exit(EXIT_FAILURE);
     }
-    
+
     signal(SIGTTOU, output);
     signal(SIGINT, term);
-    rts_daemon_loop(&data);
-    
+    retif_daemon_loop(&data);
+
     return 0;
 }

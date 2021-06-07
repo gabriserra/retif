@@ -1,6 +1,6 @@
 
-#ifndef RTS_UTILS_H
-#define RTS_UTILS_H
+#ifndef retif_UTILS_H
+#define retif_UTILS_H
 
 #include <time.h>
 #include <stdint.h>
@@ -39,7 +39,7 @@ typedef __clockid_t clockid_t;
 #define CFG_SETTINGS_TOKEN          '!'
 #define CFG_COLUMN_MAX              82
 
-enum CFG_LINE 
+enum CFG_LINE
 {
     NEWLINE,
     COMMENT,
@@ -77,11 +77,11 @@ enum CFG_LINE
 
 /**
  * @brief Reads a line from configuration file and discriminate line-type
- * 
+ *
  * Gets a line from the configuration file and returns the type of line
  * encountered based on the first char (COMMENT, SETTINGS_HEAD, SETTINGS_BODY,
  * NEWLINE)
- * 
+ *
  * @param f pointer to FILE* opened configuration file
  * @param buffer the buffer that will contain the line read from the file
  * @return type of line (COMMENT = 0, SETTINGS_HEAD, SETTINGS_BODY, NEWLINE)
@@ -90,20 +90,20 @@ int get_cfg_line(FILE* f, char buffer[CFG_COLUMN_MAX]);
 
 /**
  * @brief Seek the stream, skipping all NEWLINE and COMMENT rows
- * 
+ *
  * Take a configuration file in input and skip all rows that do
  * not represent useful information (comment and/or newline ..)
- * 
+ *
  * @param f pointer to FILE* opened configuration file
  */
 void go_to_settings_head(FILE* f);
 
 /**
  * @brief Reads the number of option and compares with the number given
- * 
+ *
  * Take as input the configuration file with the stream positioned at
  * SETTINGS_HEAD and get the number of lines. Returns the number of rows read.
- * 
+ *
  * @param f pointer to FILE* opened configuration file
  * @param settingsnum the expected number of settings found
  * @return number of rows read
@@ -120,12 +120,12 @@ int extract_num_from_line(FILE* f, int* content);
 
 /**
  * @brief Allocates memory for an array and initializes its member
- * 
- * Allocates @p nmbemb slots of @p size bytes of memory and initializes the 
- * previous allocated memory slots copying @p size bytes from @p src. Returns 
+ *
+ * Allocates @p nmbemb slots of @p size bytes of memory and initializes the
+ * previous allocated memory slots copying @p size bytes from @p src. Returns
  * NULL if was not possible to allocate memory or the pointer to the memory area
  * allocated in case of success.
- * 
+ *
  * @param nmemb number of slots for the array
  * @param size number of bytes of memory to allocate / initialize
  * @param src pointer to memory area that will be used as data source
@@ -172,5 +172,4 @@ void set_timer(uint32_t milli);
 int get_nprocs2(void);
 
 
-#endif	// RTS_UTILS_H
-
+#endif	// retif_UTILS_H

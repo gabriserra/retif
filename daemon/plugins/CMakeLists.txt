@@ -18,6 +18,6 @@ foreach(PLUGIN IN ITEMS
 
     target_link_libraries(${PLUGIN}
         PRIVATE
-        retifd_common
+        retif_common
     )
 endforeach()
