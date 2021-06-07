@@ -1,0 +1,22 @@
+// See https://github.com/gabrieleara/dev_environment/tree/cpp/cpp
+{
+	"name": "ReTiF",
+	"build": {
+		// NOTE: Use gabrieleara/working_environments:cpp as base image
+		"dockerfile": "Dockerfile"
+	},
+	// Arguments typically provided to the docker run command
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
+	// IDs of VS Code extensions that I typically use this kind of development
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"eamodio.gitlens"
+	],
+	// Important: use this to login as vscode user, rather than root
+	"remoteUser": "vscode"
+}
