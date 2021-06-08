@@ -5,5 +5,12 @@
 - [X] Rename all list_ptr_* fun to list_*
 - [X] Remove atomic.h
 - [x] Remove shatomic
-- [ ] Allow to manage ACL
 - [ ] Implement list search with hash-map
+- [ ] Install the daemon (GARA)
+- [ ] Program a systemctl service for the daemon (GARA)
+- [ ] Check configuration file and management (libcfg) (GSERRA)
+- [ ] Install daemon configuration (GSERRA)
+- [ ] GitHub Actions
+- [ ] Manpage
+- [ ] Allow to manage ACL
+- [ ]
