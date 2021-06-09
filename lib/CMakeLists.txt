@@ -40,7 +40,7 @@ target_include_directories(${LIBRARY_NAME}
 # Install directory changes depending on build mode
 if (CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
     # During debug, the library will be installed into a local directory
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/_install
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/_install
         CACHE PATH "" FORCE)
 else ()
     # This will install in /usr/lib and /usr/include

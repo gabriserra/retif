@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   /etc/init.d/retifd
+#   /etc/init.d/retif
 #
 # ReTiF Daemon Startup Script
 #
@@ -14,7 +14,7 @@
 # pidfile: /run/retifd.pid
 
 ### BEGIN INIT INFO
-# Provides:             retif.sh
+# Provides:             retif
 # Required-Start:       2 3 4 5
 # Default-Stop:         0 1 6
 # Short-Description:    ReTiF Daemon
@@ -57,11 +57,11 @@ function start() {
             --pidfile "$daemon_pidfile" \
             --make-pidfile \
             --background \
-            --startas "$daemon_path" \
+            --startas /bin/bash \
             --chuid "$theuser" \
-            -- # daemon args here
+            -- -c "exec '$daemon_path' ${daemon_args[@]} >'$daemon_logfile' 2>&1"
 
-        # TODO: implement the sd_notify() call in retifd, hten add this flag
+        # TODO: implement the sd_notify() call in retifd, then add this flag
         # --notify-await \
 
         RETVAL=$?
@@ -119,6 +119,9 @@ function restart() {
 
 function status() {
     case "$distro" in
+    redhat)
+        # TODO: implement this
+        ;;
     debian)
         start-stop-daemon --status \
             --user "$theuser" \
@@ -134,7 +137,9 @@ function status() {
     distro=
     theuser=root
     daemon_name=retifd
-    daemon_path="/usr/sbin/$daemon_name"
+    daemon_path="@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_SBINDIR@/$daemon_name"
+    daemon_args=()
+    daemon_logfile="/var/log/$daemon_name.log"
     daemon_pidfile="/run/$daemon_name.pid"
 
     if [ -f /etc/rc.d/init.d/functions ]; then
@@ -177,6 +182,10 @@ function status() {
     status)
         status
         ;;
+    '')
+        printf 'Usage: %s {start|stop|restart|status}\n' "$0" >&2
+        RETVAL=2
+        ;;
     *)
         printf 'Error: unsupported command %s.\n' "$1" >&2
         printf 'Usage: %s {start|stop|restart|status}\n' "$0" >&2
@@ -186,40 +195,3 @@ function status() {
 
     exit $RETVAL
 )
-
-###############################################################################
-
-case "$1" in
-	start)
-		echo -n "Starting <servicename> services: "
-		<start daemons, perhaps with the daemon function>
-	;;
-	stop)
-		echo -n "Shutting down <servicename> services: "
-		<stop daemons, perhaps with the killproc function>
-		rm -f /var/lock/subsys/<servicename>
-	;;
-	status)
-		<report the status of the daemons in free-form format,
-		perhaps with the status function>
-	;;
-	restart)
-		<restart the daemons, normally with $0 stop; $0 start>
-	;;
-	reload)
-		<cause the service configuration to be reread, either with
-		kill -HUP or by restarting the daemons, possibly with
-		$0 stop; $0 start>
-	;;
-	probe)
-		<optional. If it exists, then it should determine whether
-		or not the service needs to be restarted or reloaded (or
-		whatever) in order to activate any changes in the configuration
-		scripts. It should print out a list of commands to give to
-		$0; see the description under the probe tag below.>
-	;;
-	*)
-		echo "Usage: <servicename> {start|stop|status|reload|restart[|probe]"
-		exit 1
-	;;
-esac
