@@ -7,8 +7,8 @@
 
 #define PLUGIN_MAX_NAME         10
 #define PLUGIN_MAX_PATH         40
-#define PLUGIN_CFG              "/usr/share/rtsd/schedconfig.cfg"
-#define PLUGIN_PREFIX           "/usr/share/rtsd/plugins/sched_"
+#define PLUGIN_CFG              "@RETIF_CONF_PATH@"
+#define PLUGIN_PREFIX           "@RETIF_PLUGINS_PATH@/sched_"
 
 // -----------------------------------------------------------------------------
 // SYMBOLS TO LOAD FROM LIBRARIES

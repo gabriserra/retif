@@ -9,7 +9,7 @@
 #define retif_CONFIG_H
 
 #define NUM_OF_SETTINGS             3
-#define SETTINGS_CFG                "/usr/share/rtsd/schedconfig.cfg"
+#define SETTINGS_CFG                "@RETIF_CONF_PATH@"
 
 #define PROC_RT_PERIOD_SETTING      "sched_rt_period_us"
 #define PROC_RT_PERIOD_FILE         "/proc/sys/kernel/sched_rt_period_us"

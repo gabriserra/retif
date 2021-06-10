@@ -50,59 +50,7 @@ add_subdirectory(daemon)
 add_subdirectory(lib)
 
 add_subdirectory(docs)
+add_subdirectory(test)
 
-# ----------------------- Testing ------------------------ #
-
-include(CTest)
-enable_testing()
-# TODO: add testing features around
-
-# ---------------------- Packaging ----------------------- #
-
-# TODO: all packages are not signed as of now, check this
-# page to add signature capabilities
-# https://cmake.org/cmake/help/latest/cpack_gen/productbuild.html
-
-# Minimum variables required to build a `binary` package
-set(CPACK_PACKAGE_VENDOR "Retis Lab@Scuola Superiore Sant'Anna")
-set(CPACK_PACKAGE_CONTACT "gabriele.serra@santannapisa.it")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
-set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-
-# Deb-specific options
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/triggers")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION TRUE)
-
-# RPM-specific options
-set(CPACK_RPM_INSTALL_WITH_EXEC TRUE)
-set(CPACK_RPM_PACKAGE_LICENSE "GPLv2+") # TODO: check if the + is ok
-list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/sbin")
-
-# The list of CPack generators to use
-set(CPACK_GENERATOR
-    # TGZ
-    # ZIP
-    DEB
-    RPM # Note: on RPM systems requires rpm to be installed!
-)
-
-# The list of CPack generators to use for `source` package
-set(CPACK_SOURCE_GENERATOR
-    TGZ
-    ZIP
-)
-
-# Directories to ignore when building a `source` package
-set(CPACK_SOURCE_IGNORE_FILES
-    /.git
-    /dist
-    /.*build.*
-    /\\\\.DS_Store
-)
-
-# This module will then handle everything
-include(CPack)
+# Packaging
+include(${CMAKE_CURRENT_LIST_DIR}/packaging/CMakeLists.txt)

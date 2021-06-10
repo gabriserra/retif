@@ -14,6 +14,7 @@ foreach(PLUGIN IN ITEMS
     target_include_directories(${PLUGIN}
         PRIVATE
         ../src
+        ${CMAKE_CURRENT_BINARY_DIR}/..
     )
 
     target_link_libraries(${PLUGIN}

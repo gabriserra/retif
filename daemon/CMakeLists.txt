@@ -1,4 +1,22 @@
+# -------------------- Configuration --------------------- #
+
+set(RETIF_CONF_FNAME retif.conf)
+set(RETIF_CONF_SRC  ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_CONF_FNAME})
+
+# Set all destination paths for various components that will be installed
+set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
+set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
+set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
+
+message(RETIF_CONF_PATH: ${RETIF_CONF_PATH})
+message(RETIF_PLUGINS_PATH: ${RETIF_PLUGINS_PATH})
+message(RETIF_DAEMON_PATH: ${RETIF_DAEMON_PATH})
+
+# ----------------------- Plugins ------------------------ #
+
 add_subdirectory(plugins)
+
+# ------------------------ Daemon ------------------------ #
 
 add_executable(retifd
     daemon.c
@@ -14,6 +32,7 @@ add_executable(retifd
 target_include_directories(retifd
     PRIVATE
     src
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(retifd
@@ -23,9 +42,6 @@ target_link_libraries(retifd
     retif_common
 )
 
-# Set where the daemon binary should be installed
-set(CMAKE_INSTALL_DAEMONDIR ${CMAKE_INSTALL_SBIN})
-
 # ----------------------- Service ------------------------ #
 
 # Substitute correct binary path in the initd script
@@ -33,9 +49,19 @@ set(INITDSCRIPT_IN ${CMAKE_CURRENT_SOURCE_DIR}/retif.in)
 set(INITDSCRIPT_OUT ${CMAKE_CURRENT_BINARY_DIR}/init.d/retif)
 configure_file(${INITDSCRIPT_IN} ${INITDSCRIPT_OUT} @ONLY)
 
-# -------------------- Configuration --------------------- #
+# ------------------ Path Substitution ------------------- #
 
-set(RETIF_CONF_SRC ${CMAKE_CURRENT_SOURCE_DIR}/retif.conf)
+# Substitute correct path of the configuration in the corresponding header file
+set(RETIF_CONF_H retif_config.h)
+set(RETIF_CONF_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/${RETIF_CONF_H}.in)
+set(RETIF_CONF_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_CONF_H})
+configure_file(${RETIF_CONF_H_IN} ${RETIF_CONF_H_OUT} @ONLY)
+
+# Substitute correct path of the plugin DLLs in the corresponding header file
+set(RETIF_PLUGIN_H retif_plugin.h)
+set(RETIF_PLUGIN_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/${RETIF_PLUGIN_H}.in)
+set(RETIF_PLUGIN_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_PLUGIN_H})
+configure_file(${RETIF_PLUGIN_H_IN} ${RETIF_PLUGIN_H_OUT} @ONLY)
 
 # ----------------------- Install ------------------------ #
 
@@ -43,7 +69,7 @@ set(RETIF_CONF_SRC ${CMAKE_CURRENT_SOURCE_DIR}/retif.conf)
 install(
     TARGETS retifd
     EXPORT retifd-config
-    RUNTIME DESTINATION ${CMAKE_INSTALL_DAEMONDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR}
 )
 
 # Install the init.d script
@@ -55,5 +81,5 @@ install(
 # Install the configuration file
 install(
     FILES ${RETIF_CONF_SRC}
-    TYPE SYSCONF
+    DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}
 )
