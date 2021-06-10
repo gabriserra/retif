@@ -20,6 +20,28 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# ------------------- Paths Management ------------------- #
+
+# Install directory changes depending on build mode
+if (CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
+    # During debug, the library will be installed into a local directory
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/_install
+        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_INITDIR ${CMAKE_BINARY_DIR}/_install/init.d
+        CACHE PATH "" FORCE)
+else ()
+    # This will install in /usr/lib and /usr/include
+    set(CMAKE_INSTALL_PREFIX /usr CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_INITDIR /etc/init.d CACHE PATH "" FORCE)
+endif ()
+
+# Specifies what to export when installing (using the
+# directories provided by GNUInstallDirs)
+
+# This module will export a set of variables containing
+# paths in which stuff can be installed to. REQUIRED!
+include(GNUInstallDirs)
+
 # -------------------- Subdirectories -------------------- #
 
 add_subdirectory(channel)
@@ -51,13 +73,19 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
-# RPM Specific options
+# Deb-specific options
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/triggers")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION TRUE)
+
+# RPM-specific options
+set(CPACK_RPM_INSTALL_WITH_EXEC TRUE)
 set(CPACK_RPM_PACKAGE_LICENSE "GPLv2+") # TODO: check if the + is ok
+list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/sbin")
 
 # The list of CPack generators to use
 set(CPACK_GENERATOR
-    TGZ
-    ZIP
+    # TGZ
+    # ZIP
     DEB
     RPM # Note: on RPM systems requires rpm to be installed!
 )

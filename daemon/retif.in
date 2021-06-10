@@ -137,7 +137,7 @@ function status() {
     distro=
     theuser=root
     daemon_name=retifd
-    daemon_path="@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_SBINDIR@/$daemon_name"
+    daemon_path="@CMAKE_INSTALL_PREFIX@/@CMAKE_DAEMON_INSTALL_BINDIR@/$daemon_name"
     daemon_args=()
     daemon_logfile="/var/log/$daemon_name.log"
     daemon_pidfile="/run/$daemon_name.pid"

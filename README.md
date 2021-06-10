@@ -79,7 +79,7 @@ cd ../../lib
 make install
 ```
 
-Then, you can include in your application ```#include <librts.h>```. You can start developing your application referring to code sample reported below or execute the benchmark written to evaluate RTT latency. In this case
+Then, you can include in your application ```#include <retif.h>```. You can start developing your application referring to code sample reported below or execute the benchmark written to evaluate RTT latency. In this case
 
 ```
 cd ../benchmark
