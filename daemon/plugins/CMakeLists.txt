@@ -20,4 +20,12 @@ foreach(PLUGIN IN ITEMS
         PRIVATE
         retif_common
     )
+
+    # Install each plugin
+    install(
+        TARGETS ${PLUGIN}
+        EXPORT retif-plugin-${PLUGIN}-config
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/retif
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/retif
+    )
 endforeach()

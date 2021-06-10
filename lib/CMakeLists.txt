@@ -37,23 +37,6 @@ target_include_directories(${LIBRARY_NAME}
     PUBLIC ${LIBRARY_INCLUDEDIR}
 )
 
-# Install directory changes depending on build mode
-if (CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
-    # During debug, the library will be installed into a local directory
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/_install
-        CACHE PATH "" FORCE)
-else ()
-    # This will install in /usr/lib and /usr/include
-    set(CMAKE_INSTALL_PREFIX /usr CACHE PATH "" FORCE)
-endif ()
-
-# Specifies what to export when installing (using the
-# directories provided by GNUInstallDirs)
-
-# This module will export a set of variables containing
-# paths in which stuff can be installed to. REQUIRED!
-include(GNUInstallDirs)
-
 install(
     TARGETS ${LIBRARY_NAME}
     EXPORT ${LIBRARY_NAME}-config

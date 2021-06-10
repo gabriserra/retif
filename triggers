@@ -1,0 +1,2 @@
+# Forces ldconfig when using apt/dpkg to install
+activate-noawait ldconfig
