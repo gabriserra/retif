@@ -14,7 +14,7 @@ In the article you can find the basic idea, the theoretical explanation and some
 
 ## Architecture
 
-The main portion of the entire architecture is the central decision authority, the **RTS-Daemon**. By means of an API provided by the user-library *RTS-Library*, an application can connect to the RTS daemon and exploit its services. The RTS-Library then is the primary means that an application has of communicating its real-time requirements to the framework. These requirements are then passed to the RTS Daemon, which in turn communicates requirements to the various *plugins* as needed.
+The main portion of the entire architecture is the central decision authority, the **ReTiF daemon**. By means of an API provided by the user-library *RTS-Library*, an application can connect to the ReTiF daemon and exploit its services. The RTS-Library then is the primary means that an application has of communicating its real-time requirements to the framework. These requirements are then passed to the RTS Daemon, which in turn communicates requirements to the various *plugins* as needed.
 
 ![Architecture](docs/schema.png)
 

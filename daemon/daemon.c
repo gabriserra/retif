@@ -18,7 +18,7 @@ struct retif_daemon data;
  */
 void term()
 {
-    INFO("\nRTS daemon was interrupted. It will destroy data and stop.\n");
+    INFO("\nReTiF daemon was interrupted. It will destroy data and stop.\n");
     retif_daemon_destroy(&data);
     exit(EXIT_SUCCESS);
 }
@@ -29,7 +29,7 @@ void term()
 void output()
 {
     INFO("\n--------------------------\n");
-    INFO("RTS daemon info dump\n");
+    INFO("ReTiF daemon info dump\n");
     INFO("--------------------------\n");
     retif_daemon_dump(&data);
 }
@@ -39,7 +39,7 @@ void output()
  */
 int main(int argc, char* argv[])
 {
-    INFO("rts-daemon - Daemon started.\n");
+    INFO("ReTiF daemon - Daemon started.\n");
 
     if(retif_daemon_init(&data) < 0)
     {
