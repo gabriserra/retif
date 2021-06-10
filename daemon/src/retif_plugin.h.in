@@ -1,12 +1,12 @@
-#ifndef retif_PLUGIN_H
-#define retif_PLUGIN_H
+#ifndef RETIF_PLUGIN_H
+#define RETIF_PLUGIN_H
 
 // -----------------------------------------------------------------------------
 // PLUGINS MACROS / CONSTANTS
 // -----------------------------------------------------------------------------
 
-#define PLUGIN_MAX_NAME         10
-#define PLUGIN_MAX_PATH         40
+#define PLUGIN_MAX_NAME         32
+#define PLUGIN_MAX_PATH         1024
 #define PLUGIN_CFG              "@RETIF_CONF_PATH@"
 #define PLUGIN_PREFIX           "@RETIF_PLUGINS_PATH@/sched_"
 
@@ -14,13 +14,13 @@
 // SYMBOLS TO LOAD FROM LIBRARIES
 // -----------------------------------------------------------------------------
 
-#define retif_API_INIT        "retif_plg_task_init"
-#define retif_API_ACCEPT      "retif_plg_task_accept"
-#define retif_API_CHANGE      "retif_plg_task_change"
-#define retif_API_RELEASE     "retif_plg_task_release"
-#define retif_API_SCHEDULE    "retif_plg_task_schedule"
-#define retif_API_ATTACH      "retif_plg_task_attach"
-#define retif_API_DETACH      "retif_plg_task_detach"
+#define RETIF_API_INIT        "retif_plg_task_init"
+#define RETIF_API_ACCEPT      "retif_plg_task_accept"
+#define RETIF_API_CHANGE      "retif_plg_task_change"
+#define RETIF_API_RELEASE     "retif_plg_task_release"
+#define RETIF_API_SCHEDULE    "retif_plg_task_schedule"
+#define RETIF_API_ATTACH      "retif_plg_task_attach"
+#define RETIF_API_DETACH      "retif_plg_task_detach"
 
 // forward declarations, see retif_task.c and retif_taskset.c
 struct retif_task;
@@ -116,4 +116,4 @@ int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins);
  */
 void retif_plugins_destroy(struct retif_plugin* plgs, int plugin_num);
 
-#endif /* retif_PLUGIN_H */
+#endif /* RETIF_PLUGIN_H */

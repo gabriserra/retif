@@ -70,7 +70,7 @@ uint8_t has_another_preference(struct retif_plugin* this, struct retif_task* t)
  */
 int retif_plg_task_init(struct retif_plugin* this)
 {
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -79,12 +79,12 @@ int retif_plg_task_init(struct retif_plugin* this)
 int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, struct retif_task* t)
 {
     if (!retif_task_get_ignore_admission(t) && retif_task_get_priority(t) == 0)
-        return retif_PARTIAL;
+        return RETIF_PARTIAL;
 
     if (has_another_preference(this, t))
-        return retif_PARTIAL;
+        return RETIF_PARTIAL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -126,14 +126,14 @@ int retif_plg_task_attach(struct retif_task* t)
     CPU_SET(t->cpu, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     attr.sched_priority = t->schedprio;
 
     if(sched_setscheduler(t->tid, SCHED_FIFO, &attr) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -150,14 +150,14 @@ int retif_plg_task_detach(struct retif_task* t)
         CPU_SET(i, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     attr.sched_priority = 0;
 
     if(sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -169,7 +169,7 @@ int retif_plg_task_release(struct retif_plugin* this, struct retif_taskset* ts, 
     t->pluginid = -1;
 
     if (sched_getscheduler(t->tid) != SCHED_FIFO) // means no attached flow of ex.
-        return retif_OK;
+        return RETIF_OK;
 
     return retif_plg_task_detach(t);
 }

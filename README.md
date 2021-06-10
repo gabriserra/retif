@@ -111,7 +111,7 @@ retif_param_set_des_runtime   (&p, T_DES_RUNTIME);
 retif_param_set_deadline      (&p, T_DEADLINE);
 
 /* Test for admission */
-if (retif_task_create(&t, &p) != retif_OK)
+if (retif_task_create(&t, &p) != RETIF_OK)
   /* We can abort, or retry with different parameters */
   return;
 

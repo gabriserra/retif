@@ -1,19 +1,19 @@
-#ifndef retif_TYPES_H
-#define retif_TYPES_H
+#ifndef RETIF_TYPES_H
+#define RETIF_TYPES_H
 
 #include <stdint.h>
 #include <time.h>
 #include <sys/types.h>
 
-#define retif_OK                      1
-#define retif_FAIL                    0
-#define retif_ERROR                   -1
-#define retif_PARTIAL                 0
-#define retif_NO                      -1
+#define RETIF_OK                      1
+#define RETIF_FAIL                    0
+#define RETIF_ERROR                   -1
+#define RETIF_PARTIAL                 0
+#define RETIF_NO                      -1
 
-#ifndef retif_PLUGIN_H
-    #define PLUGIN_MAX_NAME         10
-    #define PLUGIN_MAX_PATH         40
+#ifndef RETIF_PLUGIN_H
+    #define PLUGIN_MAX_NAME         32
+    #define PLUGIN_MAX_PATH         1024
 #endif
 
 typedef uint32_t retif_id_t;
@@ -21,34 +21,34 @@ typedef uint32_t plgid_t;
 
 enum REQ_TYPE
 {
-    retif_CONNECTION,
-    retif_TASK_CREATE,
-    retif_TASK_MODIFY,
-    retif_TASK_ATTACH,
-    retif_TASK_DETACH,
-    retif_TASK_DESTROY,
-    retif_DECONNECTION
+    RETIF_CONNECTION,
+    RETIF_TASK_CREATE,
+    RETIF_TASK_MODIFY,
+    RETIF_TASK_ATTACH,
+    RETIF_TASK_DETACH,
+    RETIF_TASK_DESTROY,
+    RETIF_DECONNECTION
 };
 
 enum REP_TYPE
 {
-    retif_REQUEST_ERR,
-    retif_CONNECTION_OK,
-    retif_CONNECTION_ERR,
-    retif_TASK_CREATE_OK,
-    retif_TASK_CREATE_PART,
-    retif_TASK_CREATE_ERR,
-    retif_TASK_MODIFY_OK,
-    retif_TASK_MODIFY_PART,
-    retif_TASK_MODIFY_ERR,
-    retif_TASK_ATTACH_OK,
-    retif_TASK_ATTACH_ERR,
-    retif_TASK_DETACH_OK,
-    retif_TASK_DETACH_ERR,
-    retif_TASK_DESTROY_OK,
-    retif_TASK_DESTROY_ERR,
-    retif_DECONNECTION_OK,
-    retif_DECONNECTION_ERR
+    RETIF_REQUEST_ERR,
+    RETIF_CONNECTION_OK,
+    RETIF_CONNECTION_ERR,
+    RETIF_TASK_CREATE_OK,
+    RETIF_TASK_CREATE_PART,
+    RETIF_TASK_CREATE_ERR,
+    RETIF_TASK_MODIFY_OK,
+    RETIF_TASK_MODIFY_PART,
+    RETIF_TASK_MODIFY_ERR,
+    RETIF_TASK_ATTACH_OK,
+    RETIF_TASK_ATTACH_ERR,
+    RETIF_TASK_DETACH_OK,
+    RETIF_TASK_DETACH_ERR,
+    RETIF_TASK_DESTROY_OK,
+    RETIF_TASK_DESTROY_ERR,
+    RETIF_DECONNECTION_OK,
+    RETIF_DECONNECTION_ERR
 };
 
 enum CLIENT_STATE
@@ -59,8 +59,8 @@ enum CLIENT_STATE
     ERROR
 };
 
-#ifndef retif_PUBLIC_TYPES
-#define retif_PUBLIC_TYPES
+#ifndef RETIF_PUBLIC_TYPES
+#define RETIF_PUBLIC_TYPES
 
 struct retif_params
 {
@@ -103,4 +103,4 @@ struct retif_client
     pid_t pid;
 };
 
-#endif	// retif_TYPES_H
+#endif	// RETIF_TYPES_H

@@ -9,8 +9,8 @@
  * and execute clients requests and stop the daemon lifecycle.
  */
 
-#ifndef retif_DAEMON_H
-#define retif_DAEMON_H
+#ifndef RETIF_DAEMON_H
+#define RETIF_DAEMON_H
 
 #include "retif_taskset.h"
 #include "retif_channel.h"
@@ -70,4 +70,4 @@ void retif_daemon_dump(struct retif_daemon* data);
  */
 void retif_daemon_destroy(struct retif_daemon* data);
 
-#endif /* retif_DAEMON_H */
+#endif /* RETIF_DAEMON_H */

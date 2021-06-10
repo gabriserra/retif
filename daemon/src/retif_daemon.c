@@ -26,7 +26,7 @@ static struct retif_reply req_connection(struct retif_daemon* data, int cli_id)
     INFO("Received CONNECTION REQ from pid: %d\n", req.payload.ids.pid);
 
     retif_carrier_set_pid(&(data->chann), cli_id, req.payload.ids.pid);
-    rep.rep_type = retif_CONNECTION_OK;
+    rep.rep_type = RETIF_CONNECTION_OK;
 
     INFO("%d connected with success. Assigned id: %d\n", req.payload.ids.pid, cli_id);
 
@@ -54,21 +54,21 @@ static struct retif_reply req_task_create(struct retif_daemon* data, int cli_id)
     res = retif_scheduler_task_create(&(data->sched), &req.payload.param, pid);
     retif_id = data->sched.last_task_id;
 
-    if(res == retif_NO)
+    if(res == RETIF_NO)
     {
-        rep.rep_type = retif_TASK_CREATE_ERR;
+        rep.rep_type = RETIF_TASK_CREATE_ERR;
         rep.payload = -1;
         LOG("It is NOT possible to guarantee these parameters!\n");
     }
-    else if (res == retif_PARTIAL)
+    else if (res == RETIF_PARTIAL)
     {
-        rep.rep_type = retif_TASK_CREATE_PART;
+        rep.rep_type = RETIF_TASK_CREATE_PART;
         rep.payload = retif_id;
         LOG("Task created with min budget. Res. id: %d\n", retif_id);
     }
     else
     {
-        rep.rep_type = retif_TASK_CREATE_OK;
+        rep.rep_type = RETIF_TASK_CREATE_OK;
         rep.payload = retif_id;
         LOG("It is possible to guarantee these parameters. Res. id: %d\n", retif_id);
     }
@@ -96,19 +96,19 @@ static struct retif_reply req_task_modify(struct retif_daemon* data, int cli_id)
     res = retif_scheduler_task_change(&(data->sched), &req.payload.param, req.payload.ids.rsvid);
     res = req.payload.ids.rsvid; // TO BE DELETED
 
-    if(res == retif_NO)
+    if(res == RETIF_NO)
     {
-        rep.rep_type = retif_TASK_MODIFY_ERR;
+        rep.rep_type = RETIF_TASK_MODIFY_ERR;
         LOG("It is NOT possible to guarantee these parameters!\n");
     }
-    else if (res == retif_PARTIAL)
+    else if (res == RETIF_PARTIAL)
     {
-        rep.rep_type = retif_TASK_MODIFY_PART;
+        rep.rep_type = RETIF_TASK_MODIFY_PART;
         LOG("Reservation modified with min budget.\n");
     }
     else
     {
-        rep.rep_type = retif_TASK_MODIFY_OK;
+        rep.rep_type = RETIF_TASK_MODIFY_OK;
         LOG("It is possible to guarantee these parameters.\n");
     }
 
@@ -133,9 +133,9 @@ static struct retif_reply req_task_attach(struct retif_daemon* data, int cli_id)
             req.payload.ids.rsvid, req.payload.ids.pid);
 
     if(retif_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid, req.payload.ids.pid) < 0)
-        rep.rep_type = retif_TASK_ATTACH_ERR;
+        rep.rep_type = RETIF_TASK_ATTACH_ERR;
     else
-        rep.rep_type = retif_TASK_ATTACH_OK;
+        rep.rep_type = RETIF_TASK_ATTACH_OK;
 
     return rep;
 }
@@ -159,9 +159,9 @@ static struct retif_reply req_task_detach(struct retif_daemon* data, int cli_id)
         req.payload.ids.rsvid);
 
     if(retif_scheduler_task_detach(&(data->sched), req.payload.ids.rsvid) < 0)
-        rep.rep_type = retif_TASK_DETACH_ERR;
+        rep.rep_type = RETIF_TASK_DETACH_ERR;
     else
-        rep.rep_type = retif_TASK_DETACH_OK;
+        rep.rep_type = RETIF_TASK_DETACH_OK;
 
     return rep;
 }
@@ -184,9 +184,9 @@ static struct retif_reply req_task_destroy(struct retif_daemon* data, int cli_id
         req.payload.ids.rsvid);
 
     if(retif_scheduler_task_destroy(&(data->sched), req.payload.ids.rsvid) < 0)
-        rep.rep_type = retif_TASK_DESTROY_ERR;
+        rep.rep_type = RETIF_TASK_DESTROY_ERR;
     else
-        rep.rep_type = retif_TASK_DESTROY_OK;
+        rep.rep_type = RETIF_TASK_DESTROY_OK;
 
     return rep;
 }
@@ -263,26 +263,26 @@ int retif_daemon_process_req(struct retif_daemon* data, int cli_id)
 
     switch(req.req_type)
     {
-        case retif_CONNECTION:
+        case RETIF_CONNECTION:
             rep = req_connection(data, cli_id);
             break;
-        case retif_TASK_CREATE:
+        case RETIF_TASK_CREATE:
             rep = req_task_create(data, cli_id);
             break;
-        case retif_TASK_MODIFY:
+        case RETIF_TASK_MODIFY:
             rep = req_task_modify(data, cli_id);
             break;
-        case retif_TASK_ATTACH:
+        case RETIF_TASK_ATTACH:
             rep = req_task_attach(data, cli_id);
             break;
-        case retif_TASK_DETACH:
+        case RETIF_TASK_DETACH:
             rep = req_task_detach(data, cli_id);
             break;
-        case retif_TASK_DESTROY:
+        case RETIF_TASK_DESTROY:
             rep = req_task_destroy(data, cli_id);
             break;
         default:
-            rep.rep_type = retif_REQUEST_ERR;
+            rep.rep_type = RETIF_REQUEST_ERR;
     }
 
     return retif_carrier_send(&(data->chann), &rep, cli_id);

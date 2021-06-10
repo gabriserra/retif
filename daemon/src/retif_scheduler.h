@@ -1,5 +1,5 @@
-#ifndef retif_SCHEDULER_H
-#define retif_SCHEDULER_H
+#ifndef RETIF_SCHEDULER_H
+#define RETIF_SCHEDULER_H
 
 #include <sys/types.h>
 #include "retif_types.h"
@@ -65,4 +65,4 @@ int retif_scheduler_task_destroy(struct retif_scheduler* s, retif_id_t retif_id)
 
 void retif_scheduler_dump(struct retif_scheduler* s);
 
-#endif	// retif_SCHEDULER_H
+#endif	// RETIF_SCHEDULER_H

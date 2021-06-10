@@ -119,9 +119,9 @@ static int utilization_test(struct retif_plugin* this, float task_util)
     float missing_util = eval_util_missing(this, task_util);
 
     if (missing_util == 0)
-        return retif_OK;
+        return RETIF_OK;
     else
-        return retif_NO;
+        return RETIF_NO;
 }
 
 // static int count_unique_periods(struct retif_plugin* this, struct retif_taskset* ts, unsigned free_cpu)
@@ -214,7 +214,7 @@ static void assign_priorities(struct retif_plugin* this, unsigned int cpu)
  */
 int retif_plg_task_init(struct retif_plugin* this)
 {
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -229,18 +229,18 @@ int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, s
 
     // if task did not specified period will be rejected
     if (retif_task_get_period(t) == 0)
-        return retif_NO;
+        return RETIF_NO;
 
     if (retif_task_get_ignore_admission(t))
-        test_res = retif_OK;
-    else if (utilization_test(this, task_util) == retif_OK)
-        test_res = retif_OK;
+        test_res = RETIF_OK;
+    else if (utilization_test(this, task_util) == RETIF_OK)
+        test_res = RETIF_OK;
     else
-        test_res = retif_NO;
+        test_res = RETIF_NO;
 
     // if not preferred plugin support is partial
-    if (has_another_preference(this, t) && test_res == retif_OK)
-        test_res = retif_PARTIAL;
+    if (has_another_preference(this, t) && test_res == RETIF_OK)
+        test_res = RETIF_PARTIAL;
 
     return test_res;
 }
@@ -320,14 +320,14 @@ int retif_plg_task_attach(struct retif_task* t)
     CPU_SET(t->cpu, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     attr.sched_priority = t->schedprio;
 
     if(sched_setscheduler(t->tid, SCHED_FIFO, &attr) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -344,14 +344,14 @@ int retif_plg_task_detach(struct retif_task* t)
         CPU_SET(i, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     attr.sched_priority = 0;
 
     if(sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -384,7 +384,7 @@ int retif_plg_task_release(struct retif_plugin* this, struct retif_taskset* ts, 
     this->task_count_percpu[t->cpu]--;
 
     if (sched_getscheduler(t->tid) != SCHED_FIFO) // means no attached flow of ex.
-        return retif_OK;
+        return RETIF_OK;
 
     return retif_plg_task_detach(t);
 }

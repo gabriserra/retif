@@ -13,8 +13,8 @@
  * 'carrier'.
  */
 
-#ifndef retif_CHANNEL_H
-#define retif_CHANNEL_H
+#ifndef RETIF_CHANNEL_H
+#define RETIF_CHANNEL_H
 
 #include "usocket.h"
 #include "retif_types.h"
@@ -195,4 +195,4 @@ void retif_carrier_set_pid(struct retif_carrier* c, int cli_id, pid_t pid);
  */
 void retif_carrier_dump(struct retif_carrier* c);
 
-#endif	// retif_CHANNEL_H
+#endif	// RETIF_CHANNEL_H
