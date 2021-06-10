@@ -19,8 +19,8 @@
 #include "usocket.h"
 #include "retif_types.h"
 
-#define CHANNEL_PATH_CARRIER    "/tmp/rtschan"
-#define CHANNEL_PATH_ACCESS     "/tmp/rtschan"
+#define CHANNEL_PATH_CARRIER    "/run/retif_channel.sock"
+#define CHANNEL_PATH_ACCESS     "/run/retif_channel.sock"
 #define CHANNEL_MAX_SIZE        SET_MAX_SIZE
 
 /**
