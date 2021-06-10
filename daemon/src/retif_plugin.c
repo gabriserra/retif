@@ -153,6 +153,7 @@ static int load_libraries(struct retif_plugin* plg, int num_of_plugin)
 {
     void* dl_ptr;
 
+    // FIXME: too short path length! This leads to buffer overflow!
     for(int i = 0; i < num_of_plugin; i++)
     {
         strcpy(plg[i].path, PLUGIN_PREFIX);
@@ -163,7 +164,7 @@ static int load_libraries(struct retif_plugin* plg, int num_of_plugin)
 
         if (dl_ptr == NULL)
         {
-            ERR("Unable to open %s plugin. %s\n", plg[i].path, strerror(errno));
+            ERR("Unable to open %s plugin. %s\n", plg[i].path, dlerror());
             return -1;
         }
 
