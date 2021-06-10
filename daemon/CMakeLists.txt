@@ -29,6 +29,12 @@ add_executable(retifd
     src/retif_utils.c
 )
 
+# This will allow plugins to link against symbols provided by the daemon
+# (without using multiple copies of the same code)
+set_property(TARGET retifd
+    PROPERTY ENABLE_EXPORTS 1
+)
+
 target_include_directories(retifd
     PRIVATE
     src
