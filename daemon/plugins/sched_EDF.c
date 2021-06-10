@@ -114,9 +114,9 @@ static int utilization_test(struct retif_plugin* this, float task_util)
     float missing_util = eval_util_missing(this, task_util);
 
     if (missing_util == 0)
-        return retif_OK;
+        return RETIF_OK;
     else
-        return retif_NO;
+        return RETIF_NO;
 }
 
 static int desired_utilization_test(struct retif_plugin* this, float task_util, float task_des_util)
@@ -125,11 +125,11 @@ static int desired_utilization_test(struct retif_plugin* this, float task_util, 
     float missing_des_util = eval_util_missing(this, task_des_util);
 
     if (missing_des_util == 0)
-        return retif_OK;
+        return RETIF_OK;
     else if (missing_des_util > 0 && missing_util == 0)
-        return retif_PARTIAL;
+        return RETIF_PARTIAL;
     else
-        return retif_NO;
+        return RETIF_NO;
 }
 
 // -----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ static int desired_utilization_test(struct retif_plugin* this, float task_util, 
  */
 int retif_plg_task_init(struct retif_plugin* this)
 {
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -158,11 +158,11 @@ int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, s
 
     // task does not have required params
     if (retif_task_get_ignore_admission(t))
-        return retif_NO;
+        return RETIF_NO;
     if (retif_task_get_period(t) == 0)
-        return retif_NO;
+        return RETIF_NO;
     if (task_util == -1)
-        return retif_NO;
+        return RETIF_NO;
 
     // task does not require a desired higher runtime
     if (task_des_util == -1)
@@ -176,8 +176,8 @@ int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, s
     }
 
     // if not preferred plugin support is partial
-    if (has_another_preference(this, t) && test_res == retif_OK)
-        test_res = retif_PARTIAL;
+    if (has_another_preference(this, t) && test_res == RETIF_OK)
+        test_res = RETIF_PARTIAL;
 
     return test_res;
 }
@@ -223,7 +223,7 @@ void retif_plg_task_schedule(struct retif_plugin* this, struct retif_taskset* ts
         t->acceptedu = task_util;
     }
     // required higher desired runtime and it is available
-    else if (desired_utilization_test(this, task_util, task_des_util) == retif_OK)
+    else if (desired_utilization_test(this, task_util, task_des_util) == RETIF_OK)
     {
         t->acceptedt = retif_task_get_des_runtime(t);
         t->acceptedu = task_util;
@@ -254,7 +254,7 @@ int retif_plg_task_attach(struct retif_task* t)
     CPU_SET(t->cpu, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     runtime     = retif_task_get_accepted_runtime(t);
     deadline    = retif_task_get_deadline(t) != 0 ? retif_task_get_deadline(t) : retif_task_get_period(t);
@@ -269,9 +269,9 @@ int retif_plg_task_attach(struct retif_task* t)
     attr.sched_period   = MICRO_TO_NANO(period);
 
     if(sched_setattr(t->tid, &attr, 0) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -288,14 +288,14 @@ int retif_plg_task_detach(struct retif_task* t)
         CPU_SET(i, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     attr.sched_priority = 0;
 
     if(sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 /**
@@ -308,7 +308,7 @@ int retif_plg_task_release(struct retif_plugin* this, struct retif_taskset* ts, 
     t->pluginid = -1;
 
     if (sched_getscheduler(t->tid) != SCHED_DEADLINE) // means no attached flow of ex.
-        return retif_OK;
+        return RETIF_OK;
 
     return retif_plg_task_detach(t);
 }

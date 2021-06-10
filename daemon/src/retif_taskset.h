@@ -10,8 +10,8 @@
  * an implementation of linked list of any_t element.
  */
 
-#ifndef retif_TASKSET_H
-#define retif_TASKSET_H
+#ifndef RETIF_TASKSET_H
+#define RETIF_TASKSET_H
 
 #include "list.h"
 #include "retif_task.h"

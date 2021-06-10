@@ -2,8 +2,8 @@
 // RT_TASK_H: REPRESENT A REAL TIME TASK WITH ITS PARAM
 //-----------------------------------------------------------------------------
 
-#ifndef retif_TASK_H
-#define retif_TASK_H
+#ifndef RETIF_TASK_H
+#define RETIF_TASK_H
 
 #include <stdint.h>
 #include <time.h>
@@ -110,4 +110,4 @@ char* retif_task_get_preferred_plugin(struct retif_task* t);
 // Compare two tasks
 int task_cmp(struct retif_task* t1, struct retif_task* t2, enum PARAM p, int flag) ;
 
-#endif /** retif_TASK_H */
+#endif /** RETIF_TASK_H */

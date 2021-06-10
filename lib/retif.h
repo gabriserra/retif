@@ -1,5 +1,5 @@
-#ifndef retif_LIB_H
-#define retif_LIB_H
+#ifndef RETIF_LIB_H
+#define RETIF_LIB_H
 
 #include <stdint.h>
 #include <time.h>
@@ -9,7 +9,7 @@
 // PLUGINS INFO
 // -----------------------------------------------------------------------------
 
-#define PLUGIN_MAX_NAME         10
+#define PLUGIN_MAX_NAME         32
 
 // -----------------------------------------------------------------------------
 // TIME UTILS (MACRO - TYPES)
@@ -39,8 +39,8 @@
 // STRUCT UTILS
 // -----------------------------------------------------------------------------
 
-#ifndef retif_PUBLIC_TYPES
-#define retif_PUBLIC_TYPES
+#ifndef RETIF_PUBLIC_TYPES
+#define RETIF_PUBLIC_TYPES
 
 struct retif_params
 {
@@ -126,4 +126,4 @@ void retif_task_wait_period(struct retif_task* t);
 
 uint64_t retif_task_get_accepted_runtime(struct retif_task* t);
 
-#endif	// retif_LIB_H
+#endif	// RETIF_LIB_H

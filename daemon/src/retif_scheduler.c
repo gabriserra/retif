@@ -19,13 +19,13 @@ static int retif_scheduler_test_and_assign(struct retif_scheduler* s, struct ret
     {
         results[i] = s->plugin[i].retif_plg_task_accept(&(s->plugin[i]), s->taskset, t);
 
-        if (results[i] == retif_OK)
+        if (results[i] == RETIF_OK)
         {
             retif_taskset_add_top(s->taskset, t);
             s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return retif_OK;
+            return RETIF_OK;
         }
     }
 
@@ -33,19 +33,19 @@ static int retif_scheduler_test_and_assign(struct retif_scheduler* s, struct ret
 
     for (int i = 0; i < s->num_of_plugins; i++)
     {
-        if (results[i] == retif_PARTIAL)
+        if (results[i] == RETIF_PARTIAL)
         {
             retif_taskset_add_top(s->taskset, t);
             s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return retif_PARTIAL;
+            return RETIF_PARTIAL;
         }
     }
 
     // means no plugin available
     free(results);
-    return retif_NO;
+    return RETIF_NO;
 }
 
 static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct retif_task* t)
@@ -56,13 +56,13 @@ static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct ret
     {
         results[i] = s->plugin[i].retif_plg_task_change(&(s->plugin[i]), s->taskset, t);
 
-        if (results[i] == retif_OK)
+        if (results[i] == RETIF_OK)
         {
             s->plugin[i].retif_plg_task_release(&(s->plugin[i]), s->taskset, t);
             s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return retif_OK;
+            return RETIF_OK;
         }
     }
 
@@ -70,19 +70,19 @@ static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct ret
 
     for (int i = 0; i < s->num_of_plugins; i++)
     {
-        if (results[i] == retif_PARTIAL)
+        if (results[i] == RETIF_PARTIAL)
         {
             s->plugin[i].retif_plg_task_release(&(s->plugin[i]), s->taskset, t);
             s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return retif_PARTIAL;
+            return RETIF_PARTIAL;
         }
     }
 
     // means no plugin available
     free(results);
-    return retif_NO;
+    return RETIF_NO;
 }
 
 // -----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ int retif_scheduler_task_change(struct retif_scheduler* s, struct retif_params* 
     struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
 
     if (t == NULL)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     return retif_scheduler_test_and_modify(s, t);
 }
@@ -186,7 +186,7 @@ int retif_scheduler_task_attach(struct retif_scheduler* s, retif_id_t retif_id, 
     struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
 
     if (t == NULL)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     t->tid = pid;
     return s->plugin[t->pluginid].retif_plg_task_attach(t);
@@ -197,7 +197,7 @@ int retif_scheduler_task_detach(struct retif_scheduler* s, retif_id_t retif_id)
     struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
 
     if (t == NULL)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     return s->plugin[t->pluginid].retif_plg_task_detach(t);
 }
@@ -209,12 +209,12 @@ int retif_scheduler_task_destroy(struct retif_scheduler* s, retif_id_t retif_id)
     t = retif_taskset_remove_by_rsvid(s->taskset, retif_id);
 
     if(t == NULL)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     s->plugin[t->pluginid].retif_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
     retif_task_destroy(t);
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 void retif_scheduler_dump(struct retif_scheduler* s)

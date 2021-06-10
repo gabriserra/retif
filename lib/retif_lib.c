@@ -30,19 +30,19 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int retif_task_communicate(struct retif_access* c)
 {
-    int ret = retif_ERROR;
+    int ret = RETIF_ERROR;
 
     pthread_mutex_lock(&mutex);
 
-    if (retif_access_send(c) != retif_ERROR)
+    if (retif_access_send(c) != RETIF_ERROR)
         ret = retif_access_recv(c);
 
     pthread_mutex_unlock(&mutex);
 
-    if (ret == retif_ERROR)
-        return retif_ERROR;
+    if (ret == RETIF_ERROR)
+        return RETIF_ERROR;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 
@@ -210,23 +210,23 @@ void retif_params_ignore_admission(struct retif_params* p, uint8_t ignore_admiss
 int retif_daemon_connect()
 {
     if(retif_access_init(&main_channel) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
     if(retif_access_connect(&main_channel) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    main_channel.req.req_type = retif_CONNECTION;
+    main_channel.req.req_type = RETIF_CONNECTION;
     main_channel.req.payload.ids.pid = getpid();
 
     if(retif_access_send(&main_channel) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
     if(retif_access_recv(&main_channel) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(main_channel.rep.rep_type == retif_CONNECTION_ERR)
-        return retif_FAIL;
+    if(main_channel.rep.rep_type == RETIF_CONNECTION_ERR)
+        return RETIF_FAIL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 void retif_task_init(struct retif_task* t)
@@ -237,76 +237,76 @@ void retif_task_init(struct retif_task* t)
 
 int retif_task_create(struct retif_task* t, struct retif_params* p)
 {
-    t->c->req.req_type = retif_TASK_CREATE;
+    t->c->req.req_type = RETIF_TASK_CREATE;
     memcpy(&(t->p), p, sizeof(struct retif_params));
     memcpy(&(t->c->req.payload.param), p, sizeof(struct retif_params));
 
     if(retif_task_communicate(t->c) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(t->c->rep.rep_type == retif_TASK_CREATE_ERR)
-        return retif_FAIL;
+    if(t->c->rep.rep_type == RETIF_TASK_CREATE_ERR)
+        return RETIF_FAIL;
 
     t->task_id = (uint32_t) t->c->rep.payload;
-    return retif_OK;
+    return RETIF_OK;
 }
 
 int retif_task_change(struct retif_task* t, struct retif_params* p)
 {
-    t->c->req.req_type = retif_TASK_MODIFY;
+    t->c->req.req_type = RETIF_TASK_MODIFY;
     memcpy(&(t->p), p, sizeof(struct retif_params));
     memcpy(&(t->c->req.payload.param), p, sizeof(struct retif_params));
 
     if(retif_task_communicate(t->c) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(t->c->rep.rep_type == retif_TASK_MODIFY_ERR)
-        return retif_FAIL;
+    if(t->c->rep.rep_type == RETIF_TASK_MODIFY_ERR)
+        return RETIF_FAIL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 int retif_task_attach(struct retif_task* t, pid_t pid)
 {
-    t->c->req.req_type = retif_TASK_ATTACH;
+    t->c->req.req_type = RETIF_TASK_ATTACH;
     t->c->req.payload.ids.rsvid = t->task_id;
     t->c->req.payload.ids.pid = pid;
 
     if(retif_task_communicate(t->c) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(t->c->rep.rep_type == retif_TASK_ATTACH_ERR)
-        return retif_FAIL;
+    if(t->c->rep.rep_type == RETIF_TASK_ATTACH_ERR)
+        return RETIF_FAIL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 int retif_task_detach(struct retif_task* t)
 {
-    t->c->req.req_type = retif_TASK_DETACH;
+    t->c->req.req_type = RETIF_TASK_DETACH;
     t->c->req.payload.ids.rsvid = t->task_id;
 
     if(retif_task_communicate(t->c) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(t->c->rep.rep_type == retif_TASK_DETACH_ERR)
-        return retif_FAIL;
+    if(t->c->rep.rep_type == RETIF_TASK_DETACH_ERR)
+        return RETIF_FAIL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 int retif_task_destroy(struct retif_task* t)
 {
-    t->c->req.req_type = retif_TASK_DESTROY;
+    t->c->req.req_type = RETIF_TASK_DESTROY;
     t->c->req.payload.ids.rsvid = t->task_id;
 
     if(retif_task_communicate(t->c) < 0)
-        return retif_ERROR;
+        return RETIF_ERROR;
 
-    if(t->c->rep.rep_type == retif_TASK_DESTROY_ERR)
-        return retif_FAIL;
+    if(t->c->rep.rep_type == RETIF_TASK_DESTROY_ERR)
+        return RETIF_FAIL;
 
-    return retif_OK;
+    return RETIF_OK;
 }
 
 // -----------------------------------------------------------------------------

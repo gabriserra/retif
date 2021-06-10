@@ -19,61 +19,61 @@
  * # Requests
  * #############################################################################
  *
- * - retif_CONNECTION
- * - retif_RSV_CREATE
- * - retif_RSV_ATTACH
- * - retif_RSV_DETACH
- * - retif_RSV_QUERY
- * - retif_RSV_DESTROY
- * - retif_DECONNECTION
+ * - RETIF_CONNECTION
+ * - RETIF_RSV_CREATE
+ * - RETIF_RSV_ATTACH
+ * - RETIF_RSV_DETACH
+ * - RETIF_RSV_QUERY
+ * - RETIF_RSV_DESTROY
+ * - RETIF_DECONNECTION
  *
  * #############################################################################
  * # Replies
  * #############################################################################
  *
- * - retif_REQUEST_ERR
- * - retif_CONNECTION_OK
- * - retif_CONNECTION_ERR
- * - retif_RSV_CREATE_OK
- * - retif_RSV_CREATE_MIN
- * - retif_RSV_CREATE_ERR
- * - retif_RSV_ATTACH_OK
- * - retif_RSV_ATTACH_ERR
- * - retif_RSV_DETACH_OK
- * - retif_RSV_DETACH_ERR
- * - retif_RSV_QUERY_OK
- * - retif_RSV_QUERY_ERR
- * - retif_RSV_DESTROY_OK
- * - retif_RSV_DESTROY_ERR
- * - retif_DECONNECTION_OK
- * - retif_DECONNECTION_ERR
+ * - RETIF_REQUEST_ERR
+ * - RETIF_CONNECTION_OK
+ * - RETIF_CONNECTION_ERR
+ * - RETIF_RSV_CREATE_OK
+ * - RETIF_RSV_CREATE_MIN
+ * - RETIF_RSV_CREATE_ERR
+ * - RETIF_RSV_ATTACH_OK
+ * - RETIF_RSV_ATTACH_ERR
+ * - RETIF_RSV_DETACH_OK
+ * - RETIF_RSV_DETACH_ERR
+ * - RETIF_RSV_QUERY_OK
+ * - RETIF_RSV_QUERY_ERR
+ * - RETIF_RSV_DESTROY_OK
+ * - RETIF_RSV_DESTROY_ERR
+ * - RETIF_DECONNECTION_OK
+ * - RETIF_DECONNECTION_ERR
  *
  * #############################################################################
  * # Behavior & details
  * #############################################################################
  *
- * ## retif_CONNECTION
+ * ## RETIF_CONNECTION
  *
  * DESC:
  *  Client is requesting to connect to daemon services.
  * PARAM:
  *  Client process id
  * REPLIES:
- *  retif_CONNECTION_OK: Daemon accepts the connection.
- *  retif_CONNECTION_ERR: Error during connection.
+ *  RETIF_CONNECTION_OK: Daemon accepts the connection.
+ *  RETIF_CONNECTION_ERR: Error during connection.
  * PAYLOAD:
  *  Reply type
  *
- * ## retif_CAP_QUERY
+ * ## RETIF_CAP_QUERY
  *
  * DESC:
  *  Client is asking info about current system budget
  * PARAM:
- *  SCHED_CLASSES: retif_BUDGET or retif_REMAINING_BUDGET
+ *  SCHED_CLASSES: RETIF_BUDGET or RETIF_REMAINING_BUDGET
  * REPLIES:
- *  retif_CAP_QUERY_OK: System total rt utilization percentage
- *  retif_CAP_QUERY_OK: System current rt utilization percentage
- *  retif_CAP_QUERY_ERR: Wrong param type
+ *  RETIF_CAP_QUERY_OK: System total rt utilization percentage
+ *  RETIF_CAP_QUERY_OK: System current rt utilization percentage
+ *  RETIF_CAP_QUERY_ERR: Wrong param type
  * PAYLOAD:
  *  Reply type & Total free rt util
  *  Reply type & Remaining rt util
@@ -87,8 +87,8 @@
  *  retif_params: budget, period, wcet, priority ..
  *  Client process id
  * REPLIES:
- *  retif_RSV_CREATE_ERR: Impossible to guarantee the request
- *  retif_RSV_CREATE_OK: Reservation created
+ *  RETIF_RSV_CREATE_ERR: Impossible to guarantee the request
+ *  RETIF_RSV_CREATE_OK: Reservation created
  * PAYLOAD:
  *  Reply type & -1
  *  Reply tyoe & Reservation id
@@ -100,8 +100,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  retif_RSV_ATTACH_ERR: Unable to attach this flow of execution
- *  retif_RSV_ATTACH_OK: Flow of execution attached
+ *  RETIF_RSV_ATTACH_ERR: Unable to attach this flow of execution
+ *  RETIF_RSV_ATTACH_OK: Flow of execution attached
  * PAYLOAD:
  *  Reply type
  *
@@ -112,8 +112,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  retif_RSV_DETACH_ERR: Reservation not found
- *  retif_RSV_DETACH_OK: Detached with success
+ *  RETIF_RSV_DETACH_ERR: Reservation not found
+ *  RETIF_RSV_DETACH_OK: Detached with success
  * PAYLOAD:
  *  Reply type
  *
@@ -124,8 +124,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  retif_RSV_DESTROY_ERR: Reservation not found
- *  retif_RSV_DESTROY_OK: Destroyed with success
+ *  RETIF_RSV_DESTROY_ERR: Reservation not found
+ *  RETIF_RSV_DESTROY_OK: Destroyed with success
  * PAYLOAD:
  *  Reply type
  *

@@ -133,13 +133,13 @@ static void load_symbols(struct retif_plugin* plg, unsigned int index, void* dl_
     plg[index].id                       = index;
     plg[index].cpunum                   = cpunum;
     plg[index].dl_ptr                   = dl_ptr;
-    plg[index].retif_plg_task_init        = dlsym(dl_ptr, retif_API_INIT);
-    plg[index].retif_plg_task_accept      = dlsym(dl_ptr, retif_API_ACCEPT);
-    plg[index].retif_plg_task_change      = dlsym(dl_ptr, retif_API_CHANGE);
-    plg[index].retif_plg_task_release     = dlsym(dl_ptr, retif_API_RELEASE);
-    plg[index].retif_plg_task_schedule    = dlsym(dl_ptr, retif_API_SCHEDULE);
-    plg[index].retif_plg_task_attach      = dlsym(dl_ptr, retif_API_ATTACH);
-    plg[index].retif_plg_task_detach      = dlsym(dl_ptr, retif_API_DETACH);
+    plg[index].retif_plg_task_init      = dlsym(dl_ptr, RETIF_API_INIT);
+    plg[index].retif_plg_task_accept    = dlsym(dl_ptr, RETIF_API_ACCEPT);
+    plg[index].retif_plg_task_change    = dlsym(dl_ptr, RETIF_API_CHANGE);
+    plg[index].retif_plg_task_release   = dlsym(dl_ptr, RETIF_API_RELEASE);
+    plg[index].retif_plg_task_schedule  = dlsym(dl_ptr, RETIF_API_SCHEDULE);
+    plg[index].retif_plg_task_attach    = dlsym(dl_ptr, RETIF_API_ATTACH);
+    plg[index].retif_plg_task_detach    = dlsym(dl_ptr, RETIF_API_DETACH);
 }
 
 /**

@@ -5,8 +5,8 @@
  * @brief Allows to configure kernel parameters for real-time scheduling
  */
 
-#ifndef retif_CONFIG_H
-#define retif_CONFIG_H
+#ifndef RETIF_CONFIG_H
+#define RETIF_CONFIG_H
 
 #define NUM_OF_SETTINGS             3
 #define SETTINGS_CFG                "@RETIF_CONF_PATH@"
@@ -122,4 +122,4 @@ int retif_config_restore_rr_kernel_param();
  */
 int retif_config_apply();
 
-#endif /* retif_CONFIG_H */
+#endif /* RETIF_CONFIG_H */

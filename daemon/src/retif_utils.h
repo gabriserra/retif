@@ -1,6 +1,6 @@
 
-#ifndef retif_UTILS_H
-#define retif_UTILS_H
+#ifndef RETIF_UTILS_H
+#define RETIF_UTILS_H
 
 #include <time.h>
 #include <stdint.h>
@@ -172,4 +172,4 @@ void set_timer(uint32_t milli);
 int get_nprocs2(void);
 
 
-#endif	// retif_UTILS_H
+#endif	// RETIF_UTILS_H
