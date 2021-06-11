@@ -15,7 +15,7 @@ if (BUILD_DOC)
         # The Doxyfile used to generate the docs is also
         # generated starting from an input file using the
         # configure option of CMake
-        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/CMakeDoxyfile.in)
         set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
         configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
