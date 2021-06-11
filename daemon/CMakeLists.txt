@@ -8,21 +8,17 @@ set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
 set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
 set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
 
-# ----------------------- Plugins ------------------------ #
-
-add_subdirectory(plugins)
-
 # ------------------------ Daemon ------------------------ #
 
 add_executable(retifd
-    daemon.c
-    src/retif_config.c
-    src/retif_daemon.c
-    src/retif_plugin.c
-    src/retif_scheduler.c
-    src/retif_task.c
-    src/retif_taskset.c
-    src/retif_utils.c
+    retif_daemon_main.c
+    retif_config.c
+    retif_daemon.c
+    retif_plugin.c
+    retif_scheduler.c
+    retif_task.c
+    retif_taskset.c
+    retif_utils.c
 )
 
 # This will allow plugins to link against symbols provided by the daemon
@@ -33,7 +29,7 @@ set_property(TARGET retifd
 
 target_include_directories(retifd
     PRIVATE
-    src
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -55,13 +51,13 @@ configure_file(${INITDSCRIPT_IN} ${INITDSCRIPT_OUT} @ONLY)
 
 # Substitute correct path of the configuration in the corresponding header file
 set(RETIF_CONF_H retif_config.h)
-set(RETIF_CONF_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/${RETIF_CONF_H}.in)
+set(RETIF_CONF_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_CONF_H}.in)
 set(RETIF_CONF_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_CONF_H})
 configure_file(${RETIF_CONF_H_IN} ${RETIF_CONF_H_OUT} @ONLY)
 
 # Substitute correct path of the plugin DLLs in the corresponding header file
 set(RETIF_PLUGIN_H retif_plugin.h)
-set(RETIF_PLUGIN_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/${RETIF_PLUGIN_H}.in)
+set(RETIF_PLUGIN_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_PLUGIN_H}.in)
 set(RETIF_PLUGIN_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_PLUGIN_H})
 configure_file(${RETIF_PLUGIN_H_IN} ${RETIF_PLUGIN_H_OUT} @ONLY)
 
