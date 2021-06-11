@@ -243,13 +243,13 @@ The list of contributors can be found in the [contributors of the project][contr
 > extensive support to the work. Without him, the framework would not exist at
 > all.
 
-### License
+## License
 
 The project comes with a GPLv3 license. If you want to use this code, you can do
 without limitation but you have to document the modifications and include this
 license. Read more [here](https://choosealicense.com/licenses/gpl-3.0/).
 
-### Citation
+## Citation
 
 If you want to cite, please refer to:
 
