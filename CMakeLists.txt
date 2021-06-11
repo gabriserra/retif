@@ -56,7 +56,7 @@ add_subdirectory(channel)
 add_subdirectory(common)
 add_subdirectory(conf)
 add_subdirectory(daemon)
-add_subdirectory(daemon_plugins)
+add_subdirectory(plugins)
 add_subdirectory(lib)
 
 add_subdirectory(docs)

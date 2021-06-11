@@ -106,9 +106,9 @@ uint32_t rand_bounded(uint32_t min, uint32_t max)
     return min + (rand() % max);
 }
 
-void daemon_connect()
+void rtf_connect()
 {
-    if (rtf_daemon_connect() < 0)
+    if (rtf_connect() < 0)
         print_err("# Error - Unable to connect with daemon.\n");
     else
         printf("# Connected with daemon.\n");
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
     printf("# TSC frequency: %ld\n", tsc_freq);
     #endif
 
-    daemon_connect();
+    rtf_connect();
 
     if (strcmp(argv[3], "attach") == 0)
         for (int i = 0; i < T_NUM; i++)
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < T_NUM; i++)
         {
-            rtf_task_destroy(&(t[i]));
+            rtf_task_release(&(t[i]));
         }
 
         fprintf(output, "\n");

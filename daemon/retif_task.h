@@ -53,7 +53,7 @@ int rtf_task_init(struct rtf_task **t, rtf_id_t id, clockid_t clk);
 int rtf_task_copy(struct rtf_task *t, struct rtf_task *t_copy);
 
 // Destroy a real time task structure
-void rtf_task_destroy(struct rtf_task *t);
+void rtf_task_release(struct rtf_task *t);
 
 //-----------------------------------------------
 // PUBLIC: GETTER/SETTER

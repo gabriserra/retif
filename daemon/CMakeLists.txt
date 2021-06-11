@@ -31,7 +31,7 @@ target_link_libraries(retifd
 # ----------------------- Service ------------------------ #
 
 # Substitute correct binary path in the initd script
-set(INITDSCRIPT_IN ${CMAKE_CURRENT_SOURCE_DIR}/retif.in)
+set(INITDSCRIPT_IN ${CMAKE_CURRENT_SOURCE_DIR}/init.d/retif.in)
 set(INITDSCRIPT_OUT ${CMAKE_CURRENT_BINARY_DIR}/init.d/retif)
 configure_file(${INITDSCRIPT_IN} ${INITDSCRIPT_OUT} @ONLY)
 
