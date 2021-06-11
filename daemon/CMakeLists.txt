@@ -1,15 +1,3 @@
-# -------------------- Configuration --------------------- #
-
-set(RETIF_CONF_FNAME retif.conf)
-set(RETIF_CONF_SRC  ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_CONF_FNAME})
-
-# Set all destination paths for various components that will be installed
-set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
-set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
-set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
-
-# ------------------------ Daemon ------------------------ #
-
 add_executable(retifd
     retif_daemon_main.c
     retif_config.c
@@ -49,17 +37,16 @@ configure_file(${INITDSCRIPT_IN} ${INITDSCRIPT_OUT} @ONLY)
 
 # ------------------ Path Substitution ------------------- #
 
-# Substitute correct path of the configuration in the corresponding header file
-set(RETIF_CONF_H retif_config.h)
-set(RETIF_CONF_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_CONF_H}.in)
-set(RETIF_CONF_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_CONF_H})
-configure_file(${RETIF_CONF_H_IN} ${RETIF_CONF_H_OUT} @ONLY)
+function(configure_header header_name)
+    set(header_in ${CMAKE_CURRENT_SOURCE_DIR}/${header_name}.in)
+    set(header_out ${CMAKE_CURRENT_BINARY_DIR}/${header_name})
+    configure_file(${header_in} ${header_out} @ONLY)
+endfunction(configure_header)
 
-# Substitute correct path of the plugin DLLs in the corresponding header file
-set(RETIF_PLUGIN_H retif_plugin.h)
-set(RETIF_PLUGIN_H_IN ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_PLUGIN_H}.in)
-set(RETIF_PLUGIN_H_OUT ${CMAKE_CURRENT_BINARY_DIR}/${RETIF_PLUGIN_H})
-configure_file(${RETIF_PLUGIN_H_IN} ${RETIF_PLUGIN_H_OUT} @ONLY)
+# Following headers need to be configured to substitute
+# paths for installed files in the source code
+configure_header(retif_config.h)
+configure_header(retif_plugin.h)
 
 # ----------------------- Install ------------------------ #
 
@@ -74,10 +61,4 @@ install(
 install(
     PROGRAMS ${INITDSCRIPT_OUT}
     DESTINATION ${CMAKE_INSTALL_INITDIR}
-)
-
-# Install the configuration file
-install(
-    FILES ${RETIF_CONF_SRC}
-    DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}
 )

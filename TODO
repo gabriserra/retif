@@ -6,11 +6,11 @@
 - [X] Remove atomic.h
 - [x] Remove shatomic
 - [ ] Implement list search with hash-map
-- [ ] Install the daemon (GARA)
-- [ ] Program a systemctl service for the daemon (GARA)
+- [x] Install the daemon (GARA)
+- [x] Program a systemctl/init.d service for the daemon (GARA)
 - [ ] Check configuration file and management (libcfg) (GSERRA)
 - [ ] Install daemon configuration (GSERRA)
 - [ ] GitHub Actions
 - [ ] Manpage
 - [ ] Allow to manage ACL
-- [ ]
+- [ ] RTF_SCHEDULE_FAIL/RTF_ACL_FAIL
