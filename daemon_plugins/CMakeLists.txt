@@ -13,8 +13,8 @@ foreach(PLUGIN IN ITEMS
 
     target_include_directories(${PLUGIN}
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/../src
-        ${CMAKE_CURRENT_BINARY_DIR}/..
+        ${PROJECT_SOURCE_DIR}/daemon
+        ${PROJECT_BINARY_DIR}/daemon
     )
 
     target_link_libraries(${PLUGIN}
