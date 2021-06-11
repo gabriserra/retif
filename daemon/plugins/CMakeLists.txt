@@ -7,9 +7,6 @@ foreach(PLUGIN IN ITEMS
     add_library(${PLUGIN}
         MODULE
         ${PLUGIN}.c
-        # ${CMAKE_CURRENT_SOURCE_DIR}/../src/retif_task.c
-        # ${CMAKE_CURRENT_SOURCE_DIR}/../src/retif_taskset.c
-        # ${CMAKE_CURRENT_SOURCE_DIR}/../src/retif_utils.c
     )
 
     set_target_properties(${PLUGIN} PROPERTIES PREFIX "")
