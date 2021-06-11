@@ -66,7 +66,7 @@ int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
 /**
  * @brief Given pointer to plugin struct @p this, retrieve least loaded cpu
  */
-static uint32_t least_loaded_cpu(struct retif_plugin* this)
+static uint32_t least_loaded_cpu(struct rtf_plugin* this)
 {
     int cpu_num;
     float free_edf_max;
@@ -86,7 +86,7 @@ static uint32_t least_loaded_cpu(struct retif_plugin* this)
     return free_edf_max_cpu;
 }
 
-static float eval_util_missing(struct retif_plugin* this, float task_util)
+static float eval_util_missing(struct rtf_plugin* this, float task_util)
 {
     int cpu_min;
 
@@ -99,9 +99,9 @@ static float eval_util_missing(struct retif_plugin* this, float task_util)
     return task_util - this->util_free_percpu[cpu_min];
 }
 
-static uint8_t has_another_preference(struct retif_plugin* this, struct retif_task* t)
+static uint8_t has_another_preference(struct rtf_plugin* this, struct rtf_task* t)
 {
-    char* preferred = retif_task_get_preferred_plugin(t);
+    char* preferred = rtf_task_get_preferred_plugin(t);
 
     if (preferred != NULL && strcmp(this->name, preferred) != 0)
         return 1;
@@ -109,27 +109,27 @@ static uint8_t has_another_preference(struct retif_plugin* this, struct retif_ta
     return 0;
 }
 
-static int utilization_test(struct retif_plugin* this, float task_util)
+static int utilization_test(struct rtf_plugin* this, float task_util)
 {
     float missing_util = eval_util_missing(this, task_util);
 
     if (missing_util == 0)
-        return RETIF_OK;
+        return RTF_OK;
     else
-        return RETIF_NO;
+        return RTF_NO;
 }
 
-static int desired_utilization_test(struct retif_plugin* this, float task_util, float task_des_util)
+static int desired_utilization_test(struct rtf_plugin* this, float task_util, float task_des_util)
 {
     float missing_util = eval_util_missing(this, task_util);
     float missing_des_util = eval_util_missing(this, task_des_util);
 
     if (missing_des_util == 0)
-        return RETIF_OK;
+        return RTF_OK;
     else if (missing_des_util > 0 && missing_util == 0)
-        return RETIF_PARTIAL;
+        return RTF_PARTIAL;
     else
-        return RETIF_NO;
+        return RTF_NO;
 }
 
 // -----------------------------------------------------------------------------
@@ -139,30 +139,30 @@ static int desired_utilization_test(struct retif_plugin* this, float task_util, 
 /**
  * @brief Used by plugin to initializes itself
  */
-int retif_plg_task_init(struct retif_plugin* this)
+int rtf_plg_task_init(struct rtf_plugin* this)
 {
-    return RETIF_OK;
+    return RTF_OK;
 }
 
 /**
  * @brief Used by plugin to perform a new task admission test
  */
-int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, struct retif_task* t)
+int rtf_plg_task_accept(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
 {
     float task_util;
     float task_des_util;
     int test_res;
 
-    task_util = retif_task_get_util(t);
-    task_des_util = retif_task_get_des_util(t);
+    task_util = rtf_task_get_util(t);
+    task_des_util = rtf_task_get_des_util(t);
 
     // task does not have required params
-    if (retif_task_get_ignore_admission(t))
-        return RETIF_NO;
-    if (retif_task_get_period(t) == 0)
-        return RETIF_NO;
+    if (rtf_task_get_ignore_admission(t))
+        return RTF_NO;
+    if (rtf_task_get_period(t) == 0)
+        return RTF_NO;
     if (task_util == -1)
-        return RETIF_NO;
+        return RTF_NO;
 
     // task does not require a desired higher runtime
     if (task_des_util == -1)
@@ -176,8 +176,8 @@ int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, s
     }
 
     // if not preferred plugin support is partial
-    if (has_another_preference(this, t) && test_res == RETIF_OK)
-        test_res = RETIF_PARTIAL;
+    if (has_another_preference(this, t) && test_res == RTF_OK)
+        test_res = RTF_PARTIAL;
 
     return test_res;
 }
@@ -185,7 +185,7 @@ int retif_plg_task_accept(struct retif_plugin* this, struct retif_taskset* ts, s
 /**
  * @brief Used by plugin to perform a new admission test when task modifies parameters
  */
-int retif_plg_task_change(struct retif_plugin* this, struct retif_taskset* ts, struct retif_task* t)
+int rtf_plg_task_change(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
 {
     int test_res;
 
@@ -193,7 +193,7 @@ int retif_plg_task_change(struct retif_plugin* this, struct retif_taskset* ts, s
     if (t->pluginid == this->id)
         this->util_free_percpu[t->cpu] += t->acceptedu;
 
-    test_res = retif_plg_task_accept(this, ts, t);
+    test_res = rtf_plg_task_accept(this, ts, t);
 
     // restore utilization
     if (t->pluginid == this->id)
@@ -205,13 +205,13 @@ int retif_plg_task_change(struct retif_plugin* this, struct retif_taskset* ts, s
 /**
  * @brief Used by plugin to set the task as accepted
  */
-void retif_plg_task_schedule(struct retif_plugin* this, struct retif_taskset* ts, struct retif_task* t)
+void rtf_plg_task_schedule(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
 {
     float task_util;
     float task_des_util;
 
-    task_util = retif_task_get_util(t);
-    task_des_util = retif_task_get_des_util(t);
+    task_util = rtf_task_get_util(t);
+    task_des_util = rtf_task_get_des_util(t);
 
     t->cpu = least_loaded_cpu(this);
     t->pluginid = this->id;
@@ -219,20 +219,20 @@ void retif_plg_task_schedule(struct retif_plugin* this, struct retif_taskset* ts
     // task does not require a desired higher runtime
     if (task_des_util == -1)
     {
-        t->acceptedt = retif_task_get_runtime(t);
+        t->acceptedt = rtf_task_get_runtime(t);
         t->acceptedu = task_util;
     }
     // required higher desired runtime and it is available
-    else if (desired_utilization_test(this, task_util, task_des_util) == RETIF_OK)
+    else if (desired_utilization_test(this, task_util, task_des_util) == RTF_OK)
     {
-        t->acceptedt = retif_task_get_des_runtime(t);
+        t->acceptedt = rtf_task_get_des_runtime(t);
         t->acceptedu = task_util;
     }
     // required higher desired runtime but not available all
     else
     {
-        t->acceptedt = this->util_free_percpu[t->cpu] * retif_task_get_min_declared(t);
-        t->acceptedu = t->acceptedt / (float)retif_task_get_min_declared(t);
+        t->acceptedt = this->util_free_percpu[t->cpu] * rtf_task_get_min_declared(t);
+        t->acceptedu = t->acceptedt / (float)rtf_task_get_min_declared(t);
     }
 
     this->util_free_percpu[t->cpu] -= t->acceptedu;
@@ -242,7 +242,7 @@ void retif_plg_task_schedule(struct retif_plugin* this, struct retif_taskset* ts
 /**
  * @brief Used by plugin to set rt scheduler for a task
  */
-int retif_plg_task_attach(struct retif_task* t)
+int rtf_plg_task_attach(struct rtf_task* t)
 {
     struct sched_attr attr;
     cpu_set_t my_set;
@@ -254,11 +254,11 @@ int retif_plg_task_attach(struct retif_task* t)
     CPU_SET(t->cpu, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    runtime     = retif_task_get_accepted_runtime(t);
-    deadline    = retif_task_get_deadline(t) != 0 ? retif_task_get_deadline(t) : retif_task_get_period(t);
-    period      = retif_task_get_period(t);
+    runtime     = rtf_task_get_accepted_runtime(t);
+    deadline    = rtf_task_get_deadline(t) != 0 ? rtf_task_get_deadline(t) : rtf_task_get_period(t);
+    period      = rtf_task_get_period(t);
 
     memset(&attr, 0, sizeof(attr));
     attr.size = sizeof(attr);
@@ -269,15 +269,15 @@ int retif_plg_task_attach(struct retif_task* t)
     attr.sched_period   = MICRO_TO_NANO(period);
 
     if(sched_setattr(t->tid, &attr, 0) < 0)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
 /**
  * @brief Used by plugin to reset scheduler (other) for a task
  */
-int retif_plg_task_detach(struct retif_task* t)
+int rtf_plg_task_detach(struct rtf_task* t)
 {
     struct sched_param attr;
     cpu_set_t my_set;
@@ -288,27 +288,27 @@ int retif_plg_task_detach(struct retif_task* t)
         CPU_SET(i, &my_set);
 
     if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
     attr.sched_priority = 0;
 
     if(sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
 /**
  * @brief Used by plugin to perform a release of previous accepted task
  */
-int retif_plg_task_release(struct retif_plugin* this, struct retif_taskset* ts, struct retif_task* t)
+int rtf_plg_task_release(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
 {
     this->util_free_percpu[t->cpu] += t->acceptedu;
     this->task_count_percpu[t->cpu]--;
     t->pluginid = -1;
 
     if (sched_getscheduler(t->tid) != SCHED_DEADLINE) // means no attached flow of ex.
-        return RETIF_OK;
+        return RTF_OK;
 
-    return retif_plg_task_detach(t);
+    return rtf_plg_task_detach(t);
 }

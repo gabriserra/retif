@@ -49,7 +49,7 @@ struct sched_attr
     __u64 sched_period;
 };
 
-int schedule(struct retif_params* p, int tid, int policy)
+int schedule(struct rtf_params* p, int tid, int policy)
 {
     struct sched_attr attr;
     cpu_set_t my_set;
@@ -108,7 +108,7 @@ uint32_t rand_bounded(uint32_t min, uint32_t max)
 
 void daemon_connect()
 {
-    if (retif_daemon_connect() < 0)
+    if (rtf_daemon_connect() < 0)
         print_err("# Error - Unable to connect with daemon.\n");
     else
         printf("# Connected with daemon.\n");
@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
 {
     FILE* output;
     uint32_t ret;
-    struct retif_params p;
-    struct retif_task t[T_NUM];
+    struct rtf_params p;
+    struct rtf_task t[T_NUM];
     pthread_t pt[T_NUM];
 
     if (argc < 4)
@@ -186,24 +186,24 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < T_NUM; i++)
         {
-            retif_params_init(&p);
-            retif_task_init(&(t[i]));
+            rtf_params_init(&p);
+            rtf_task_init(&(t[i]));
 
-            retif_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
-            retif_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
-            retif_params_set_priority(&p, rand_bounded(T_PRIORI_MIN, T_PRIORI_MAX));
+            rtf_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
+            rtf_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
+            rtf_params_set_priority(&p, rand_bounded(T_PRIORI_MIN, T_PRIORI_MAX));
 
             #ifndef TSC
                 struct timespec tp_before;
                 struct timespec tp_after;
                 clock_gettime(CLOCK_MONOTONIC_RAW, &tp_before);
-                ret = retif_task_create(&(t[i]), &p);
+                ret = rtf_task_create(&(t[i]), &p);
                 clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
                 if (strcmp(argv[3], "create") == 0)
                     fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
             #else
                 tsc_before = rdtsc();
-                ret = retif_task_create(&(t[i]), &p);
+                ret = rtf_task_create(&(t[i]), &p);
                 tsc_after = rdtsc();
                 if (strcmp(argv[3], "create") == 0)
                     fprintf(output, ",%ld", rdtsc_elapsed_ns(tsc_before, tsc_after));
@@ -236,12 +236,12 @@ int main(int argc, char* argv[])
 
                 #ifndef TSC
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_before);
-                    ret = retif_task_attach(&(t[i]), tids[i]);
+                    ret = rtf_task_attach(&(t[i]), tids[i]);
                     clock_gettime(CLOCK_MONOTONIC_RAW, &tp_after);
                     fprintf(output, ",%ld", tp_after.tv_nsec - tp_before.tv_nsec);
                 #else
                     tsc_before = rdtsc();
-                    ret = retif_task_attach(&(t[i]), tids[i]);
+                    ret = rtf_task_attach(&(t[i]), tids[i]);
                     tsc_after = rdtsc();
                     fprintf(output, ",%ld", rdtsc_elapsed_ns(tsc_before, tsc_after));
                 #endif
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
 
         for (int i = 0; i < T_NUM; i++)
         {
-            retif_task_destroy(&(t[i]));
+            rtf_task_destroy(&(t[i]));
         }
 
         fprintf(output, "\n");

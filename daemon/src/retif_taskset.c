@@ -19,39 +19,39 @@
  *
  * @endinternal
  */
-static int retif_taskset_cmp_deadline_asc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, DEADLINE, ASC);
+static int rtf_taskset_cmp_deadline_asc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, DEADLINE, ASC);
 }
-static int retif_taskset_cmp_deadline_dsc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, DEADLINE, DSC);
+static int rtf_taskset_cmp_deadline_dsc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, DEADLINE, DSC);
 }
-static int retif_taskset_cmp_priority_asc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, PRIORITY, ASC);
+static int rtf_taskset_cmp_priority_asc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, PRIORITY, ASC);
 }
-static int retif_taskset_cmp_priority_dsc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, PRIORITY, DSC);
+static int rtf_taskset_cmp_priority_dsc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, PRIORITY, DSC);
 }
-static int retif_taskset_cmp_period_asc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, PERIOD, ASC);
+static int rtf_taskset_cmp_period_asc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, PERIOD, ASC);
 }
-static int retif_taskset_cmp_period_dsc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, PERIOD, DSC);
+static int rtf_taskset_cmp_period_dsc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, PERIOD, DSC);
 }
-static int retif_taskset_cmp_wcet_asc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, RUNTIME, ASC);
+static int rtf_taskset_cmp_wcet_asc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, RUNTIME, ASC);
 }
-static int retif_taskset_cmp_wcet_dsc(any_t task1, any_t task2) {
-    return task_cmp((struct retif_task*) task1, (struct retif_task*) task2, RUNTIME, DSC);
+static int rtf_taskset_cmp_wcet_dsc(any_t task1, any_t task2) {
+    return task_cmp((struct rtf_task*) task1, (struct rtf_task*) task2, RUNTIME, DSC);
 }
-static int retif_taskset_cmp_ppid(void* task, void* ppid) {
-    struct retif_task* t = (struct retif_task*)task;
+static int rtf_taskset_cmp_ppid(void* task, void* ppid) {
+    struct rtf_task* t = (struct rtf_task*)task;
     pid_t p = (*(pid_t*)ppid);
 
     return (t->ptid == p);
 }
-static int retif_taskset_cmp_rsvid(void* task, void* rsvid) {
-    struct retif_task* t = (struct retif_task*)task;
-    retif_id_t p = (*(retif_id_t*)rsvid);
+static int rtf_taskset_cmp_rsvid(void* task, void* rsvid) {
+    struct rtf_task* t = (struct rtf_task*)task;
+    rtf_id_t p = (*(rtf_id_t*)rsvid);
 
     return (t->id == p);
 }
@@ -69,7 +69,7 @@ static int retif_taskset_cmp_rsvid(void* task, void* rsvid) {
  *
  * @endinternal
  */
-void retif_taskset_init(struct retif_taskset* ts) {
+void rtf_taskset_init(struct rtf_taskset* ts) {
     list_init(&(ts->tasks));
 }
 
@@ -81,7 +81,7 @@ void retif_taskset_init(struct retif_taskset* ts) {
  *
  * @endinternal
  */
-int retif_taskset_is_empty(struct retif_taskset* ts) {
+int rtf_taskset_is_empty(struct rtf_taskset* ts) {
     return list_is_empty(&(ts->tasks));
 }
 
@@ -93,7 +93,7 @@ int retif_taskset_is_empty(struct retif_taskset* ts) {
  *
  * @endinternal
  */
-int retif_taskset_get_size(struct retif_taskset* ts) {
+int rtf_taskset_get_size(struct rtf_taskset* ts) {
     return list_get_size(&(ts->tasks));
 }
 
@@ -104,7 +104,7 @@ int retif_taskset_get_size(struct retif_taskset* ts) {
  *
  * @endinternal
  */
-void retif_taskset_add_top(struct retif_taskset* ts, struct retif_task* task) {
+void rtf_taskset_add_top(struct rtf_taskset* ts, struct rtf_task* task) {
     list_add_top(&(ts->tasks), (void*) task);
 }
 
@@ -119,8 +119,8 @@ void retif_taskset_add_top(struct retif_taskset* ts, struct retif_task* task) {
  *
  * @endinternal
  */
-void retif_taskset_add_sorted_dl(struct retif_taskset* ts, struct retif_task* task) {
-    list_add_sorted(&(ts->tasks), (void*) task, retif_taskset_cmp_deadline_asc);
+void rtf_taskset_add_sorted_dl(struct rtf_taskset* ts, struct rtf_task* task) {
+    list_add_sorted(&(ts->tasks), (void*) task, rtf_taskset_cmp_deadline_asc);
 }
 
 /**
@@ -134,8 +134,8 @@ void retif_taskset_add_sorted_dl(struct retif_taskset* ts, struct retif_task* ta
  *
  * @endinternal
  */
-struct node_ptr* retif_taskset_add_sorted_pr(struct retif_taskset* ts, struct retif_task* task) {
-    return list_add_sorted(&(ts->tasks), (void*) task, retif_taskset_cmp_period_dsc);
+struct node_ptr* rtf_taskset_add_sorted_pr(struct rtf_taskset* ts, struct rtf_task* task) {
+    return list_add_sorted(&(ts->tasks), (void*) task, rtf_taskset_cmp_period_dsc);
 }
 
 /**
@@ -149,8 +149,8 @@ struct node_ptr* retif_taskset_add_sorted_pr(struct retif_taskset* ts, struct re
  *
  * @endinternal
  */
-struct node_ptr* retif_taskset_add_sorted_prio(struct retif_taskset* ts, struct retif_task* task) {
-    return list_add_sorted(&(ts->tasks), (void*) task, retif_taskset_cmp_priority_asc);
+struct node_ptr* rtf_taskset_add_sorted_prio(struct rtf_taskset* ts, struct rtf_task* task) {
+    return list_add_sorted(&(ts->tasks), (void*) task, rtf_taskset_cmp_priority_asc);
 }
 
 /**
@@ -161,8 +161,8 @@ struct node_ptr* retif_taskset_add_sorted_prio(struct retif_taskset* ts, struct 
  *
  * @endinternal
  */
-struct retif_task* retif_taskset_remove_top(struct retif_taskset* ts) {
-    return (struct retif_task*) list_remove_top(&(ts->tasks));
+struct rtf_task* rtf_taskset_remove_top(struct rtf_taskset* ts) {
+    return (struct rtf_task*) list_remove_top(&(ts->tasks));
 }
 
 /**
@@ -173,7 +173,7 @@ struct retif_task* retif_taskset_remove_top(struct retif_taskset* ts) {
  *
  * @endinternal
  */
-struct retif_task* retif_taskset_get_top_task(struct retif_taskset* ts) {
+struct rtf_task* rtf_taskset_get_top_task(struct rtf_taskset* ts) {
     return list_get_top_elem(&(ts->tasks));
 }
 
@@ -185,7 +185,7 @@ struct retif_task* retif_taskset_get_top_task(struct retif_taskset* ts) {
  *
  * @endinternal
  */
-struct retif_task* retif_taskset_get_i_task(struct retif_taskset* ts, unsigned int i) {
+struct rtf_task* rtf_taskset_get_i_task(struct rtf_taskset* ts, unsigned int i) {
     return list_get_i_elem(&(ts->tasks), i);
 }
 
@@ -197,7 +197,7 @@ struct retif_task* retif_taskset_get_i_task(struct retif_taskset* ts, unsigned i
  *
  * @endinternal
  */
-struct node_ptr* retif_taskset_get_i_node(struct retif_taskset* ts, unsigned int i) {
+struct node_ptr* rtf_taskset_get_i_node(struct rtf_taskset* ts, unsigned int i) {
     return list_get_i_node(&(ts->tasks), i);
 }
 
@@ -209,7 +209,7 @@ struct node_ptr* retif_taskset_get_i_node(struct retif_taskset* ts, unsigned int
  *
  * @endinternal
  */
-struct node_ptr* retif_taskset_get_next_node(struct retif_taskset* ts, struct node_ptr* node) {
+struct node_ptr* rtf_taskset_get_next_node(struct rtf_taskset* ts, struct node_ptr* node) {
     return list_get_next_node(&(ts->tasks), node);
 }
 
@@ -221,8 +221,8 @@ struct node_ptr* retif_taskset_get_next_node(struct retif_taskset* ts, struct no
  *
  * @endinternal
  */
-struct retif_task* retif_taskset_search(struct retif_taskset* ts, retif_id_t rsvid) {
-    return list_search_elem(&(ts->tasks), (void*)&rsvid, retif_taskset_cmp_rsvid);
+struct rtf_task* rtf_taskset_search(struct rtf_taskset* ts, rtf_id_t rsvid) {
+    return list_search_elem(&(ts->tasks), (void*)&rsvid, rtf_taskset_cmp_rsvid);
 }
 
 /**
@@ -237,61 +237,61 @@ struct retif_task* retif_taskset_search(struct retif_taskset* ts, retif_id_t rsv
  *
  * @endinternal
  */
-void retif_taskset_sort(struct retif_taskset* ts, enum PARAM p, int flag) {
+void rtf_taskset_sort(struct rtf_taskset* ts, enum PARAM p, int flag) {
     switch (p) {
         case PERIOD:
             if(flag == ASC)
-                return list_sort(&(ts->tasks), retif_taskset_cmp_period_asc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_period_asc);
             else
-                return list_sort(&(ts->tasks), retif_taskset_cmp_period_dsc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_period_dsc);
         case DEADLINE:
             if(flag == ASC)
-                return list_sort(&(ts->tasks), retif_taskset_cmp_deadline_asc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_deadline_asc);
             else
-                return list_sort(&(ts->tasks), retif_taskset_cmp_deadline_dsc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_deadline_dsc);
         case PRIORITY:
             if(flag == ASC)
-                return list_sort(&(ts->tasks), retif_taskset_cmp_priority_asc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_priority_asc);
             else
-                return list_sort(&(ts->tasks), retif_taskset_cmp_priority_dsc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_priority_dsc);
         case RUNTIME:
             if(flag == ASC)
-                return list_sort(&(ts->tasks), retif_taskset_cmp_wcet_asc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_wcet_asc);
             else
-                return list_sort(&(ts->tasks), retif_taskset_cmp_wcet_dsc);
+                return list_sort(&(ts->tasks), rtf_taskset_cmp_wcet_dsc);
         default:
             break;
     }
 }
 
-struct retif_task* retif_taskset_remove_by_ppid(struct retif_taskset* ts, pid_t ppid) {
-    return (struct retif_task*) list_remove(&(ts->tasks), (void*)&ppid, retif_taskset_cmp_ppid);
+struct rtf_task* rtf_taskset_remove_by_ppid(struct rtf_taskset* ts, pid_t ppid) {
+    return (struct rtf_task*) list_remove(&(ts->tasks), (void*)&ppid, rtf_taskset_cmp_ppid);
 }
 
-struct retif_task* retif_taskset_remove_by_rsvid(struct retif_taskset* ts, retif_id_t rsvid) {
-    return (struct retif_task*) list_remove(&(ts->tasks), (void*)&rsvid, retif_taskset_cmp_rsvid);
+struct rtf_task* rtf_taskset_remove_by_rsvid(struct rtf_taskset* ts, rtf_id_t rsvid) {
+    return (struct rtf_task*) list_remove(&(ts->tasks), (void*)&rsvid, rtf_taskset_cmp_rsvid);
 }
 
-void retif_taskset_remove_all_by_ppid(struct retif_taskset* ts, pid_t ppid) {
-    struct retif_task* t;
+void rtf_taskset_remove_all_by_ppid(struct rtf_taskset* ts, pid_t ppid) {
+    struct rtf_task* t;
 
     do {
-        t = retif_taskset_remove_by_ppid(ts, ppid);
+        t = rtf_taskset_remove_by_ppid(ts, ppid);
     }
     while(t != NULL);
 
 }
 
-iterator_t retif_taskset_iterator_init(struct retif_taskset* ts) {
+iterator_t rtf_taskset_iterator_init(struct rtf_taskset* ts) {
     return iterator_init(&(ts->tasks));
 }
 
-iterator_t retif_taskset_iterator_get_next(iterator_t iterator) {
+iterator_t rtf_taskset_iterator_get_next(iterator_t iterator) {
     return iterator->next;
 }
 
-struct retif_task* retif_taskset_iterator_get_elem(iterator_t iterator) {
-    return (struct retif_task*) (iterator_get_elem(iterator));
+struct rtf_task* rtf_taskset_iterator_get_elem(iterator_t iterator) {
+    return (struct rtf_task*) (iterator_get_elem(iterator));
 }
 
 

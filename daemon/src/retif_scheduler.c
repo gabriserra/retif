@@ -11,21 +11,21 @@
 #include "retif_config.h"
 #include "retif_utils.h"
 
-static int retif_scheduler_test_and_assign(struct retif_scheduler* s, struct retif_task* t)
+static int rtf_scheduler_test_and_assign(struct rtf_scheduler* s, struct rtf_task* t)
 {
     int* results = calloc(s->num_of_plugins, sizeof(int));
 
     for(int i = 0; i < s->num_of_plugins; i++)
     {
-        results[i] = s->plugin[i].retif_plg_task_accept(&(s->plugin[i]), s->taskset, t);
+        results[i] = s->plugin[i].rtf_plg_task_accept(&(s->plugin[i]), s->taskset, t);
 
-        if (results[i] == RETIF_OK)
+        if (results[i] == RTF_OK)
         {
-            retif_taskset_add_top(s->taskset, t);
-            s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
+            rtf_taskset_add_top(s->taskset, t);
+            s->plugin[i].rtf_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return RETIF_OK;
+            return RTF_OK;
         }
     }
 
@@ -33,36 +33,36 @@ static int retif_scheduler_test_and_assign(struct retif_scheduler* s, struct ret
 
     for (int i = 0; i < s->num_of_plugins; i++)
     {
-        if (results[i] == RETIF_PARTIAL)
+        if (results[i] == RTF_PARTIAL)
         {
-            retif_taskset_add_top(s->taskset, t);
-            s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
+            rtf_taskset_add_top(s->taskset, t);
+            s->plugin[i].rtf_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return RETIF_PARTIAL;
+            return RTF_PARTIAL;
         }
     }
 
     // means no plugin available
     free(results);
-    return RETIF_NO;
+    return RTF_NO;
 }
 
-static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct retif_task* t)
+static int rtf_scheduler_test_and_modify(struct rtf_scheduler* s, struct rtf_task* t)
 {
     int* results = calloc(s->num_of_plugins, sizeof(int));
 
     for(int i = 0; i < s->num_of_plugins; i++)
     {
-        results[i] = s->plugin[i].retif_plg_task_change(&(s->plugin[i]), s->taskset, t);
+        results[i] = s->plugin[i].rtf_plg_task_change(&(s->plugin[i]), s->taskset, t);
 
-        if (results[i] == RETIF_OK)
+        if (results[i] == RTF_OK)
         {
-            s->plugin[i].retif_plg_task_release(&(s->plugin[i]), s->taskset, t);
-            s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
+            s->plugin[i].rtf_plg_task_release(&(s->plugin[i]), s->taskset, t);
+            s->plugin[i].rtf_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return RETIF_OK;
+            return RTF_OK;
         }
     }
 
@@ -70,19 +70,19 @@ static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct ret
 
     for (int i = 0; i < s->num_of_plugins; i++)
     {
-        if (results[i] == RETIF_PARTIAL)
+        if (results[i] == RTF_PARTIAL)
         {
-            s->plugin[i].retif_plg_task_release(&(s->plugin[i]), s->taskset, t);
-            s->plugin[i].retif_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
+            s->plugin[i].rtf_plg_task_release(&(s->plugin[i]), s->taskset, t);
+            s->plugin[i].rtf_plg_task_schedule(&(s->plugin[i]), s->taskset, t);
 
             free(results);
-            return RETIF_PARTIAL;
+            return RTF_PARTIAL;
         }
     }
 
     // means no plugin available
     free(results);
-    return RETIF_NO;
+    return RTF_NO;
 }
 
 // -----------------------------------------------------------------------------
@@ -96,16 +96,16 @@ static int retif_scheduler_test_and_modify(struct retif_scheduler* s, struct ret
  *
  * @endinternal
  */
-int retif_scheduler_init(struct retif_scheduler* s, struct retif_taskset* ts)
+int rtf_scheduler_init(struct rtf_scheduler* s, struct rtf_taskset* ts)
 {
     float sys_rt_util;
 
-    if (retif_config_apply() < 0)
+    if (rtf_config_apply() < 0)
     {
         WARN("Unable to apply param configurations. Daemon will continue.\n");
     }
 
-    if (retif_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
+    if (rtf_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
     {
         WARN("Unable to read rt proc files.\n");
         WARN("Daemon will continue assuming 95%% as max utilization.\n");
@@ -116,7 +116,7 @@ int retif_scheduler_init(struct retif_scheduler* s, struct retif_taskset* ts)
     s->last_task_id             = 0;
     s->num_of_cpu               = get_nprocs2();
 
-    return retif_plugins_init(&(s->plugin), &(s->num_of_plugins));
+    return rtf_plugins_init(&(s->plugin), &(s->num_of_plugins));
 }
 
 /**
@@ -126,26 +126,26 @@ int retif_scheduler_init(struct retif_scheduler* s, struct retif_taskset* ts)
  *
  * @endinternal
  */
-void retif_scheduler_destroy(struct retif_scheduler* s)
+void rtf_scheduler_destroy(struct rtf_scheduler* s)
 {
-    retif_plugins_destroy(s->plugin, s->num_of_plugins);
-    retif_config_restore_rr_kernel_param();
-    retif_config_restore_rt_kernel_params();
+    rtf_plugins_destroy(s->plugin, s->num_of_plugins);
+    rtf_config_restore_rr_kernel_param();
+    rtf_config_restore_rt_kernel_params();
 }
 
-void retif_scheduler_delete(struct retif_scheduler* s, pid_t ppid)
+void rtf_scheduler_delete(struct rtf_scheduler* s, pid_t ppid)
 {
-    struct retif_task* t;
+    struct rtf_task* t;
 
     while(1)
     {
-        t = retif_taskset_remove_by_ppid(s->taskset, ppid);
+        t = rtf_taskset_remove_by_ppid(s->taskset, ppid);
 
         if(t == NULL)
             break;
 
-        s->plugin[t->pluginid].retif_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
-        retif_task_destroy(t);
+        s->plugin[t->pluginid].rtf_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
+        rtf_task_destroy(t);
     }
 }
 
@@ -156,70 +156,70 @@ void retif_scheduler_delete(struct retif_scheduler* s, pid_t ppid)
  *
  * @endinternal
  */
-int retif_scheduler_task_create(struct retif_scheduler* s, struct retif_params* tp, pid_t ppid)
+int rtf_scheduler_task_create(struct rtf_scheduler* s, struct rtf_params* tp, pid_t ppid)
 {
-    struct retif_task* t;
+    struct rtf_task* t;
 
-    retif_task_init(&t, 0, CLK);
+    rtf_task_init(&t, 0, CLK);
 
     t->id           = ++s->last_task_id;
     t->ptid         = ppid;
     t->pluginid     = -1;
 
-    memcpy(&(t->params), tp, sizeof(struct retif_params));
+    memcpy(&(t->params), tp, sizeof(struct rtf_params));
 
-    return retif_scheduler_test_and_assign(s, t);
+    return rtf_scheduler_test_and_assign(s, t);
 }
 
-int retif_scheduler_task_change(struct retif_scheduler* s, struct retif_params* tp, retif_id_t retif_id)
+int rtf_scheduler_task_change(struct rtf_scheduler* s, struct rtf_params* tp, rtf_id_t rtf_id)
 {
-    struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
+    struct rtf_task* t = rtf_taskset_search(s->taskset, rtf_id);
 
     if (t == NULL)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    return retif_scheduler_test_and_modify(s, t);
+    return rtf_scheduler_test_and_modify(s, t);
 }
 
-int retif_scheduler_task_attach(struct retif_scheduler* s, retif_id_t retif_id, pid_t pid)
+int rtf_scheduler_task_attach(struct rtf_scheduler* s, rtf_id_t rtf_id, pid_t pid)
 {
-    struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
+    struct rtf_task* t = rtf_taskset_search(s->taskset, rtf_id);
 
     if (t == NULL)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
     t->tid = pid;
-    return s->plugin[t->pluginid].retif_plg_task_attach(t);
+    return s->plugin[t->pluginid].rtf_plg_task_attach(t);
 }
 
-int retif_scheduler_task_detach(struct retif_scheduler* s, retif_id_t retif_id)
+int rtf_scheduler_task_detach(struct rtf_scheduler* s, rtf_id_t rtf_id)
 {
-    struct retif_task* t = retif_taskset_search(s->taskset, retif_id);
+    struct rtf_task* t = rtf_taskset_search(s->taskset, rtf_id);
 
     if (t == NULL)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    return s->plugin[t->pluginid].retif_plg_task_detach(t);
+    return s->plugin[t->pluginid].rtf_plg_task_detach(t);
 }
 
-int retif_scheduler_task_destroy(struct retif_scheduler* s, retif_id_t retif_id)
+int rtf_scheduler_task_destroy(struct rtf_scheduler* s, rtf_id_t rtf_id)
 {
-    struct retif_task* t;
+    struct rtf_task* t;
 
-    t = retif_taskset_remove_by_rsvid(s->taskset, retif_id);
+    t = rtf_taskset_remove_by_rsvid(s->taskset, rtf_id);
 
     if(t == NULL)
-        return RETIF_ERROR;
+        return RTF_ERROR;
 
-    s->plugin[t->pluginid].retif_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
-    retif_task_destroy(t);
+    s->plugin[t->pluginid].rtf_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
+    rtf_task_destroy(t);
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-void retif_scheduler_dump(struct retif_scheduler* s)
+void rtf_scheduler_dump(struct rtf_scheduler* s)
 {
-    struct retif_task* t;
+    struct rtf_task* t;
     iterator_t it;
 
     LOG("Number of CPUs: %d\n", s->num_of_cpu);
@@ -237,14 +237,14 @@ void retif_scheduler_dump(struct retif_scheduler* s)
     }
 
     LOG("Tasks:\n");
-    it = retif_taskset_iterator_init(s->taskset);
+    it = rtf_taskset_iterator_init(s->taskset);
 
     while(it != NULL)
     {
-        t = retif_taskset_iterator_get_elem(it);
+        t = rtf_taskset_iterator_get_elem(it);
         LOG("Task:\n");
         LOG("-> Plugin %d\n", t->pluginid);
         LOG("-> CPU %ld - PID %d - TID %d - Util: %f \n", t->cpu, t->ptid, t->tid, t->acceptedu);
-        it = retif_taskset_iterator_get_next(it);
+        it = rtf_taskset_iterator_get_next(it);
     }
 }

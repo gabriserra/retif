@@ -23,11 +23,11 @@
  * access, the scheduler object (the 'logic' for scheduling) and the entire
  * taskset with currently served task
  */
-struct retif_daemon
+struct rtf_daemon
 {
-    struct retif_carrier chann;
-    struct retif_scheduler sched;
-    struct retif_taskset tasks;
+    struct rtf_carrier chann;
+    struct rtf_scheduler sched;
+    struct rtf_taskset tasks;
 };
 
 /**
@@ -39,7 +39,7 @@ struct retif_daemon
  * @param data main daemon data structure
  * @return 0 in case of success, -1 otherwise
  */
-int retif_daemon_init(struct retif_daemon* data);
+int rtf_daemon_init(struct rtf_daemon* data);
 
 /**
  * @brief Realizes daemon loop
@@ -48,7 +48,7 @@ int retif_daemon_init(struct retif_daemon* data);
  *
  * @param data main daemon data structure
  */
-void retif_daemon_loop(struct retif_daemon* data);
+void rtf_daemon_loop(struct rtf_daemon* data);
 
 /**
  * @brief Dumps all daemon info
@@ -58,7 +58,7 @@ void retif_daemon_loop(struct retif_daemon* data);
  *
  * @param data main daemon data structure
  */
-void retif_daemon_dump(struct retif_daemon* data);
+void rtf_daemon_dump(struct rtf_daemon* data);
 
 /**
  * @brief Tear down daemon safely
@@ -68,6 +68,6 @@ void retif_daemon_dump(struct retif_daemon* data);
  *
  * @param data main daemon data structure
  */
-void retif_daemon_destroy(struct retif_daemon* data);
+void rtf_daemon_destroy(struct rtf_daemon* data);
 
 #endif /* RETIF_DAEMON_H */

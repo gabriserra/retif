@@ -14,58 +14,58 @@
 // SYMBOLS TO LOAD FROM LIBRARIES
 // -----------------------------------------------------------------------------
 
-#define RETIF_API_INIT        "retif_plg_task_init"
-#define RETIF_API_ACCEPT      "retif_plg_task_accept"
-#define RETIF_API_CHANGE      "retif_plg_task_change"
-#define RETIF_API_RELEASE     "retif_plg_task_release"
-#define RETIF_API_SCHEDULE    "retif_plg_task_schedule"
-#define RETIF_API_ATTACH      "retif_plg_task_attach"
-#define RETIF_API_DETACH      "retif_plg_task_detach"
+#define RTF_API_INIT        "rtf_plg_task_init"
+#define RTF_API_ACCEPT      "rtf_plg_task_accept"
+#define RTF_API_CHANGE      "rtf_plg_task_change"
+#define RTF_API_RELEASE     "rtf_plg_task_release"
+#define RTF_API_SCHEDULE    "rtf_plg_task_schedule"
+#define RTF_API_ATTACH      "rtf_plg_task_attach"
+#define RTF_API_DETACH      "rtf_plg_task_detach"
 
 // forward declarations, see retif_task.c and retif_taskset.c
-struct retif_task;
-struct retif_taskset;
-struct retif_plugin;
+struct rtf_task;
+struct rtf_taskset;
+struct rtf_plugin;
 
 /**
  * @brief Used by plugin to initializes itself
  */
-typedef int (*retif_plg_task_init_pfun)(struct retif_plugin*);
+typedef int (*rtf_plg_task_init_pfun)(struct rtf_plugin*);
 
 /**
  * @brief Used by plugin to perform a new task admission test
  */
-typedef int (*retif_plg_task_accept_pfun)(struct retif_plugin*, struct retif_taskset*, struct retif_task*);
+typedef int (*rtf_plg_task_accept_pfun)(struct rtf_plugin*, struct rtf_taskset*, struct rtf_task*);
 
 /**
  * @brief Used by plugin to perform a new admission test when task modifies parameters
  */
-typedef int (*retif_plg_task_change_pfun)(struct retif_plugin*, struct retif_taskset*, struct retif_task*);
+typedef int (*rtf_plg_task_change_pfun)(struct rtf_plugin*, struct rtf_taskset*, struct rtf_task*);
 
 /**
  * @brief Used by plugin to perform a release of previous accepted task
  */
-typedef int (*retif_plg_task_release_pfun)(struct retif_plugin*, struct retif_taskset*, struct retif_task*);
+typedef int (*rtf_plg_task_release_pfun)(struct rtf_plugin*, struct rtf_taskset*, struct rtf_task*);
 
 /**
  * @brief Used by plugin to set the task as accepted
  */
-typedef void (*retif_plg_task_schedule_pfun)(struct retif_plugin*, struct retif_taskset*, struct retif_task*);
+typedef void (*rtf_plg_task_schedule_pfun)(struct rtf_plugin*, struct rtf_taskset*, struct rtf_task*);
 
 /**
  * @brief Used by plugin to set rt scheduler for a task
  */
-typedef int (*retif_plg_task_attach_pfun)(struct retif_task*);
+typedef int (*rtf_plg_task_attach_pfun)(struct rtf_task*);
 
 /**
  * @brief Used by plugin to reset scheduler (other) for a task
  */
-typedef int (*retif_plg_task_detach_pfun)(struct retif_task*);
+typedef int (*rtf_plg_task_detach_pfun)(struct rtf_task*);
 
 /**
  * @brief Plugin data structure, common to all plugins
  */
-struct retif_plugin
+struct rtf_plugin
 {
     int                         id;
     char                        name[PLUGIN_MAX_NAME];
@@ -78,14 +78,14 @@ struct retif_plugin
     int                         cputot;
     float*                      util_free_percpu;
     int*                        task_count_percpu;
-    struct retif_taskset*         tasks;
-    retif_plg_task_init_pfun      retif_plg_task_init;
-    retif_plg_task_accept_pfun    retif_plg_task_accept;
-    retif_plg_task_change_pfun    retif_plg_task_change;
-    retif_plg_task_release_pfun   retif_plg_task_release;
-    retif_plg_task_schedule_pfun  retif_plg_task_schedule;
-    retif_plg_task_attach_pfun    retif_plg_task_attach;
-    retif_plg_task_detach_pfun    retif_plg_task_detach;
+    struct rtf_taskset*         tasks;
+    rtf_plg_task_init_pfun      rtf_plg_task_init;
+    rtf_plg_task_accept_pfun    rtf_plg_task_accept;
+    rtf_plg_task_change_pfun    rtf_plg_task_change;
+    rtf_plg_task_release_pfun   rtf_plg_task_release;
+    rtf_plg_task_schedule_pfun  rtf_plg_task_schedule;
+    rtf_plg_task_attach_pfun    rtf_plg_task_attach;
+    rtf_plg_task_detach_pfun    rtf_plg_task_detach;
 };
 
 // -----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ struct retif_plugin
  * @param num_of_plugins number of plugins found
  * @return -1 in case of error, 0 in case of success
  */
-int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins);
+int rtf_plugins_init(struct rtf_plugin** plgs, int* num_of_plugins);
 
 /**
  * @brief Tear down plugin data structure
@@ -114,6 +114,6 @@ int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins);
  * @param plgs pointer to plugin structure that will be freed
  * @param plugin_num number of plugins that need to be freed
  */
-void retif_plugins_destroy(struct retif_plugin* plgs, int plugin_num);
+void rtf_plugins_destroy(struct rtf_plugin* plgs, int plugin_num);
 
 #endif /* RETIF_PLUGIN_H */

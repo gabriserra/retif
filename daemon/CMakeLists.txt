@@ -8,10 +8,6 @@ set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
 set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
 set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
 
-message(RETIF_CONF_PATH: ${RETIF_CONF_PATH})
-message(RETIF_PLUGINS_PATH: ${RETIF_PLUGINS_PATH})
-message(RETIF_DAEMON_PATH: ${RETIF_DAEMON_PATH})
-
 # ----------------------- Plugins ------------------------ #
 
 add_subdirectory(plugins)

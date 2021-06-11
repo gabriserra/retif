@@ -42,7 +42,7 @@
 #ifndef RETIF_PUBLIC_TYPES
 #define RETIF_PUBLIC_TYPES
 
-struct retif_params
+struct rtf_params
 {
     uint64_t    runtime;                        // required runtime [microseconds]
     uint64_t    des_runtime;                    // desired runtime [microseconds]
@@ -53,13 +53,13 @@ struct retif_params
     uint8_t     ignore_admission;               // preference to avoid test
 };
 
-struct retif_task
+struct rtf_task
 {
     uint32_t            task_id;        // task id assigned by daemon
     uint32_t            dmiss;		    // num of deadline misses
     uint64_t            acc_runtime;    // accepted runtime
-    struct retif_access*  c;              // channel used to communicate with daemon
-    struct retif_params   p;              // preferred scheduling parameters
+    struct rtf_access*  c;              // channel used to communicate with daemon
+    struct rtf_params   p;              // preferred scheduling parameters
     struct timespec     at;	            // next activation time
     struct timespec     dl; 	        // absolute deadline
 };
@@ -70,60 +70,60 @@ struct retif_task
 // GETTER / SETTER
 // -----------------------------------------------------------------------------
 
-void retif_params_init(struct retif_params *p);
+void rtf_params_init(struct rtf_params *p);
 
-void retif_params_set_runtime(struct retif_params* p, uint64_t runtime);
+void rtf_params_set_runtime(struct rtf_params* p, uint64_t runtime);
 
-uint64_t retif_params_get_runtime(struct retif_params* p);
+uint64_t rtf_params_get_runtime(struct rtf_params* p);
 
-void retif_params_set_des_runtime(struct retif_params* p, uint64_t runtime);
+void rtf_params_set_des_runtime(struct rtf_params* p, uint64_t runtime);
 
-uint64_t retif_params_get_des_runtime(struct retif_params* p);
+uint64_t rtf_params_get_des_runtime(struct rtf_params* p);
 
-void retif_params_set_period(struct retif_params* p, uint64_t period);
+void rtf_params_set_period(struct rtf_params* p, uint64_t period);
 
-uint64_t retif_params_get_period(struct retif_params* p);
+uint64_t rtf_params_get_period(struct rtf_params* p);
 
-void retif_params_set_deadline(struct retif_params*p, uint64_t deadline);
+void rtf_params_set_deadline(struct rtf_params*p, uint64_t deadline);
 
-uint64_t retif_params_get_deadline(struct retif_params* p);
+uint64_t rtf_params_get_deadline(struct rtf_params* p);
 
-void retif_params_set_priority(struct retif_params* p, uint32_t priority);
+void rtf_params_set_priority(struct rtf_params* p, uint32_t priority);
 
-uint32_t retif_params_get_priority(struct retif_params* p);
+uint32_t rtf_params_get_priority(struct rtf_params* p);
 
-void retif_params_set_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
+void rtf_params_set_scheduler(struct rtf_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
 
-void retif_params_get_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
+void rtf_params_get_scheduler(struct rtf_params* p, char sched_plugin[PLUGIN_MAX_NAME]);
 
-void retif_params_ignore_admission(struct retif_params* p, uint8_t ignore_admission);
+void rtf_params_ignore_admission(struct rtf_params* p, uint8_t ignore_admission);
 
 // -----------------------------------------------------------------------------
 // COMMUNICATION WITH DAEMON
 // -----------------------------------------------------------------------------
 
-int retif_daemon_connect();
+int rtf_daemon_connect();
 
-void retif_task_init(struct retif_task* t);
+void rtf_task_init(struct rtf_task* t);
 
-int retif_task_create(struct retif_task* t, struct retif_params* p);
+int rtf_task_create(struct rtf_task* t, struct rtf_params* p);
 
-int retif_task_change(struct retif_task* t, struct retif_params* p);
+int rtf_task_change(struct rtf_task* t, struct rtf_params* p);
 
-int retif_task_attach(struct retif_task* t, pid_t pid);
+int rtf_task_attach(struct rtf_task* t, pid_t pid);
 
-int retif_task_detach(struct retif_task* t);
+int rtf_task_detach(struct rtf_task* t);
 
-int retif_task_destroy(struct retif_task* t);
+int rtf_task_destroy(struct rtf_task* t);
 
 // -----------------------------------------------------------------------------
 // LOCAL COMMUNICATIONS
 // -----------------------------------------------------------------------------
 
-void retif_task_start(struct retif_task* t);
+void rtf_task_start(struct rtf_task* t);
 
-void retif_task_wait_period(struct retif_task* t);
+void rtf_task_wait_period(struct rtf_task* t);
 
-uint64_t retif_task_get_accepted_runtime(struct retif_task* t);
+uint64_t rtf_task_get_accepted_runtime(struct rtf_task* t);
 
 #endif	// RETIF_LIB_H

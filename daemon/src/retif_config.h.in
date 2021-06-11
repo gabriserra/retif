@@ -35,7 +35,7 @@
  * @param rt_runtime pointer to int in which leave current proc rt runtime value
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
+int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
 
 /**
  * @brief Calculate maximum real-time utilization available [0-1]
@@ -48,7 +48,7 @@ int retif_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
  * @param rt_max_util pointer to int in which leave sys max utilization
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_get_rt_kernel_max_util(float* rt_max_util);
+int rtf_config_get_rt_kernel_max_util(float* rt_max_util);
 
 /**
  * @brief Writes rt kernel parameters
@@ -61,7 +61,7 @@ int retif_config_get_rt_kernel_max_util(float* rt_max_util);
  * @param rt_runtime desired value of proc rt runtime
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_set_rt_kernel_params(int rt_period, int rt_runtime);
+int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime);
 
 /**
  * @brief Restores rt kernel parameters
@@ -72,7 +72,7 @@ int retif_config_set_rt_kernel_params(int rt_period, int rt_runtime);
  *
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_restore_rt_kernel_params();
+int rtf_config_restore_rt_kernel_params();
 
 /**
  * @brief Read rr kernel param
@@ -85,7 +85,7 @@ int retif_config_restore_rt_kernel_params();
  * @param rr_timeslice pointer to int in which leave current proc rr timeslice
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_get_rr_kernel_param(int* rr_timeslice);
+int rtf_config_get_rr_kernel_param(int* rr_timeslice);
 
 /**
  * @brief Writes rr kernel parameter
@@ -97,7 +97,7 @@ int retif_config_get_rr_kernel_param(int* rr_timeslice);
  * @param rr_timeslice the desired value of rr timeslice
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_set_rr_kernel_param(int rr_timeslice);
+int rtf_config_set_rr_kernel_param(int rr_timeslice);
 
 /**
  * @brief Restores rr kernel parameters
@@ -108,7 +108,7 @@ int retif_config_set_rr_kernel_param(int rr_timeslice);
  *
  * @return -1 in case of error, 0 in case of success
  */
-int retif_config_restore_rr_kernel_param();
+int rtf_config_restore_rr_kernel_param();
 
 /**
  * @brief Apply kernel parameters settings specified in cfg file
@@ -120,6 +120,6 @@ int retif_config_restore_rr_kernel_param();
  *
  * @return 0 if successful, -1 in case of errors
  */
-int retif_config_apply();
+int rtf_config_apply();
 
 #endif /* RETIF_CONFIG_H */

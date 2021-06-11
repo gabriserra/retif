@@ -11,7 +11,7 @@
 #include "logger.h"
 #include "retif_daemon.h"
 
-struct retif_daemon data;
+struct rtf_daemon data;
 
 /**
  * @brief When daemon is signaled with a SIGINT, tear down it
@@ -19,7 +19,7 @@ struct retif_daemon data;
 void term()
 {
     INFO("\nReTiF daemon was interrupted. It will destroy data and stop.\n");
-    retif_daemon_destroy(&data);
+    rtf_daemon_destroy(&data);
     exit(EXIT_SUCCESS);
 }
 
@@ -31,7 +31,7 @@ void output()
     INFO("\n--------------------------\n");
     INFO("ReTiF daemon info dump\n");
     INFO("--------------------------\n");
-    retif_daemon_dump(&data);
+    rtf_daemon_dump(&data);
 }
 
 /**
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 {
     INFO("ReTiF daemon - Daemon started.\n");
 
-    if(retif_daemon_init(&data) < 0)
+    if(rtf_daemon_init(&data) < 0)
     {
         ERR("Unexpected error in initialization phase.\n");
         exit(EXIT_FAILURE);
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     signal(SIGTTOU, output);
     signal(SIGINT, term);
-    retif_daemon_loop(&data);
+    rtf_daemon_loop(&data);
 
     return 0;
 }

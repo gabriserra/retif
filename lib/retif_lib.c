@@ -25,24 +25,24 @@
 // THREAD STUFF
 // -----------------------------------------------------------------------------
 
-static struct retif_access main_channel;
+static struct rtf_access main_channel;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static int retif_task_communicate(struct retif_access* c)
+static int rtf_task_communicate(struct rtf_access* c)
 {
-    int ret = RETIF_ERROR;
+    int ret = RTF_ERROR;
 
     pthread_mutex_lock(&mutex);
 
-    if (retif_access_send(c) != RETIF_ERROR)
-        ret = retif_access_recv(c);
+    if (rtf_access_send(c) != RTF_ERROR)
+        ret = rtf_access_recv(c);
 
     pthread_mutex_unlock(&mutex);
 
-    if (ret == RETIF_ERROR)
-        return RETIF_ERROR;
+    if (ret == RTF_ERROR)
+        return RTF_ERROR;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
 
@@ -133,72 +133,72 @@ void compute_for(uint32_t exec_milli_max)
 // GETTER / SETTER
 // -----------------------------------------------------------------------------
 
-void retif_params_init(struct retif_params *p)
+void rtf_params_init(struct rtf_params *p)
 {
-    memset(p, 0, sizeof(struct retif_params));
+    memset(p, 0, sizeof(struct rtf_params));
 }
 
-void retif_params_set_runtime(struct retif_params* p, uint64_t runtime)
-{
-    p->runtime = runtime;
-}
-
-uint64_t retif_params_get_runtime(struct retif_params* p)
-{
-    return p->runtime;
-}
-
-void retif_params_set_des_runtime(struct retif_params* p, uint64_t runtime)
+void rtf_params_set_runtime(struct rtf_params* p, uint64_t runtime)
 {
     p->runtime = runtime;
 }
 
-uint64_t retif_params_get_des_runtime(struct retif_params* p)
+uint64_t rtf_params_get_runtime(struct rtf_params* p)
 {
     return p->runtime;
 }
 
-void retif_params_set_period(struct retif_params* p, uint64_t period)
+void rtf_params_set_des_runtime(struct rtf_params* p, uint64_t runtime)
+{
+    p->runtime = runtime;
+}
+
+uint64_t rtf_params_get_des_runtime(struct rtf_params* p)
+{
+    return p->runtime;
+}
+
+void rtf_params_set_period(struct rtf_params* p, uint64_t period)
 {
     p->period = period;
 }
 
-uint64_t retif_params_get_period(struct retif_params* p)
+uint64_t rtf_params_get_period(struct rtf_params* p)
 {
     return p->period;
 }
 
-void retif_params_set_deadline(struct retif_params* p, uint64_t deadline)
+void rtf_params_set_deadline(struct rtf_params* p, uint64_t deadline)
 {
     p->deadline = deadline;
 }
 
-uint64_t retif_params_get_deadline(struct retif_params* p)
+uint64_t rtf_params_get_deadline(struct rtf_params* p)
 {
     return p->deadline;
 }
 
-void retif_params_set_priority(struct retif_params* p, uint32_t priority)
+void rtf_params_set_priority(struct rtf_params* p, uint32_t priority)
 {
     p->priority = priority;
 }
 
-uint32_t retif_params_get_priority(struct retif_params* p)
+uint32_t rtf_params_get_priority(struct rtf_params* p)
 {
     return p->priority;
 }
 
-void retif_params_set_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME])
+void rtf_params_set_scheduler(struct rtf_params* p, char sched_plugin[PLUGIN_MAX_NAME])
 {
     strncpy(p->sched_plugin, sched_plugin, PLUGIN_MAX_NAME);
 }
 
-void retif_params_get_scheduler(struct retif_params* p, char sched_plugin[PLUGIN_MAX_NAME])
+void rtf_params_get_scheduler(struct rtf_params* p, char sched_plugin[PLUGIN_MAX_NAME])
 {
     strncpy(sched_plugin, p->sched_plugin, PLUGIN_MAX_NAME);
 }
 
-void retif_params_ignore_admission(struct retif_params* p, uint8_t ignore_admission)
+void rtf_params_ignore_admission(struct rtf_params* p, uint8_t ignore_admission)
 {
     p->ignore_admission = ignore_admission;
 }
@@ -207,113 +207,113 @@ void retif_params_ignore_admission(struct retif_params* p, uint8_t ignore_admiss
 // COMMUNICATION WITH DAEMON
 // -----------------------------------------------------------------------------
 
-int retif_daemon_connect()
+int rtf_daemon_connect()
 {
-    if(retif_access_init(&main_channel) < 0)
-        return RETIF_ERROR;
+    if(rtf_access_init(&main_channel) < 0)
+        return RTF_ERROR;
 
-    if(retif_access_connect(&main_channel) < 0)
-        return RETIF_ERROR;
+    if(rtf_access_connect(&main_channel) < 0)
+        return RTF_ERROR;
 
-    main_channel.req.req_type = RETIF_CONNECTION;
+    main_channel.req.req_type = RTF_CONNECTION;
     main_channel.req.payload.ids.pid = getpid();
 
-    if(retif_access_send(&main_channel) < 0)
-        return RETIF_ERROR;
-    if(retif_access_recv(&main_channel) < 0)
-        return RETIF_ERROR;
+    if(rtf_access_send(&main_channel) < 0)
+        return RTF_ERROR;
+    if(rtf_access_recv(&main_channel) < 0)
+        return RTF_ERROR;
 
-    if(main_channel.rep.rep_type == RETIF_CONNECTION_ERR)
-        return RETIF_FAIL;
+    if(main_channel.rep.rep_type == RTF_CONNECTION_ERR)
+        return RTF_FAIL;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-void retif_task_init(struct retif_task* t)
+void rtf_task_init(struct rtf_task* t)
 {
     t->c = &main_channel;
     t->task_id = 0;
 }
 
-int retif_task_create(struct retif_task* t, struct retif_params* p)
+int rtf_task_create(struct rtf_task* t, struct rtf_params* p)
 {
-    t->c->req.req_type = RETIF_TASK_CREATE;
-    memcpy(&(t->p), p, sizeof(struct retif_params));
-    memcpy(&(t->c->req.payload.param), p, sizeof(struct retif_params));
+    t->c->req.req_type = RTF_TASK_CREATE;
+    memcpy(&(t->p), p, sizeof(struct rtf_params));
+    memcpy(&(t->c->req.payload.param), p, sizeof(struct rtf_params));
 
-    if(retif_task_communicate(t->c) < 0)
-        return RETIF_ERROR;
+    if(rtf_task_communicate(t->c) < 0)
+        return RTF_ERROR;
 
-    if(t->c->rep.rep_type == RETIF_TASK_CREATE_ERR)
-        return RETIF_FAIL;
+    if(t->c->rep.rep_type == RTF_TASK_CREATE_ERR)
+        return RTF_FAIL;
 
     t->task_id = (uint32_t) t->c->rep.payload;
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-int retif_task_change(struct retif_task* t, struct retif_params* p)
+int rtf_task_change(struct rtf_task* t, struct rtf_params* p)
 {
-    t->c->req.req_type = RETIF_TASK_MODIFY;
-    memcpy(&(t->p), p, sizeof(struct retif_params));
-    memcpy(&(t->c->req.payload.param), p, sizeof(struct retif_params));
+    t->c->req.req_type = RTF_TASK_MODIFY;
+    memcpy(&(t->p), p, sizeof(struct rtf_params));
+    memcpy(&(t->c->req.payload.param), p, sizeof(struct rtf_params));
 
-    if(retif_task_communicate(t->c) < 0)
-        return RETIF_ERROR;
+    if(rtf_task_communicate(t->c) < 0)
+        return RTF_ERROR;
 
-    if(t->c->rep.rep_type == RETIF_TASK_MODIFY_ERR)
-        return RETIF_FAIL;
+    if(t->c->rep.rep_type == RTF_TASK_MODIFY_ERR)
+        return RTF_FAIL;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-int retif_task_attach(struct retif_task* t, pid_t pid)
+int rtf_task_attach(struct rtf_task* t, pid_t pid)
 {
-    t->c->req.req_type = RETIF_TASK_ATTACH;
+    t->c->req.req_type = RTF_TASK_ATTACH;
     t->c->req.payload.ids.rsvid = t->task_id;
     t->c->req.payload.ids.pid = pid;
 
-    if(retif_task_communicate(t->c) < 0)
-        return RETIF_ERROR;
+    if(rtf_task_communicate(t->c) < 0)
+        return RTF_ERROR;
 
-    if(t->c->rep.rep_type == RETIF_TASK_ATTACH_ERR)
-        return RETIF_FAIL;
+    if(t->c->rep.rep_type == RTF_TASK_ATTACH_ERR)
+        return RTF_FAIL;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-int retif_task_detach(struct retif_task* t)
+int rtf_task_detach(struct rtf_task* t)
 {
-    t->c->req.req_type = RETIF_TASK_DETACH;
+    t->c->req.req_type = RTF_TASK_DETACH;
     t->c->req.payload.ids.rsvid = t->task_id;
 
-    if(retif_task_communicate(t->c) < 0)
-        return RETIF_ERROR;
+    if(rtf_task_communicate(t->c) < 0)
+        return RTF_ERROR;
 
-    if(t->c->rep.rep_type == RETIF_TASK_DETACH_ERR)
-        return RETIF_FAIL;
+    if(t->c->rep.rep_type == RTF_TASK_DETACH_ERR)
+        return RTF_FAIL;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
-int retif_task_destroy(struct retif_task* t)
+int rtf_task_destroy(struct rtf_task* t)
 {
-    t->c->req.req_type = RETIF_TASK_DESTROY;
+    t->c->req.req_type = RTF_TASK_DESTROY;
     t->c->req.payload.ids.rsvid = t->task_id;
 
-    if(retif_task_communicate(t->c) < 0)
-        return RETIF_ERROR;
+    if(rtf_task_communicate(t->c) < 0)
+        return RTF_ERROR;
 
-    if(t->c->rep.rep_type == RETIF_TASK_DESTROY_ERR)
-        return RETIF_FAIL;
+    if(t->c->rep.rep_type == RTF_TASK_DESTROY_ERR)
+        return RTF_FAIL;
 
-    return RETIF_OK;
+    return RTF_OK;
 }
 
 // -----------------------------------------------------------------------------
 // LOCAL COMMUNICATIONS
 // -----------------------------------------------------------------------------
 
-void retif_task_start(struct retif_task* t)
+void rtf_task_start(struct rtf_task* t)
 {
     struct timespec time;
 
@@ -326,14 +326,14 @@ void retif_task_start(struct retif_task* t)
 	time_add_ms(&(t->dl), t->p.deadline);
 }
 
-void retif_task_wait_period(struct retif_task* t)
+void rtf_task_wait_period(struct rtf_task* t)
 {
     time_add_ms(&(t->at), t->p.period);
     time_add_ms(&(t->dl), t->p.deadline);
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &(t->at), NULL);
 }
 
-uint64_t retif_task_get_accepted_budget(struct retif_task* t)
+uint64_t rtf_task_get_accepted_budget(struct rtf_task* t)
 {
     return t->acc_runtime;
 }

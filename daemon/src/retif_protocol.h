@@ -19,61 +19,61 @@
  * # Requests
  * #############################################################################
  *
- * - RETIF_CONNECTION
- * - RETIF_RSV_CREATE
- * - RETIF_RSV_ATTACH
- * - RETIF_RSV_DETACH
- * - RETIF_RSV_QUERY
- * - RETIF_RSV_DESTROY
- * - RETIF_DECONNECTION
+ * - RTF_CONNECTION
+ * - RTF_RSV_CREATE
+ * - RTF_RSV_ATTACH
+ * - RTF_RSV_DETACH
+ * - RTF_RSV_QUERY
+ * - RTF_RSV_DESTROY
+ * - RTF_DECONNECTION
  *
  * #############################################################################
  * # Replies
  * #############################################################################
  *
- * - RETIF_REQUEST_ERR
- * - RETIF_CONNECTION_OK
- * - RETIF_CONNECTION_ERR
- * - RETIF_RSV_CREATE_OK
- * - RETIF_RSV_CREATE_MIN
- * - RETIF_RSV_CREATE_ERR
- * - RETIF_RSV_ATTACH_OK
- * - RETIF_RSV_ATTACH_ERR
- * - RETIF_RSV_DETACH_OK
- * - RETIF_RSV_DETACH_ERR
- * - RETIF_RSV_QUERY_OK
- * - RETIF_RSV_QUERY_ERR
- * - RETIF_RSV_DESTROY_OK
- * - RETIF_RSV_DESTROY_ERR
- * - RETIF_DECONNECTION_OK
- * - RETIF_DECONNECTION_ERR
+ * - RTF_REQUEST_ERR
+ * - RTF_CONNECTION_OK
+ * - RTF_CONNECTION_ERR
+ * - RTF_RSV_CREATE_OK
+ * - RTF_RSV_CREATE_MIN
+ * - RTF_RSV_CREATE_ERR
+ * - RTF_RSV_ATTACH_OK
+ * - RTF_RSV_ATTACH_ERR
+ * - RTF_RSV_DETACH_OK
+ * - RTF_RSV_DETACH_ERR
+ * - RTF_RSV_QUERY_OK
+ * - RTF_RSV_QUERY_ERR
+ * - RTF_RSV_DESTROY_OK
+ * - RTF_RSV_DESTROY_ERR
+ * - RTF_DECONNECTION_OK
+ * - RTF_DECONNECTION_ERR
  *
  * #############################################################################
  * # Behavior & details
  * #############################################################################
  *
- * ## RETIF_CONNECTION
+ * ## RTF_CONNECTION
  *
  * DESC:
  *  Client is requesting to connect to daemon services.
  * PARAM:
  *  Client process id
  * REPLIES:
- *  RETIF_CONNECTION_OK: Daemon accepts the connection.
- *  RETIF_CONNECTION_ERR: Error during connection.
+ *  RTF_CONNECTION_OK: Daemon accepts the connection.
+ *  RTF_CONNECTION_ERR: Error during connection.
  * PAYLOAD:
  *  Reply type
  *
- * ## RETIF_CAP_QUERY
+ * ## RTF_CAP_QUERY
  *
  * DESC:
  *  Client is asking info about current system budget
  * PARAM:
- *  SCHED_CLASSES: RETIF_BUDGET or RETIF_REMAINING_BUDGET
+ *  SCHED_CLASSES: RTF_BUDGET or RTF_REMAINING_BUDGET
  * REPLIES:
- *  RETIF_CAP_QUERY_OK: System total rt utilization percentage
- *  RETIF_CAP_QUERY_OK: System current rt utilization percentage
- *  RETIF_CAP_QUERY_ERR: Wrong param type
+ *  RTF_CAP_QUERY_OK: System total rt utilization percentage
+ *  RTF_CAP_QUERY_OK: System current rt utilization percentage
+ *  RTF_CAP_QUERY_ERR: Wrong param type
  * PAYLOAD:
  *  Reply type & Total free rt util
  *  Reply type & Remaining rt util
@@ -84,11 +84,11 @@
  * DESC:
  *  Client wants to create a reservation
  * PARAM:
- *  retif_params: budget, period, wcet, priority ..
+ *  rtf_params: budget, period, wcet, priority ..
  *  Client process id
  * REPLIES:
- *  RETIF_RSV_CREATE_ERR: Impossible to guarantee the request
- *  RETIF_RSV_CREATE_OK: Reservation created
+ *  RTF_RSV_CREATE_ERR: Impossible to guarantee the request
+ *  RTF_RSV_CREATE_OK: Reservation created
  * PAYLOAD:
  *  Reply type & -1
  *  Reply tyoe & Reservation id
@@ -100,8 +100,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  RETIF_RSV_ATTACH_ERR: Unable to attach this flow of execution
- *  RETIF_RSV_ATTACH_OK: Flow of execution attached
+ *  RTF_RSV_ATTACH_ERR: Unable to attach this flow of execution
+ *  RTF_RSV_ATTACH_OK: Flow of execution attached
  * PAYLOAD:
  *  Reply type
  *
@@ -112,8 +112,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  RETIF_RSV_DETACH_ERR: Reservation not found
- *  RETIF_RSV_DETACH_OK: Detached with success
+ *  RTF_RSV_DETACH_ERR: Reservation not found
+ *  RTF_RSV_DETACH_OK: Detached with success
  * PAYLOAD:
  *  Reply type
  *
@@ -124,8 +124,8 @@
  * PARAM:
  *  Reservation id
  * REPLIES:
- *  RETIF_RSV_DESTROY_ERR: Reservation not found
- *  RETIF_RSV_DESTROY_OK: Destroyed with success
+ *  RTF_RSV_DESTROY_ERR: Reservation not found
+ *  RTF_RSV_DESTROY_OK: Destroyed with success
  * PAYLOAD:
  *  Reply type
  *
