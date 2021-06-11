@@ -276,7 +276,7 @@ If you want to cite, please refer to:
 [paper-url]: https://doi.org/10.1109/ISORC49007.2020.00013
 [youtube-url]: https://www.youtube.com/watch?v=9Y0KXTPXL14
 [cmake-url]: https://cmake.org
-[docs-url]: https;//codedocs.xyz
+[docs-url]: https://codedocs.xyz/gabriserra/retif
 
 [contributors-url]: https://github.com/gabriserra/retif/graphs/contributors
 [forks-url]: https://github.com/gabriserra/retif/network/members
