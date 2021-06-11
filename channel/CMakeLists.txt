@@ -13,3 +13,6 @@ target_include_directories(retif_channel
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+set_property(TARGET retif_channel
+    PROPERTY POSITION_INDEPENDENT_CODE ON)
