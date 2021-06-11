@@ -6,6 +6,7 @@
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Issues][issues-shield]][issues-url]
+[![Bugs][bugs-shield]][bugs-url]
 [![License][license-shield]][license-url]
 [![Documentation][docs-shield]][docs-url]
 
@@ -279,6 +280,7 @@ If you want to cite, please refer to:
 [cmake-url]: https://cmake.org
 [docs-url]: https://codedocs.xyz/gabriserra/retif
 
+[bugs-url]: https://github.com/gabriserra/retif/labels/bug
 [contributors-url]: https://github.com/gabriserra/retif/graphs/contributors
 [forks-url]: https://github.com/gabriserra/retif/network/members
 [issues-url]: https://github.com/gabriserra/retif/issues
@@ -292,6 +294,7 @@ If you want to cite, please refer to:
 
 <!------------------------ Shields ------------------------>
 
+[bugs-shield]: https://img.shields.io/github/issues/gabriserra/retif/bug
 [contributors-shield]: https://img.shields.io/github/contributors/gabriserra/retif
 [docs-shield]: https://codedocs.xyz/gabriserra/retif.svg
 [forks-shield]: https://img.shields.io/github/forks/gabriserra/retif
