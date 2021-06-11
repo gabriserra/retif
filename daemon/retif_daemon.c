@@ -393,7 +393,7 @@ void rtf_daemon_destroy(struct rtf_daemon* data)
         if(t == NULL)
             break;
 
-        rtf_task_destroy(t);
+        rtf_task_release(t);
     }
 
     rtf_scheduler_destroy(&(data->sched));

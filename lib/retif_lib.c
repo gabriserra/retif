@@ -207,7 +207,7 @@ void rtf_params_ignore_admission(struct rtf_params* p, uint8_t ignore_admission)
 // COMMUNICATION WITH DAEMON
 // -----------------------------------------------------------------------------
 
-int rtf_daemon_connect()
+int rtf_connect()
 {
     if(rtf_access_init(&main_channel) < 0)
         return RTF_ERROR;
@@ -295,7 +295,7 @@ int rtf_task_detach(struct rtf_task* t)
     return RTF_OK;
 }
 
-int rtf_task_destroy(struct rtf_task* t)
+int rtf_task_release(struct rtf_task* t)
 {
     t->c->req.req_type = RTF_TASK_DESTROY;
     t->c->req.payload.ids.rsvid = t->task_id;

@@ -145,7 +145,7 @@ void rtf_scheduler_delete(struct rtf_scheduler* s, pid_t ppid)
             break;
 
         s->plugin[t->pluginid].rtf_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
-        rtf_task_destroy(t);
+        rtf_task_release(t);
     }
 }
 
@@ -212,7 +212,7 @@ int rtf_scheduler_task_destroy(struct rtf_scheduler* s, rtf_id_t rtf_id)
         return RTF_ERROR;
 
     s->plugin[t->pluginid].rtf_plg_task_release(&(s->plugin[t->pluginid]), s->taskset, t);
-    rtf_task_destroy(t);
+    rtf_task_release(t);
 
     return RTF_OK;
 }

@@ -27,7 +27,7 @@ uint32_t rand_bounded(uint32_t min, uint32_t max)
 
 void daemon_connect()
 {
-    if (rtf_daemon_connect() < 0)
+    if (rtf_connect() < 0)
         print_err("# Error - Unable to connect with daemon.\n");
     else
         printf("# Connected with daemon.\n");
@@ -36,13 +36,13 @@ void daemon_connect()
 int main(int argc, char* argv[])
 {
     uint32_t ret;
-    struct rtf_params p;
-    struct rtf_task t;
+    struct rtf_params p = RTF_PARAM_INIT;
+    struct rtf_task t = RTF_TASK_INIT;
 
     daemon_connect();
 
-    rtf_params_init(&p);
-    rtf_task_init(&t);
+    // rtf_params_init(&p);
+    // rtf_task_init(&t);
 
     rtf_params_set_period(&p, rand_bounded(T_PERIOD_MIN, T_PERIOD_MAX));
     rtf_params_set_runtime(&p, rand_bounded(T_BUDGET_MIN, T_BUDGET_MAX));
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     while(!getc(stdin));
 
-    rtf_task_destroy(&t);
+    rtf_task_release(&t);
 
     return 0;
 }

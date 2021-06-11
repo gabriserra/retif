@@ -53,6 +53,8 @@ struct rtf_params
     uint8_t     ignore_admission;               // preference to avoid test
 };
 
+static const struct rtf_params RTF_PARAM_INIT = {0};
+
 struct rtf_task
 {
     uint32_t            task_id;        // task id assigned by daemon
@@ -63,6 +65,8 @@ struct rtf_task
     struct timespec     at;	            // next activation time
     struct timespec     dl; 	        // absolute deadline
 };
+
+static const struct rtf_task RTF_TASK_INIT = {0};
 
 #endif
 
@@ -102,7 +106,7 @@ void rtf_params_ignore_admission(struct rtf_params* p, uint8_t ignore_admission)
 // COMMUNICATION WITH DAEMON
 // -----------------------------------------------------------------------------
 
-int rtf_daemon_connect();
+int rtf_connect();
 
 void rtf_task_init(struct rtf_task* t);
 
@@ -114,7 +118,7 @@ int rtf_task_attach(struct rtf_task* t, pid_t pid);
 
 int rtf_task_detach(struct rtf_task* t);
 
-int rtf_task_destroy(struct rtf_task* t);
+int rtf_task_release(struct rtf_task* t);
 
 // -----------------------------------------------------------------------------
 // LOCAL COMMUNICATIONS
