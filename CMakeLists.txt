@@ -42,10 +42,19 @@ endif ()
 # paths in which stuff can be installed to. REQUIRED!
 include(GNUInstallDirs)
 
+# Location of important files that are going to be installed
+set(RETIF_CONF_FNAME retif.conf)
+
+# Set all destination paths for various components that will be installed
+set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
+set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
+set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
+
 # -------------------- Subdirectories -------------------- #
 
 add_subdirectory(channel)
 add_subdirectory(common)
+add_subdirectory(conf)
 add_subdirectory(daemon)
 add_subdirectory(daemon_plugins)
 add_subdirectory(lib)

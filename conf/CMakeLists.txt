@@ -1,0 +1,7 @@
+set(RETIF_CONF_SRC  ${CMAKE_CURRENT_SOURCE_DIR}/${RETIF_CONF_FNAME})
+
+# Install the configuration file
+install(
+    FILES ${RETIF_CONF_SRC}
+    DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}
+)
