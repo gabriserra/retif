@@ -238,7 +238,7 @@ issues).
  - [**Gabriele Ara**][gabri-ara-url]
  - [**Pietro Fara**][pietro-fara-url]
 
-The list of contributors can be found in the [contributors of the project][contrib-url].
+The list of contributors can be found in the [contributors of the project][contributors-url].
 
 > We want to thank [Prof. Tommaso Cucinotta][tommaso-cucinotta-url] for his
 > extensive support to the work. Without him, the framework would not exist at
