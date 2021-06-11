@@ -7,6 +7,7 @@
 [![Contributors][contributors-shield]][contributors-url]
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
+[![Documentation][docs-shield]][docs-url]
 
 <!-- [![Forks][forks-shield]][forks-url] -->
 <!-- [![Stars][stars-shield]][stars-url] -->
@@ -291,8 +292,9 @@ If you want to cite, please refer to:
 
 <!------------------------ Shields ------------------------>
 
-[contributors-shield]: https://img.shields.io/github/contributors/gabriserra/retif?style=flat-square
-[forks-shield]: https://img.shields.io/github/forks/gabriserra/retif?style=flat-square
-[issues-shield]: https://img.shields.io/github/issues/gabriserra/retif?style=flat-square
-[license-shield]: https://img.shields.io/github/license/gabriserra/retif?style=flat-square
-[stars-shield]: https://img.shields.io/github/stars/gabriserra/retif?style=flat-square
+[contributors-shield]: https://img.shields.io/github/contributors/gabriserra/retif
+[docs-shield]: https://codedocs.xyz/gabriserra/retif.svg
+[forks-shield]: https://img.shields.io/github/forks/gabriserra/retif
+[issues-shield]: https://img.shields.io/github/issues/gabriserra/retif
+[license-shield]: https://img.shields.io/github/license/gabriserra/retif
+[stars-shield]: https://img.shields.io/github/stars/gabriserra/retif
