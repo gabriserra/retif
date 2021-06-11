@@ -1,5 +1,5 @@
 # Option to disable generating documentation (default ON)
-option(BUILD_DOC "Build documentation" ON)
+option(BUILD_DOC "Build documentation" OFF)
 
 if (BUILD_DOC)
     # Check if Doxygen components are installed
