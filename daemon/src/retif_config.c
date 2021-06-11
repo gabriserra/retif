@@ -23,7 +23,7 @@
  *
  * @endinternal
  */
-int retif_config_get_rt_kernel_params(int* rt_period, int* rt_runtime)
+int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime)
 {
     FILE* proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "r");
     FILE* proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "r");
@@ -57,11 +57,11 @@ int retif_config_get_rt_kernel_params(int* rt_period, int* rt_runtime)
  *
  * @endinternal
  */
-int retif_config_get_rt_kernel_max_util(float* rt_max_util)
+int rtf_config_get_rt_kernel_max_util(float* rt_max_util)
 {
     int rt_period, rt_runtime;
 
-    if (retif_config_get_rt_kernel_params(&rt_period, &rt_runtime) < 0)
+    if (rtf_config_get_rt_kernel_params(&rt_period, &rt_runtime) < 0)
         return -1;
 
     if(rt_runtime == -1)
@@ -81,7 +81,7 @@ int retif_config_get_rt_kernel_max_util(float* rt_max_util)
  *
  * @endinternal
  */
-int retif_config_set_rt_kernel_params(int rt_period, int rt_runtime)
+int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime)
 {
     FILE* proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "w");
     FILE* proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "w");
@@ -112,11 +112,11 @@ int retif_config_set_rt_kernel_params(int rt_period, int rt_runtime)
  *
  * @endinternal
  */
-int retif_config_restore_rt_kernel_params()
+int rtf_config_restore_rt_kernel_params()
 {
     int ret;
 
-    ret = retif_config_set_rt_kernel_params(PROC_RT_PERIOD_DEFAULT, PROC_RT_RUNTIME_DEFAULT);
+    ret = rtf_config_set_rt_kernel_params(PROC_RT_PERIOD_DEFAULT, PROC_RT_RUNTIME_DEFAULT);
 
     if(ret < 0)
         LOG("Error: Restoring proc file rt parameters failed.\n");
@@ -136,7 +136,7 @@ int retif_config_restore_rt_kernel_params()
  *
  * @endinternal
  */
-int retif_config_get_rr_kernel_param(int* rr_timeslice)
+int rtf_config_get_rr_kernel_param(int* rr_timeslice)
 {
     FILE* proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "r");
 
@@ -164,7 +164,7 @@ int retif_config_get_rr_kernel_param(int* rr_timeslice)
  *
  * @endinternal
  */
-int retif_config_set_rr_kernel_param(int rr_timeslice)
+int rtf_config_set_rr_kernel_param(int rr_timeslice)
 {
     FILE* proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "w");
 
@@ -190,11 +190,11 @@ int retif_config_set_rr_kernel_param(int rr_timeslice)
  *
  * @endinternal
  */
-int retif_config_restore_rr_kernel_param(int rr_timeslice)
+int rtf_config_restore_rr_kernel_param(int rr_timeslice)
 {
     int ret;
 
-    ret = retif_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
+    ret = rtf_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
 
     if(ret < 0)
         ERR("Error: Restoring proc file rr parameter failed.\n");
@@ -214,7 +214,7 @@ int retif_config_restore_rr_kernel_param(int rr_timeslice)
  *
  * @endinternal
  */
-int retif_config_apply()
+int rtf_config_apply()
 {
     FILE* f;
     int rr_timeslice, rt_period, rt_runtime;
@@ -236,10 +236,10 @@ int retif_config_apply()
     if (extract_num_from_line(f, &rt_runtime) != 1)
         return -1;
 
-    if (retif_config_set_rt_kernel_params(rt_period, rt_runtime) < 0)
+    if (rtf_config_set_rt_kernel_params(rt_period, rt_runtime) < 0)
         return -1;
 
-    if (retif_config_set_rr_kernel_param(rr_timeslice) < 0)
+    if (rtf_config_set_rr_kernel_param(rr_timeslice) < 0)
         return -1;
 
     fclose(f);

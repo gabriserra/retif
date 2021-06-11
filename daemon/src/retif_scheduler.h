@@ -7,16 +7,16 @@
 
 #define CLK             CLOCK_MONOTONIC
 
-struct retif_taskset;
-struct retif_task;
+struct rtf_taskset;
+struct rtf_task;
 
-struct retif_scheduler
+struct rtf_scheduler
 {
     int                     num_of_cpu;
     int                     num_of_plugins;
     long                    last_task_id;
-    struct retif_taskset*     taskset;
-    struct retif_plugin*      plugin;
+    struct rtf_taskset*     taskset;
+    struct rtf_plugin*      plugin;
 };
 
 /**
@@ -27,7 +27,7 @@ struct retif_scheduler
  * @param s pointer to scheduler data struct
  * @param ts pointer to taskset data struct
  */
-int retif_scheduler_init(struct retif_scheduler* s, struct retif_taskset* ts);
+int rtf_scheduler_init(struct rtf_scheduler* s, struct rtf_taskset* ts);
 
 /**
  * @brief Deallocate scheduler stuff
@@ -36,9 +36,9 @@ int retif_scheduler_init(struct retif_scheduler* s, struct retif_taskset* ts);
  *
  * @param s pointer to scheduler data struct
  */
-void retif_scheduler_destroy(struct retif_scheduler* s);
+void rtf_scheduler_destroy(struct rtf_scheduler* s);
 
-void retif_scheduler_delete(struct retif_scheduler* s, pid_t ppid);
+void rtf_scheduler_delete(struct rtf_scheduler* s, pid_t ppid);
 
 /**
  * @brief Creates a reservation if possible
@@ -53,16 +53,16 @@ void retif_scheduler_delete(struct retif_scheduler* s, pid_t ppid);
  * @param ppid process id of the main process of the client
  * @return -1 if refused, 0 if accepted partially, 1 if accepted
  */
-int retif_scheduler_task_create(struct retif_scheduler* s, struct retif_params* tp, pid_t ppid);
+int rtf_scheduler_task_create(struct rtf_scheduler* s, struct rtf_params* tp, pid_t ppid);
 
-int retif_scheduler_task_change(struct retif_scheduler* s, struct retif_params* tp, retif_id_t retif_id);
+int rtf_scheduler_task_change(struct rtf_scheduler* s, struct rtf_params* tp, rtf_id_t rtf_id);
 
-int retif_scheduler_task_attach(struct retif_scheduler* s, retif_id_t retif_id, pid_t pid);
+int rtf_scheduler_task_attach(struct rtf_scheduler* s, rtf_id_t rtf_id, pid_t pid);
 
-int retif_scheduler_task_detach(struct retif_scheduler* s, retif_id_t retif_id);
+int rtf_scheduler_task_detach(struct rtf_scheduler* s, rtf_id_t rtf_id);
 
-int retif_scheduler_task_destroy(struct retif_scheduler* s, retif_id_t retif_id);
+int rtf_scheduler_task_destroy(struct rtf_scheduler* s, rtf_id_t rtf_id);
 
-void retif_scheduler_dump(struct retif_scheduler* s);
+void rtf_scheduler_dump(struct rtf_scheduler* s);
 
 #endif	// RETIF_SCHEDULER_H

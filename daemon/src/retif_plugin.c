@@ -84,7 +84,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
  *
  * @endinternal
  */
-static void read_conf(FILE* f, struct retif_plugin* plg, int num_of_plugin)
+static void read_conf(FILE* f, struct rtf_plugin* plg, int num_of_plugin)
 {
     int i, j;
     int num_cpu;
@@ -100,7 +100,7 @@ static void read_conf(FILE* f, struct retif_plugin* plg, int num_of_plugin)
         plg[i].cpulist              = calloc(num_cpu, sizeof(int));
         plg[i].util_free_percpu     = calloc(num_cpu, sizeof(int));
         plg[i].task_count_percpu    = calloc(num_cpu, sizeof(int));
-        plg[i].tasks                = calloc(num_cpu, sizeof(struct retif_taskset));
+        plg[i].tasks                = calloc(num_cpu, sizeof(struct rtf_taskset));
 
         // set free util to 1
         for (j = 0; j < num_cpu; j++)
@@ -108,7 +108,7 @@ static void read_conf(FILE* f, struct retif_plugin* plg, int num_of_plugin)
 
         // initialize tasksets per cpu
         for (j = 0; j < num_cpu; j++)
-            retif_taskset_init(&plg[i].tasks[j]);
+            rtf_taskset_init(&plg[i].tasks[j]);
 
         safe_file_read(f, "%s", 1, buffer);
         read_plg_name(buffer, plg[i].name);
@@ -126,20 +126,20 @@ static void read_conf(FILE* f, struct retif_plugin* plg, int num_of_plugin)
  *
  * @endinternal
  */
-static void load_symbols(struct retif_plugin* plg, unsigned int index, void* dl_ptr)
+static void load_symbols(struct rtf_plugin* plg, unsigned int index, void* dl_ptr)
 {
     int cpunum = get_nprocs2();
 
     plg[index].id                       = index;
     plg[index].cpunum                   = cpunum;
     plg[index].dl_ptr                   = dl_ptr;
-    plg[index].retif_plg_task_init      = dlsym(dl_ptr, RETIF_API_INIT);
-    plg[index].retif_plg_task_accept    = dlsym(dl_ptr, RETIF_API_ACCEPT);
-    plg[index].retif_plg_task_change    = dlsym(dl_ptr, RETIF_API_CHANGE);
-    plg[index].retif_plg_task_release   = dlsym(dl_ptr, RETIF_API_RELEASE);
-    plg[index].retif_plg_task_schedule  = dlsym(dl_ptr, RETIF_API_SCHEDULE);
-    plg[index].retif_plg_task_attach    = dlsym(dl_ptr, RETIF_API_ATTACH);
-    plg[index].retif_plg_task_detach    = dlsym(dl_ptr, RETIF_API_DETACH);
+    plg[index].rtf_plg_task_init        = dlsym(dl_ptr, RTF_API_INIT);
+    plg[index].rtf_plg_task_accept      = dlsym(dl_ptr, RTF_API_ACCEPT);
+    plg[index].rtf_plg_task_change      = dlsym(dl_ptr, RTF_API_CHANGE);
+    plg[index].rtf_plg_task_release     = dlsym(dl_ptr, RTF_API_RELEASE);
+    plg[index].rtf_plg_task_schedule    = dlsym(dl_ptr, RTF_API_SCHEDULE);
+    plg[index].rtf_plg_task_attach      = dlsym(dl_ptr, RTF_API_ATTACH);
+    plg[index].rtf_plg_task_detach      = dlsym(dl_ptr, RTF_API_DETACH);
 }
 
 /**
@@ -149,7 +149,7 @@ static void load_symbols(struct retif_plugin* plg, unsigned int index, void* dl_
  *
  * @endinternal
  */
-static int load_libraries(struct retif_plugin* plg, int num_of_plugin)
+static int load_libraries(struct rtf_plugin* plg, int num_of_plugin)
 {
     void* dl_ptr;
 
@@ -187,7 +187,7 @@ static int load_libraries(struct retif_plugin* plg, int num_of_plugin)
  *
  * @endinternal
  */
-int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins)
+int rtf_plugins_init(struct rtf_plugin** plgs, int* num_of_plugins)
 {
     FILE* f;
     int num_plugin;
@@ -206,7 +206,7 @@ int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins)
     num_plugin  = count_num_of_settings(f);
 
     (*num_of_plugins)           = num_plugin;
-    (*plgs)                     = calloc(num_plugin, sizeof(struct retif_plugin));
+    (*plgs)                     = calloc(num_plugin, sizeof(struct rtf_plugin));
 
     read_conf(f, *plgs, num_plugin);
 
@@ -226,7 +226,7 @@ int retif_plugins_init(struct retif_plugin** plgs, int* num_of_plugins)
  *
  * @endinternal
  */
-void retif_plugins_destroy(struct retif_plugin* plgs, int plugin_num)
+void rtf_plugins_destroy(struct rtf_plugin* plgs, int plugin_num)
 {
     for(int i = 0; i < plugin_num; i++)
     {
