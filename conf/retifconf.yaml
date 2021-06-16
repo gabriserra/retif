@@ -1,0 +1,35 @@
+configuration:
+  kernel:
+    rr_timeslice: 100 # ms
+    sched_rt_period: 1000000 # us
+    sched_rt_runtime: 950000 # us
+  plugins:
+    - name: EDF
+      plugin: retif/sched_EDF.so
+      priority: 100
+      cores: 0
+    - name: RM
+      plugin: retif/sched_RM.so
+      priority: [50, 99]
+      cores: [1, 2]
+    - name: RR
+      plugin: retif/sched_RR.so
+      priority: [1, 49]
+      cores: [1, 2]
+    - name: FP
+      plugin: retif/sched_FP.so
+      priority: 1-99
+      cores: 3-7
+  rules:
+    - domain: user1
+      type: user
+      plugin: EDF
+      properties:
+        - max_utilization: 0.7
+        - max_period: 10000
+    - domain: cdrom
+      type: group
+      plugin:
+      properties:
+        - max_utilization: 0.1
+        - max_period: 100
