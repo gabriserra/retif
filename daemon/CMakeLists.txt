@@ -21,11 +21,17 @@ target_include_directories(retifd
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+# find_package(PkgConfig REQUIRED)
+# pkg_check_modules(YAML REQUIRED yaml)
+
+# find_library(yaml)
+
 target_link_libraries(retifd
     PRIVATE
     ${CMAKE_DL_LIBS}
     retif_channel
     retif_common
+    yaml
 )
 
 # ----------------------- Service ------------------------ #

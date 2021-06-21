@@ -30,7 +30,7 @@ CompactNamespaces: 'false'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
 Cpp11BracedListStyle: 'true'
 FixNamespaceComments: 'true'
-ForEachMacros: ['YAML_FOREACH_PAIR', 'YAML_FOREACH_ITEM', 'VECTOR_FOREACH']
+ForEachMacros: ['YAML_FOREACH_PAIR', 'YAML_FOREACH_ITEM', 'VECTOR_FOREACH', 'VECTOR_P_FOREACH']
 TypenameMacros: ['VECTOR']
 IncludeBlocks: Preserve
 IndentCaseLabels: 'false'
