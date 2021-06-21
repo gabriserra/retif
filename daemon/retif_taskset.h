@@ -5,9 +5,9 @@
  * @brief Contains the interface of a taskset (linked list of real time task)
  *
  * This file contains the interface of a simple implementation of a taskset
- * namely a list taskset real time task. This is useful to store in the taskset any custom
- * element, using the a cast to (any_t). This implementation utilizes list.h,
- * an implementation of linked list of any_t element.
+ * namely a list taskset real time task. This is useful to store in the taskset
+ * any custom element, using the a cast to (any_t). This implementation utilizes
+ * list.h, an implementation of linked list of any_t element.
  */
 
 #ifndef RETIF_TASKSET_H
@@ -26,7 +26,8 @@
  * The structure rtf_taskset contains a list. Inside
  * the taskset will be placed rt_tasks.
  */
-struct rtf_taskset {
+struct rtf_taskset
+{
     struct list tasks; /** the rt_task list  */
 };
 
@@ -42,7 +43,7 @@ struct rtf_taskset {
  *
  * @param ts pointer to the taskset to be initialized
  */
-void rtf_taskset_init(struct rtf_taskset* ts);
+void rtf_taskset_init(struct rtf_taskset *ts);
 
 /**
  * @brief Check if the taskset is empty
@@ -53,7 +54,7 @@ void rtf_taskset_init(struct rtf_taskset* ts);
  * @param ts pointer to taskset to be used to be used
  * @return 1 if empty, 0 otherwise
  */
-int rtf_taskset_is_empty(struct rtf_taskset* ts);
+int rtf_taskset_is_empty(struct rtf_taskset *ts);
 
 /**
  * @brief Return the size of the taskset
@@ -64,7 +65,7 @@ int rtf_taskset_is_empty(struct rtf_taskset* ts);
  * @param ts pointer to taskset to be used to be used
  * @return the size of the taskset or 0 if empty
  */
-int rtf_taskset_get_size(struct rtf_taskset* ts);
+int rtf_taskset_get_size(struct rtf_taskset *ts);
 
 /**
  * @brief Add the provided element to the top of the taskset
@@ -74,7 +75,7 @@ int rtf_taskset_get_size(struct rtf_taskset* ts);
  * @param ts pointer to taskset to be used
  * @param task pointer to the task to be added to the taskset
  */
-void rtf_taskset_add_top(struct rtf_taskset* ts, struct rtf_task* task);
+void rtf_taskset_add_top(struct rtf_taskset *ts, struct rtf_task *task);
 
 /**
  * @brief Add the element to the taskset sorting by ASC deadline
@@ -88,7 +89,7 @@ void rtf_taskset_add_top(struct rtf_taskset* ts, struct rtf_task* task);
  * @param ts pointer to taskset to be used
  * @param task pointer to the task to be added to the taskset
  */
-void rtf_taskset_add_sorted_dl(struct rtf_taskset* ts, struct rtf_task* task);
+void rtf_taskset_add_sorted_dl(struct rtf_taskset *ts, struct rtf_task *task);
 
 /**
  * @brief Add the element to the taskset sorting by ASC period
@@ -102,9 +103,11 @@ void rtf_taskset_add_sorted_dl(struct rtf_taskset* ts, struct rtf_task* task);
  * @param ts pointer to taskset to be used
  * @param task pointer to the task to be added to the taskset
  */
-struct node_ptr* rtf_taskset_add_sorted_pr(struct rtf_taskset* ts, struct rtf_task* task);
+struct node_ptr *rtf_taskset_add_sorted_pr(struct rtf_taskset *ts,
+    struct rtf_task *task);
 
-struct node_ptr* rtf_taskset_add_sorted_prio(struct rtf_taskset* ts, struct rtf_task* task);
+struct node_ptr *rtf_taskset_add_sorted_prio(struct rtf_taskset *ts,
+    struct rtf_task *task);
 
 /**
  * @brief Remove the top element of the taskset
@@ -114,7 +117,7 @@ struct node_ptr* rtf_taskset_add_sorted_prio(struct rtf_taskset* ts, struct rtf_
  *
  * @param ts: pointer to taskset to be used
  */
-struct rtf_task* rtf_taskset_remove_top(struct rtf_taskset* ts);
+struct rtf_task *rtf_taskset_remove_top(struct rtf_taskset *ts);
 
 /**
  * @brief Return a pointer to the first task of the list
@@ -125,7 +128,7 @@ struct rtf_task* rtf_taskset_remove_top(struct rtf_taskset* ts);
  * @param ts pointer to taskset to be used
  * @return pointer to the first task of the list
  */
-struct rtf_task* rtf_taskset_get_top_task(struct rtf_taskset* ts);
+struct rtf_task *rtf_taskset_get_top_task(struct rtf_taskset *ts);
 
 /**
  * @brief Return the pointer to the i-th task in the taskset
@@ -137,7 +140,7 @@ struct rtf_task* rtf_taskset_get_top_task(struct rtf_taskset* ts);
  * @param i the index of the task to be retrivied
  * @return pointer to the element contained in the i-th node of the taskset
  */
-struct rtf_task* rtf_taskset_get_i_task(struct rtf_taskset* ts, unsigned int i);
+struct rtf_task *rtf_taskset_get_i_task(struct rtf_taskset *ts, unsigned int i);
 
 /**
  * @brief Return the pointer to the i-th node of taskset list
@@ -149,7 +152,7 @@ struct rtf_task* rtf_taskset_get_i_task(struct rtf_taskset* ts, unsigned int i);
  * @param i the index of the node to be retrivied
  * @return pointer to the i-th node of the list
  */
-struct node_ptr* rtf_taskset_get_i_node(struct rtf_taskset* ts, unsigned int i);
+struct node_ptr *rtf_taskset_get_i_node(struct rtf_taskset *ts, unsigned int i);
 
 /**
  * @brief Return the pointer to the node adjacent in the taskset list
@@ -161,7 +164,8 @@ struct node_ptr* rtf_taskset_get_i_node(struct rtf_taskset* ts, unsigned int i);
  * @param node the index of the node that will be used to get the adjacent
  * @return pointer to the adjacent node of the one passed
  */
-struct node_ptr* rtf_taskset_get_next_node(struct rtf_taskset* ts, struct node_ptr* node);
+struct node_ptr *rtf_taskset_get_next_node(struct rtf_taskset *ts,
+    struct node_ptr *node);
 
 /**
  * @brief Sort (in place) the taskset
@@ -177,18 +181,19 @@ struct node_ptr* rtf_taskset_get_next_node(struct rtf_taskset* ts, struct node_p
  * @param p parameter of task to be used to establish the order
  * @param flag specify ASC for ascendent or DSC for descendent
  */
-void rtf_taskset_sort(struct rtf_taskset* ts, enum PARAM p, int flag);
+void rtf_taskset_sort(struct rtf_taskset *ts, enum PARAM p, int flag);
 
-struct rtf_task* rtf_taskset_search(struct rtf_taskset* ts, rtf_id_t rsvid);
+struct rtf_task *rtf_taskset_search(struct rtf_taskset *ts, rtf_id_t rsvid);
 
-struct rtf_task* rtf_taskset_remove_by_ppid(struct rtf_taskset* ts, pid_t ppid);
+struct rtf_task *rtf_taskset_remove_by_ppid(struct rtf_taskset *ts, pid_t ppid);
 
-struct rtf_task* rtf_taskset_remove_by_rsvid(struct rtf_taskset* ts, rtf_id_t rsvid);
+struct rtf_task *rtf_taskset_remove_by_rsvid(struct rtf_taskset *ts,
+    rtf_id_t rsvid);
 
-iterator_t rtf_taskset_iterator_init(struct rtf_taskset* ts);
+iterator_t rtf_taskset_iterator_init(struct rtf_taskset *ts);
 
 iterator_t rtf_taskset_iterator_get_next(iterator_t iterator);
 
-struct rtf_task* rtf_taskset_iterator_get_elem(iterator_t iterator);
+struct rtf_task *rtf_taskset_iterator_get_elem(iterator_t iterator);
 
 #endif

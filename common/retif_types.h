@@ -2,18 +2,18 @@
 #define RETIF_TYPES_H
 
 #include <stdint.h>
-#include <time.h>
 #include <sys/types.h>
+#include <time.h>
 
-#define RTF_OK                      1
-#define RTF_FAIL                    0
-#define RTF_ERROR                   -1
-#define RTF_PARTIAL                 0
-#define RTF_NO                      -1
+#define RTF_OK 1
+#define RTF_FAIL 0
+#define RTF_ERROR -1
+#define RTF_PARTIAL 0
+#define RTF_NO -1
 
 #ifndef RETIF_PLUGIN_H
-    #define PLUGIN_MAX_NAME         32
-    #define PLUGIN_MAX_PATH         1024
+#    define PLUGIN_MAX_NAME 32
+#    define PLUGIN_MAX_PATH 1024
 #endif
 
 typedef uint32_t rtf_id_t;
@@ -60,17 +60,17 @@ enum CLIENT_STATE
 };
 
 #ifndef RETIF_PUBLIC_TYPES
-#define RETIF_PUBLIC_TYPES
+#    define RETIF_PUBLIC_TYPES
 
 struct rtf_params
 {
-    uint64_t    runtime;                        // required runtime [microseconds]
-    uint64_t    des_runtime;                    // desired runtime [microseconds]
-    uint64_t    period;                         // period of task [microseconds]
-    uint64_t    deadline;                       // relative deadline [microseconds]
-    uint32_t    priority;                       // priority of task [LOW_PRIO, HIGH_PRIO]
-    char        sched_plugin[PLUGIN_MAX_NAME];  // preferenced plugin to be used
-    uint8_t     ignore_admission;               // preference to avoid test
+    uint64_t runtime; // required runtime [microseconds]
+    uint64_t des_runtime; // desired runtime [microseconds]
+    uint64_t period; // period of task [microseconds]
+    uint64_t deadline; // relative deadline [microseconds]
+    uint32_t priority; // priority of task [LOW_PRIO, HIGH_PRIO]
+    char sched_plugin[PLUGIN_MAX_NAME]; // preferenced plugin to be used
+    uint8_t ignore_admission; // preference to avoid test
 };
 
 #endif
@@ -103,4 +103,4 @@ struct rtf_client
     pid_t pid;
 };
 
-#endif	// RETIF_TYPES_H
+#endif // RETIF_TYPES_H

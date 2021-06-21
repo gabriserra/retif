@@ -1,9 +1,9 @@
-#include <stdlib.h>
+#include "retif_daemon.h"
+#include "logger.h"
+#include "retif_utils.h"
 #include <signal.h>
 #include <stdio.h>
-#include "logger.h"
-#include "retif_daemon.h"
-#include "retif_utils.h"
+#include <stdlib.h>
 
 // -----------------------------------------------------------------------------
 // REQUEST HANDLING METHODS
@@ -16,7 +16,7 @@
  *
  * @endinternal
  */
-static struct rtf_reply req_connection(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_connection(struct rtf_daemon *data, int cli_id)
 {
     struct rtf_reply rep;
     struct rtf_request req;
@@ -28,7 +28,8 @@ static struct rtf_reply req_connection(struct rtf_daemon* data, int cli_id)
     rtf_carrier_set_pid(&(data->chann), cli_id, req.payload.ids.pid);
     rep.rep_type = RTF_CONNECTION_OK;
 
-    INFO("%d connected with success. Assigned id: %d\n", req.payload.ids.pid, cli_id);
+    INFO("%d connected with success. Assigned id: %d\n", req.payload.ids.pid,
+        cli_id);
 
     return rep;
 }
@@ -40,7 +41,7 @@ static struct rtf_reply req_connection(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-static struct rtf_reply req_task_create(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_task_create(struct rtf_daemon *data, int cli_id)
 {
     int rtf_id, res, pid;
     struct rtf_reply rep;
@@ -54,7 +55,7 @@ static struct rtf_reply req_task_create(struct rtf_daemon* data, int cli_id)
     res = rtf_scheduler_task_create(&(data->sched), &req.payload.param, pid);
     rtf_id = data->sched.last_task_id;
 
-    if(res == RTF_NO)
+    if (res == RTF_NO)
     {
         rep.rep_type = RTF_TASK_CREATE_ERR;
         rep.payload = -1;
@@ -70,7 +71,8 @@ static struct rtf_reply req_task_create(struct rtf_daemon* data, int cli_id)
     {
         rep.rep_type = RTF_TASK_CREATE_OK;
         rep.payload = rtf_id;
-        LOG("It is possible to guarantee these parameters. Res. id: %d\n", rtf_id);
+        LOG("It is possible to guarantee these parameters. Res. id: %d\n",
+            rtf_id);
     }
 
     return rep;
@@ -83,7 +85,7 @@ static struct rtf_reply req_task_create(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-static struct rtf_reply req_task_modify(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_task_modify(struct rtf_daemon *data, int cli_id)
 {
     int res;
     struct rtf_reply rep;
@@ -93,10 +95,11 @@ static struct rtf_reply req_task_modify(struct rtf_daemon* data, int cli_id)
 
     LOG("Received RSV_MODIFY REQ for rsv: %d\n", req.payload.ids.rsvid);
 
-    res = rtf_scheduler_task_change(&(data->sched), &req.payload.param, req.payload.ids.rsvid);
+    res = rtf_scheduler_task_change(&(data->sched), &req.payload.param,
+        req.payload.ids.rsvid);
     res = req.payload.ids.rsvid; // TO BE DELETED
 
-    if(res == RTF_NO)
+    if (res == RTF_NO)
     {
         rep.rep_type = RTF_TASK_MODIFY_ERR;
         LOG("It is NOT possible to guarantee these parameters!\n");
@@ -122,7 +125,7 @@ static struct rtf_reply req_task_modify(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-static struct rtf_reply req_task_attach(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_task_attach(struct rtf_daemon *data, int cli_id)
 {
     struct rtf_reply rep;
     struct rtf_request req;
@@ -130,16 +133,16 @@ static struct rtf_reply req_task_attach(struct rtf_daemon* data, int cli_id)
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
     LOG("Received RSV_ATTACH REQ for res: %d. PID: %d will be attached.\n",
-            req.payload.ids.rsvid, req.payload.ids.pid);
+        req.payload.ids.rsvid, req.payload.ids.pid);
 
-    if(rtf_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid, req.payload.ids.pid) < 0)
+    if (rtf_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid,
+            req.payload.ids.pid) < 0)
         rep.rep_type = RTF_TASK_ATTACH_ERR;
     else
         rep.rep_type = RTF_TASK_ATTACH_OK;
 
     return rep;
 }
-
 
 /**
  * @internal
@@ -148,7 +151,7 @@ static struct rtf_reply req_task_attach(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-static struct rtf_reply req_task_detach(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_task_detach(struct rtf_daemon *data, int cli_id)
 {
     struct rtf_reply rep;
     struct rtf_request req;
@@ -158,7 +161,7 @@ static struct rtf_reply req_task_detach(struct rtf_daemon* data, int cli_id)
     LOG("Received RSV_DETACH REQ for res: %d. The thread will be detached\n",
         req.payload.ids.rsvid);
 
-    if(rtf_scheduler_task_detach(&(data->sched), req.payload.ids.rsvid) < 0)
+    if (rtf_scheduler_task_detach(&(data->sched), req.payload.ids.rsvid) < 0)
         rep.rep_type = RTF_TASK_DETACH_ERR;
     else
         rep.rep_type = RTF_TASK_DETACH_OK;
@@ -173,7 +176,7 @@ static struct rtf_reply req_task_detach(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-static struct rtf_reply req_task_destroy(struct rtf_daemon* data, int cli_id)
+static struct rtf_reply req_task_destroy(struct rtf_daemon *data, int cli_id)
 {
     struct rtf_reply rep;
     struct rtf_request req;
@@ -183,7 +186,7 @@ static struct rtf_reply req_task_destroy(struct rtf_daemon* data, int cli_id)
     LOG("Received RSV_DESTROY REQ for res: %d. The thread will be detached\n",
         req.payload.ids.rsvid);
 
-    if(rtf_scheduler_task_destroy(&(data->sched), req.payload.ids.rsvid) < 0)
+    if (rtf_scheduler_task_destroy(&(data->sched), req.payload.ids.rsvid) < 0)
         rep.rep_type = RTF_TASK_DESTROY_ERR;
     else
         rep.rep_type = RTF_TASK_DESTROY_OK;
@@ -205,17 +208,18 @@ static struct rtf_reply req_task_destroy(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-int rtf_daemon_check_for_fail(struct rtf_daemon* data, int cli_id)
+int rtf_daemon_check_for_fail(struct rtf_daemon *data, int cli_id)
 {
     enum CLIENT_STATE st;
     pid_t pid;
 
     st = rtf_carrier_get_state(&(data->chann), cli_id);
 
-    if(st != ERROR && st != DISCONNECTED)
+    if (st != ERROR && st != DISCONNECTED)
         return 0;
 
-    INFO("Client %d disconnected. Its reservation will be destroyed.\n", cli_id);
+    INFO("Client %d disconnected. Its reservation will be destroyed.\n",
+        cli_id);
 
     rtf_carrier_set_state(&(data->chann), cli_id, EMPTY);
     pid = rtf_carrier_get_pid(&(data->chann), cli_id);
@@ -233,7 +237,7 @@ int rtf_daemon_check_for_fail(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-int rtf_daemon_check_for_update(struct rtf_daemon* data, int cli_id)
+int rtf_daemon_check_for_update(struct rtf_daemon *data, int cli_id)
 {
     int is_updated;
     enum CLIENT_STATE st;
@@ -241,7 +245,7 @@ int rtf_daemon_check_for_update(struct rtf_daemon* data, int cli_id)
     is_updated = rtf_carrier_is_updated(&(data->chann), cli_id);
     st = rtf_carrier_get_state(&(data->chann), cli_id);
 
-    if(st == CONNECTED && is_updated)
+    if (st == CONNECTED && is_updated)
         return 1;
 
     return 0;
@@ -254,35 +258,35 @@ int rtf_daemon_check_for_update(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-int rtf_daemon_process_req(struct rtf_daemon* data, int cli_id)
+int rtf_daemon_process_req(struct rtf_daemon *data, int cli_id)
 {
     struct rtf_reply rep;
     struct rtf_request req;
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    switch(req.req_type)
+    switch (req.req_type)
     {
-        case RTF_CONNECTION:
-            rep = req_connection(data, cli_id);
-            break;
-        case RTF_TASK_CREATE:
-            rep = req_task_create(data, cli_id);
-            break;
-        case RTF_TASK_MODIFY:
-            rep = req_task_modify(data, cli_id);
-            break;
-        case RTF_TASK_ATTACH:
-            rep = req_task_attach(data, cli_id);
-            break;
-        case RTF_TASK_DETACH:
-            rep = req_task_detach(data, cli_id);
-            break;
-        case RTF_TASK_DESTROY:
-            rep = req_task_destroy(data, cli_id);
-            break;
-        default:
-            rep.rep_type = RTF_REQUEST_ERR;
+    case RTF_CONNECTION:
+        rep = req_connection(data, cli_id);
+        break;
+    case RTF_TASK_CREATE:
+        rep = req_task_create(data, cli_id);
+        break;
+    case RTF_TASK_MODIFY:
+        rep = req_task_modify(data, cli_id);
+        break;
+    case RTF_TASK_ATTACH:
+        rep = req_task_attach(data, cli_id);
+        break;
+    case RTF_TASK_DETACH:
+        rep = req_task_detach(data, cli_id);
+        break;
+    case RTF_TASK_DESTROY:
+        rep = req_task_destroy(data, cli_id);
+        break;
+    default:
+        rep.rep_type = RTF_REQUEST_ERR;
     }
 
     return rtf_carrier_send(&(data->chann), &rep, cli_id);
@@ -296,20 +300,20 @@ int rtf_daemon_process_req(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-void rtf_daemon_handle_req(struct rtf_daemon* data, int cli_id)
+void rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
 {
     int sent;
 
-    if(rtf_daemon_check_for_fail(data, cli_id))
+    if (rtf_daemon_check_for_fail(data, cli_id))
         return;
 
-    if(!rtf_daemon_check_for_update(data, cli_id))
+    if (!rtf_daemon_check_for_update(data, cli_id))
         return;
 
     sent = rtf_daemon_process_req(data, cli_id);
     rtf_carrier_req_clear(&(data->chann), cli_id);
 
-    if(sent <= 0)
+    if (sent <= 0)
         rtf_carrier_set_state(&(data->chann), cli_id, ERROR);
 }
 
@@ -325,9 +329,9 @@ void rtf_daemon_handle_req(struct rtf_daemon* data, int cli_id)
  *
  * @endinternal
  */
-int rtf_daemon_init(struct rtf_daemon* data)
+int rtf_daemon_init(struct rtf_daemon *data)
 {
-    if(rtf_carrier_init(&(data->chann)) < 0)
+    if (rtf_carrier_init(&(data->chann)) < 0)
         return -1;
 
     rtf_taskset_init(&(data->tasks));
@@ -345,13 +349,13 @@ int rtf_daemon_init(struct rtf_daemon* data)
  *
  * @endinternal
  */
-void rtf_daemon_loop(struct rtf_daemon* data)
+void rtf_daemon_loop(struct rtf_daemon *data)
 {
-    while(1)
+    while (1)
     {
         rtf_carrier_update(&(data->chann));
 
-        for(int i = 0; i <= rtf_carrier_get_conn(&(data->chann)); i++)
+        for (int i = 0; i <= rtf_carrier_get_conn(&(data->chann)); i++)
             rtf_daemon_handle_req(data, i);
     }
 }
@@ -364,7 +368,7 @@ void rtf_daemon_loop(struct rtf_daemon* data)
  *
  * @endinternal
  */
-void rtf_daemon_dump(struct rtf_daemon* data)
+void rtf_daemon_dump(struct rtf_daemon *data)
 {
     LOG("###### SYS INFO ######\n");
     rtf_scheduler_dump(&(data->sched));
@@ -382,15 +386,15 @@ void rtf_daemon_dump(struct rtf_daemon* data)
  *
  * @endinternal
  */
-void rtf_daemon_destroy(struct rtf_daemon* data)
+void rtf_daemon_destroy(struct rtf_daemon *data)
 {
-    struct rtf_task* t;
+    struct rtf_task *t;
 
-    while(1)
+    while (1)
     {
         t = rtf_taskset_remove_top(&(data->tasks));
 
-        if(t == NULL)
+        if (t == NULL)
             break;
 
         rtf_task_release(t);

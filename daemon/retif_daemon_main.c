@@ -5,11 +5,11 @@
  * @brief Contains daemon entry & exit points
  */
 
-#include <stdio.h>
-#include <signal.h>
-#include <stdlib.h>
 #include "logger.h"
 #include "retif_daemon.h"
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 struct rtf_daemon data;
 
@@ -37,11 +37,11 @@ void output()
 /**
  * @brief Main daemon routine, initializes data and starts loop
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     INFO("ReTiF daemon - Daemon started.\n");
 
-    if(rtf_daemon_init(&data) < 0)
+    if (rtf_daemon_init(&data) < 0)
     {
         ERR("Unexpected error in initialization phase.\n");
         exit(EXIT_FAILURE);
