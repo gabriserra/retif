@@ -30,7 +30,7 @@ int rtf_config_get_rt_kernel_params(int *rt_period, int *rt_runtime)
 
     if (proc_rt_period == NULL || proc_rt_runtime == NULL)
     {
-        ERR("rtsd error: %s", strerror(errno));
+        LOG(ERR, "rtsd error: %s", strerror(errno));
         return -1;
     }
 
@@ -39,8 +39,8 @@ int rtf_config_get_rt_kernel_params(int *rt_period, int *rt_runtime)
     if (safe_file_read(proc_rt_runtime, "%d", 1, rt_runtime) < 0)
         return -1;
 
-    LOG("Reading kernel RT data - PERIOD: %d - RUNTIME: %d\n", *rt_period,
-        *rt_runtime);
+    LOG(DEBUG, "Reading kernel RT data - PERIOD: %d - RUNTIME: %d\n",
+        *rt_period, *rt_runtime);
 
     fclose(proc_rt_period);
     fclose(proc_rt_runtime);
@@ -89,15 +89,15 @@ int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime)
 
     if (proc_rt_period == NULL || proc_rt_runtime == NULL)
     {
-        WARN("Error opening proc files in writing mode.\n");
-        WARN("%s", strerror(errno));
+        LOG(WARNING, "Error opening proc files in writing mode.\n");
+        LOG(WARNING, "%s", strerror(errno));
         return -1;
     }
 
     fprintf(proc_rt_period, "%d", rt_period);
     fprintf(proc_rt_runtime, "%d", rt_runtime);
 
-    LOG("Written kernel RT data - PERIOD: %d - RUNTIME: %d\n", rt_period,
+    LOG(DEBUG, "Written kernel RT data - PERIOD: %d - RUNTIME: %d\n", rt_period,
         rt_runtime);
 
     fclose(proc_rt_period);
@@ -123,9 +123,9 @@ int rtf_config_restore_rt_kernel_params()
         PROC_RT_RUNTIME_DEFAULT);
 
     if (ret < 0)
-        LOG("Error: Restoring proc file rt parameters failed.\n");
+        LOG(DEBUG, "Error: Restoring proc file rt parameters failed.\n");
     else
-        LOG("Restoring proc file rt parameters successful.\n");
+        LOG(DEBUG, "Restoring proc file rt parameters successful.\n");
 
     return ret;
 }
@@ -146,15 +146,15 @@ int rtf_config_get_rr_kernel_param(int *rr_timeslice)
 
     if (proc_rr_timeslice == NULL)
     {
-        LOG("Error opening proc files in reading mode.\n");
-        LOG("%s", strerror(errno));
+        LOG(DEBUG, "Error opening proc files in reading mode.\n");
+        LOG(DEBUG, "%s", strerror(errno));
         return -1;
     }
 
     if (safe_file_read(proc_rr_timeslice, "%d", 1, rr_timeslice) < 0)
         return -1;
 
-    LOG("Reading kernel RR data - TIMESLICE: %d \n", *rr_timeslice);
+    LOG(DEBUG, "Reading kernel RR data - TIMESLICE: %d \n", *rr_timeslice);
     fclose(proc_rr_timeslice);
 
     return 0;
@@ -175,13 +175,13 @@ int rtf_config_set_rr_kernel_param(int rr_timeslice)
 
     if (proc_rr_timeslice == NULL)
     {
-        WARN("Error opening proc files in writing mode.\n");
-        WARN("%s", strerror(errno));
+        LOG(WARNING, "Error opening proc files in writing mode.\n");
+        LOG(WARNING, "%s", strerror(errno));
         return -1;
     }
 
     fprintf(proc_rr_timeslice, "%d", rr_timeslice);
-    LOG("Written kernel RR data - TIMESLICE: %d \n", rr_timeslice);
+    LOG(DEBUG, "Written kernel RR data - TIMESLICE: %d \n", rr_timeslice);
     fclose(proc_rr_timeslice);
 
     return 0;
@@ -203,9 +203,9 @@ int rtf_config_restore_rr_kernel_param(int rr_timeslice)
     ret = rtf_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
 
     if (ret < 0)
-        ERR("Error: Restoring proc file rr parameter failed.\n");
+        LOG(ERR, "Error: Restoring proc file rr parameter failed.\n");
     else
-        INFO("Restoring proc file rr parameter successful.\n");
+        LOG(INFO, "Restoring proc file rr parameter successful.\n");
 
     return ret;
 }
@@ -229,7 +229,7 @@ int rtf_config_apply()
 
     if (f == NULL)
     {
-        ERR("Unable to open cfg file. %s. Are plugins installed?\n",
+        LOG(ERR, "Unable to open cfg file. %s. Are plugins installed?\n",
             strerror(errno));
         return -1;
     }

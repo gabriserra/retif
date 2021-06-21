@@ -372,18 +372,18 @@ int usocket_get_credentials(struct usocket *us, int fd)
 
     if (ucredp == NULL)
     {
-        ERR("Unable to allocate ucred struct. Out of memory.");
+        LOG(ERR, "Unable to allocate ucred struct. Out of memory.");
         return -1;
     }
 
     // get client credentials
     if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, ucredp, &len) == -1)
     {
-        ERR("Unable to get credentials: %s. \n", strerror(errno));
+        LOG(ERR, "Unable to get credentials: %s. \n", strerror(errno));
         return -1;
     }
 
-    INFO("Credentials from %d descriptor: (%d, %d, %d)\n", fd, ucredp->pid,
+    LOG(INFO, "Credentials from %d descriptor: (%d, %d, %d)\n", fd, ucredp->pid,
         ucredp->uid, ucredp->gid);
     us->ucredp[fd] = ucredp;
 

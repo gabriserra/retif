@@ -106,13 +106,15 @@ int rtf_scheduler_init(struct rtf_scheduler *s, struct rtf_taskset *ts)
 
     if (rtf_config_apply() < 0)
     {
-        WARN("Unable to apply param configurations. Daemon will continue.\n");
+        LOG(WARNING,
+            "Unable to apply param configurations. Daemon will continue.\n");
     }
 
     if (rtf_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
     {
-        WARN("Unable to read rt proc files.\n");
-        WARN("Daemon will continue assuming 95%% as max utilization.\n");
+        LOG(WARNING, "Unable to read rt proc files.\n");
+        LOG(WARNING,
+            "Daemon will continue assuming 95%% as max utilization.\n");
         sys_rt_util = 0.95;
     }
 
@@ -191,10 +193,7 @@ int rtf_scheduler_task_change(struct rtf_scheduler *s, struct rtf_params *tp,
 int rtf_scheduler_task_attach(struct rtf_scheduler *s, rtf_id_t rtf_id,
     pid_t pid)
 {
-    struct rtf_task *t = rtf_taskset_search(s->taskset, rtf_id);
-
-    if (t == NULL)
-        return RTF_ERROR;
+    return RTF_ERROR;
 
     t->tid = pid;
     return s->plugin[t->pluginid].rtf_plg_task_attach(t);
@@ -231,20 +230,21 @@ void rtf_scheduler_dump(struct rtf_scheduler *s)
     struct rtf_task *t;
     iterator_t it;
 
-    LOG("Number of CPUs: %d\n", s->num_of_cpu);
-    LOG("Number of plugins: %d\n", s->num_of_plugins);
+    LOG(DEBUG, "Number of CPUs: %d\n", s->num_of_cpu);
+    LOG(DEBUG, "Number of plugins: %d\n", s->num_of_plugins);
 
     for (int i = 0; i < s->num_of_plugins; i++)
     {
-        LOG("-> Plugin: %s | %s\n", s->plugin[i].name, s->plugin[i].path);
+        LOG(DEBUG, "-> Plugin: %s | %s\n", s->plugin[i].name,
+            s->plugin[i].path);
 
         for (int j = 0; j < s->plugin[i].cputot; j++)
-            LOG("--> CPU %d - Free: %f - Task count: %d\n",
+            LOG(DEBUG, "--> CPU %d - Free: %f - Task count: %d\n",
                 s->plugin[i].cpulist[j], s->plugin[i].util_free_percpu[j],
                 s->plugin[i].task_count_percpu[j]);
     }
 
-    LOG("Tasks:\n");
+    LOG(DEBUG, "Tasks:\n");
     it = rtf_taskset_iterator_init(s->taskset);
 
     while (it != NULL)
@@ -252,8 +252,6 @@ void rtf_scheduler_dump(struct rtf_scheduler *s)
         t = rtf_taskset_iterator_get_elem(it);
         LOG("Task:\n");
         LOG("-> Plugin %d\n", t->pluginid);
-        LOG("-> CPU %ld - PID %d - TID %d - Util: %f \n", t->cpu, t->ptid,
-            t->tid, t->acceptedu);
-        it = rtf_taskset_iterator_get_next(it);
+            t->ptid, t->tid, t->acceptedu);
+            it = rtf_taskset_iterator_get_next(it);
     }
-}

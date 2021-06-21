@@ -44,8 +44,8 @@ static void read_plg_cpus(char *line, int *cputotnum, int *cpulist)
 
         if (cnum >= cmax)
         {
-            ERR("Your configuration include a greater number of CPU than "
-                "present.\n");
+            LOG(ERR, "Your configuration include a greater number of CPU than "
+                     "present.\n");
             return;
         }
 
@@ -64,8 +64,8 @@ static void read_plg_cpus(char *line, int *cputotnum, int *cpulist)
     {
         if (cnum >= cmax)
         {
-            ERR("Your configuration include a greater number of CPU than "
-                "present.\n");
+            LOG(ERR, "Your configuration include a greater number of CPU than "
+                     "present.\n");
             break;
         }
 
@@ -166,7 +166,7 @@ static int load_libraries(struct rtf_plugin *plg, int num_of_plugin)
 
         if (dl_ptr == NULL)
         {
-            ERR("Unable to open %s plugin. %s\n", plg[i].path, dlerror());
+            LOG(ERR, "Unable to open %s plugin. %s\n", plg[i].path, dlerror());
             return -1;
         }
 
@@ -198,7 +198,7 @@ int rtf_plugins_init(struct rtf_plugin **plgs, int *num_of_plugins)
 
     if (f == NULL)
     {
-        ERR("Unable to open cfg file. %s. Are plugins installed?\n",
+        LOG(ERR, "Unable to open cfg file. %s. Are plugins installed?\n",
             strerror(errno));
         return -1;
     }

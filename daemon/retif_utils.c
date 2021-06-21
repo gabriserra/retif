@@ -1,10 +1,11 @@
 #include "retif_utils.h"
 #include "logger.h"
+#include "retif_utils.h"
+#include <argp.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/sysinfo.h>
-#include <sys/time.h>
 
 // -----------------------------------------------------------------------------
 // FILE, CONFIG & PLUGIN UTILS (FUNCTIONS)
@@ -25,7 +26,7 @@ int get_cfg_line(FILE *f, char buffer[CFG_COLUMN_MAX])
 
     if (fgets(buffer, CFG_COLUMN_MAX, f) == NULL)
     {
-        WARN("Read null from CFG file. Bad configuration.\n");
+        LOG(WARNING, "Read null from CFG file. Bad configuration.\n");
         return -1;
     }
 
@@ -111,7 +112,7 @@ int safe_file_read(FILE *f, char *format, int argnum, ...)
 
     if (ret != argnum)
     {
-        WARN("Unable to read from file.\n");
+        LOG(WARNING, "Unable to read from file.\n");
         return -1;
     }
 
@@ -124,7 +125,7 @@ int extract_num_from_line(FILE *f, int *content)
 
     if (fgets(buffer, CFG_COLUMN_MAX, f) == NULL)
     {
-        WARN("Unable to read from file.\n");
+        LOG(WARNING, "Unable to read from file.\n");
         return -1;
     }
 

@@ -1,5 +1,6 @@
 #include "retif_channel.h"
 #include "logger.h"
+#include "retif_channel.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,7 +55,7 @@ int rtf_carrier_init(struct rtf_carrier *c)
 
     if (usocket_bind(&(c->sock), CHANNEL_PATH_CARRIER) < 0)
     {
-        ERR("Unable to bind communication socket: %s\n", strerror(errno));
+        LOG(ERR, "Unable to bind communication socket: %s\n", strerror(errno));
         return -1;
     }
 
@@ -242,7 +243,7 @@ void rtf_carrier_dump(struct rtf_carrier *c)
         if (client->pid == 0)
             continue;
 
-        LOG("-> Client %d - PID: %d - STATE: %d\n", i, client->pid,
+        LOG(DEBUG, "-> Client %d - PID: %d - STATE: %d\n", i, client->pid,
             client->state);
     }
 }

@@ -13,91 +13,61 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <stdio.h>
+#include <syslog.h>
+
 /**
  * @brief Represent the place where
  * redirecting the output.
- */
-#define LOG_STDOUT 1 // standard output
-#define LOG_SYS 2 // syslog output
-
-/**
- * @brief Represent the current choice
- *
- * Represent the current choice. Change
- * this define to redirect output toward
- * another channel
- */
-#ifndef LOG_OUTPUT
-#    define LOG_OUTPUT LOG_STDOUT
-#endif
-
-/**
- * @brief Represent the log level
- *
- * Represent the current choice. Change
- * this define what level of loggin should
- * be used during daemon lifetime
- */
-#ifndef LOG_LEVEL
-#    define LOG_LEVEL 10
-#endif
-
-/**
- * @brief Define the different choices
  *
  * Define the three different choices,
  * terminal, syslogs or nothing. Please
  * note that stdio.h or syslog.h must be
  * included. Note also that in case of syslog,
  * it must be open before.
- *
- * @param str string to be printed
- * @param args variable number of args
  */
-#if defined(LOG_OUTPUT) && LOG_OUTPUT == LOG_STDOUT
-#    if LOG_LEVEL >= 40
-#        define LOG(str, args...) printf(str, ##args)
-#    endif
-#    if LOG_LEVEL >= 30
-#        define INFO(str, args...) printf(str, ##args)
-#    endif
-#    if LOG_LEVEL >= 20
-#        define WARN(str, args...) printf(str, ##args)
-#    endif
-#    if LOG_LEVEL >= 10
-#        define ERR(str, args...) printf(str, ##args)
-#    endif
-#elif defined(LOG_OUTPUT) && LOG_OUTPUT == LOG_SYS
-#    if LOG_LEVEL >= 40
-#        define LOG(str, args...) syslog(LOG_DAEMON | LOG_DEBUG, str, args)
-#    endif
-#    if LOG_LEVEL >= 30
-#        define INFO(str, args...) syslog(LOG_DAEMON | LOG_INFO, str, args)
-#    endif
-#    if LOG_LEVEL >= 20
-#        define WARN(str, args...) syslog(LOG_DAEMON | LOG_WARNING, str, args)
-#    endif
-#    if LOG_LEVEL >= 10
-#        define ERR(str, args...) syslog(LOG_DAEMON | LOG_ERR, str, args)
-#    endif
-#else
-#    warning Log output was not defined.
-#endif
+enum LOG_HANDLER
+{
+    LOG_STDOUT, // standard output
+    LOG_SYS, // syslog output
+    LOG_FILE, // log onto a file
+};
 
-#ifndef LOG
-#    define LOG(str, args...)
-#endif
+/**
+ * @brief Represent the log level
+ *
+ * Change this define what level of loggin should
+ * be used during daemon lifetime
+ */
+enum LOG_LEVEL
+{
+    ERR = 10,
+    WARNING = 20,
+    INFO = 30,
+    DEBUG = 40,
+};
 
-#ifndef INFO
-#    define INFO(str, args...)
-#endif
+struct
+{
+    enum LOG_LEVEL loglvl;
+    enum LOG_HANDLER handler;
+    FILE *output;
+} logger;
 
-#ifndef WARN
-#    define WARN(str, args...)
-#endif
+#define OUT(level, str, args...)                                               \
+    {                                                                          \
+        if (logger.handler == LOG_FILE)                                        \
+            fprintf(logger.output, str, args);                                 \
+        else if (logger.handler == LOG_SYS)                                    \
+            syslog(LOG_DAEMON | LOG_##level, str, args);                       \
+        else                                                                   \
+            printf(str, ##args);                                               \
+    }
 
-#ifndef ERR
-#    define ERR(str, args...)
-#endif
+#define LOG(level, str, args...)                                               \
+    {                                                                          \
+        if (level > logger.loglvl)                                             \
+            OUT(level, str, args)                                              \
+    }
 
 #endif /* LOGGER_H */

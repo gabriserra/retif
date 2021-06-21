@@ -23,13 +23,13 @@ static struct rtf_reply req_connection(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    INFO("Received CONNECTION REQ from pid: %d\n", req.payload.ids.pid);
+    LOG(INFO, "Received CONNECTION REQ from pid: %d\n", req.payload.ids.pid);
 
     rtf_carrier_set_pid(&(data->chann), cli_id, req.payload.ids.pid);
     rep.rep_type = RTF_CONNECTION_OK;
 
-    INFO("%d connected with success. Assigned id: %d\n", req.payload.ids.pid,
-        cli_id);
+    LOG(INFO, "%d connected with success. Assigned id: %d\n",
+        req.payload.ids.pid, cli_id);
 
     return rep;
 }
@@ -49,7 +49,7 @@ static struct rtf_reply req_task_create(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    LOG("Received RSV_CREATE REQ from client: %d\n", cli_id);
+    LOG(DEBUG, "Received RSV_CREATE REQ from client: %d\n", cli_id);
 
     pid = data->chann.client[cli_id].pid;
     res = rtf_scheduler_task_create(&(data->sched), &req.payload.param, pid);
@@ -59,19 +59,20 @@ static struct rtf_reply req_task_create(struct rtf_daemon *data, int cli_id)
     {
         rep.rep_type = RTF_TASK_CREATE_ERR;
         rep.payload = -1;
-        LOG("It is NOT possible to guarantee these parameters!\n");
+        LOG(DEBUG, "It is NOT possible to guarantee these parameters!\n");
     }
     else if (res == RTF_PARTIAL)
     {
         rep.rep_type = RTF_TASK_CREATE_PART;
         rep.payload = rtf_id;
-        LOG("Task created with min budget. Res. id: %d\n", rtf_id);
+        LOG(DEBUG, "Task created with min budget. Res. id: %d\n", rtf_id);
     }
     else
     {
         rep.rep_type = RTF_TASK_CREATE_OK;
         rep.payload = rtf_id;
-        LOG("It is possible to guarantee these parameters. Res. id: %d\n",
+        LOG(DEBUG,
+            "It is possible to guarantee these parameters. Res. id: %d\n",
             rtf_id);
     }
 
@@ -93,7 +94,7 @@ static struct rtf_reply req_task_modify(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    LOG("Received RSV_MODIFY REQ for rsv: %d\n", req.payload.ids.rsvid);
+    LOG(DEBUG, "Received RSV_MODIFY REQ for rsv: %d\n", req.payload.ids.rsvid);
 
     res = rtf_scheduler_task_change(&(data->sched), &req.payload.param,
         req.payload.ids.rsvid);
@@ -102,17 +103,17 @@ static struct rtf_reply req_task_modify(struct rtf_daemon *data, int cli_id)
     if (res == RTF_NO)
     {
         rep.rep_type = RTF_TASK_MODIFY_ERR;
-        LOG("It is NOT possible to guarantee these parameters!\n");
+        LOG(DEBUG, "It is NOT possible to guarantee these parameters!\n");
     }
     else if (res == RTF_PARTIAL)
     {
         rep.rep_type = RTF_TASK_MODIFY_PART;
-        LOG("Reservation modified with min budget.\n");
+        LOG(DEBUG, "Reservation modified with min budget.\n");
     }
     else
     {
         rep.rep_type = RTF_TASK_MODIFY_OK;
-        LOG("It is possible to guarantee these parameters.\n");
+        LOG(DEBUG, "It is possible to guarantee these parameters.\n");
     }
 
     return rep;
@@ -132,7 +133,8 @@ static struct rtf_reply req_task_attach(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    LOG("Received RSV_ATTACH REQ for res: %d. PID: %d will be attached.\n",
+    LOG(DEBUG,
+        "Received RSV_ATTACH REQ for res: %d. PID: %d will be attached.\n",
         req.payload.ids.rsvid, req.payload.ids.pid);
 
     if (rtf_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid,
@@ -158,7 +160,8 @@ static struct rtf_reply req_task_detach(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    LOG("Received RSV_DETACH REQ for res: %d. The thread will be detached\n",
+    LOG(DEBUG,
+        "Received RSV_DETACH REQ for res: %d. The thread will be detached\n",
         req.payload.ids.rsvid);
 
     if (rtf_scheduler_task_detach(&(data->sched), req.payload.ids.rsvid) < 0)
@@ -183,7 +186,8 @@ static struct rtf_reply req_task_destroy(struct rtf_daemon *data, int cli_id)
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
 
-    LOG("Received RSV_DESTROY REQ for res: %d. The thread will be detached\n",
+    LOG(DEBUG,
+        "Received RSV_DESTROY REQ for res: %d. The thread will be detached\n",
         req.payload.ids.rsvid);
 
     if (rtf_scheduler_task_destroy(&(data->sched), req.payload.ids.rsvid) < 0)
@@ -218,7 +222,7 @@ int rtf_daemon_check_for_fail(struct rtf_daemon *data, int cli_id)
     if (st != ERROR && st != DISCONNECTED)
         return 0;
 
-    INFO("Client %d disconnected. Its reservation will be destroyed.\n",
+    LOG(INFO, "Client %d disconnected. Its reservation will be destroyed.\n",
         cli_id);
 
     rtf_carrier_set_state(&(data->chann), cli_id, EMPTY);
@@ -370,12 +374,12 @@ void rtf_daemon_loop(struct rtf_daemon *data)
  */
 void rtf_daemon_dump(struct rtf_daemon *data)
 {
-    LOG("###### SYS INFO ######\n");
+    LOG(DEBUG, "###### SYS INFO ######\n");
     rtf_scheduler_dump(&(data->sched));
-    LOG("######################\n");
-    LOG("###### CONNECTION INFO ######\n");
+    LOG(DEBUG, "######################\n");
+    LOG(DEBUG, "###### CONNECTION INFO ######\n");
     rtf_carrier_dump(&(data->chann));
-    LOG("#############################\n");
+    LOG(DEBUG, "#############################\n");
 }
 
 /**

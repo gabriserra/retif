@@ -59,7 +59,7 @@ function start() {
             --background \
             --startas /bin/bash \
             --chuid "$theuser" \
-            -- -c "exec '$daemon_path' ${daemon_args[@]} >'$daemon_logfile' 2>&1"
+            -- "'$daemon_path' ${daemon_args[@]}"
 
         # TODO: implement the sd_notify() call in retifd, then add this flag
         # --notify-await \
