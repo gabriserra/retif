@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/sysinfo.h>
+#include <sys/time.h>
 
 // -----------------------------------------------------------------------------
 // FILE, CONFIG & PLUGIN UTILS (FUNCTIONS)

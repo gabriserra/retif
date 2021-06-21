@@ -372,7 +372,7 @@ int usocket_get_credentials(struct usocket *us, int fd)
 
     if (ucredp == NULL)
     {
-        LOG(ERR, "Unable to allocate ucred struct. Out of memory.");
+        LOG(ERR, "Unable to allocate ucred struct. %s. \n", strerror(errno));
         return -1;
     }
 

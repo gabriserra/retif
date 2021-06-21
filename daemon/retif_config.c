@@ -123,9 +123,13 @@ int rtf_config_restore_rt_kernel_params()
         PROC_RT_RUNTIME_DEFAULT);
 
     if (ret < 0)
+    {
         LOG(DEBUG, "Error: Restoring proc file rt parameters failed.\n");
+    }
     else
+    {
         LOG(DEBUG, "Restoring proc file rt parameters successful.\n");
+    }
 
     return ret;
 }
@@ -203,9 +207,13 @@ int rtf_config_restore_rr_kernel_param(int rr_timeslice)
     ret = rtf_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
 
     if (ret < 0)
+    {
         LOG(ERR, "Error: Restoring proc file rr parameter failed.\n");
+    }
     else
+    {
         LOG(INFO, "Restoring proc file rr parameter successful.\n");
+    }
 
     return ret;
 }

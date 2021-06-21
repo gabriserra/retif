@@ -57,9 +57,9 @@ function start() {
             --pidfile "$daemon_pidfile" \
             --make-pidfile \
             --background \
-            --startas /bin/bash \
+            --startas "$daemon_path" \
             --chuid "$theuser" \
-            -- "'$daemon_path' ${daemon_args[@]}"
+            -- "${daemon_args[@]}"
 
         # TODO: implement the sd_notify() call in retifd, then add this flag
         # --notify-await \
@@ -138,8 +138,8 @@ function status() {
     theuser=root
     daemon_name=retifd
     daemon_path="@RETIF_DAEMON_PATH@/$daemon_name"
-    daemon_args=()
     daemon_logfile="/var/log/$daemon_name.log"
+    daemon_args=(--loglevel=50 --output=$daemon_logfile)
     daemon_pidfile="/run/$daemon_name.pid"
 
     if [ -f /etc/rc.d/init.d/functions ]; then

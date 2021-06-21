@@ -193,7 +193,10 @@ int rtf_scheduler_task_change(struct rtf_scheduler *s, struct rtf_params *tp,
 int rtf_scheduler_task_attach(struct rtf_scheduler *s, rtf_id_t rtf_id,
     pid_t pid)
 {
-    return RTF_ERROR;
+    struct rtf_task *t = rtf_taskset_search(s->taskset, rtf_id);
+
+    if (t == NULL)
+        return RTF_ERROR;
 
     t->tid = pid;
     return s->plugin[t->pluginid].rtf_plg_task_attach(t);
@@ -250,8 +253,10 @@ void rtf_scheduler_dump(struct rtf_scheduler *s)
     while (it != NULL)
     {
         t = rtf_taskset_iterator_get_elem(it);
-        LOG("Task:\n");
-        LOG("-> Plugin %d\n", t->pluginid);
+        LOG(DEBUG, "Task:\n");
+        LOG(DEBUG, "-> Plugin %d\n", t->pluginid);
+        LOG(DEBUG, "-> CPU %ld - PID %d - TID %d - Util: %f \n", t->cpu,
             t->ptid, t->tid, t->acceptedu);
-            it = rtf_taskset_iterator_get_next(it);
+        it = rtf_taskset_iterator_get_next(it);
     }
+}

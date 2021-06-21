@@ -28,6 +28,8 @@
 static struct rtf_access main_channel;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+struct LOGGER *logger;
+
 static int rtf_task_communicate(struct rtf_access *c)
 {
     int ret = RTF_ERROR;

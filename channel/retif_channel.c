@@ -1,6 +1,5 @@
 #include "retif_channel.h"
 #include "logger.h"
-#include "retif_channel.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>

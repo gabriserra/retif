@@ -15,12 +15,13 @@
 /**
  * ReTif version and mainteiner info
  */
-const char *retif_version =
-    "ReTif 0.1.0";
+const char *retif_version = "ReTif 0.1.0";
 const char *retif_bug_address =
     "<gabriele.serra@santannapisa.it>, <gabriele.ara@santannapisa.it>";
 
 struct rtf_daemon data;
+
+struct LOGGER logger;
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
@@ -53,7 +54,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
  */
 void term()
 {
-    LOG(INFO, "\nReTiF daemon was interrupted. It will destroy data and stop.\n");
+    LOG(INFO,
+        "\nReTiF daemon was interrupted. It will destroy data and stop.\n");
     rtf_daemon_destroy(&data);
     exit(EXIT_SUCCESS);
 }
@@ -87,11 +89,11 @@ int main(int argc, char *argv[])
 
     if (*arguments.output_file != '\0')
     {
-        logger.handler = arguments.output_file;
-        logger.output = fopen(arguments.output_file, 'a');
+        logger.handler = LOG_FILE;
+        logger.output = fopen(arguments.output_file, "a");
     }
 
-    LOG(INFO, "ReTiF daemon - Daemon started.\n");
+    LOG(INFO, "ReTiF daemon - Daemon started.\r\n");
 
     if (rtf_daemon_init(&data) < 0)
     {

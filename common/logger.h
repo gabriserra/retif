@@ -47,7 +47,7 @@ enum LOG_LEVEL
     DEBUG = 40,
 };
 
-struct
+extern struct LOGGER
 {
     enum LOG_LEVEL loglvl;
     enum LOG_HANDLER handler;
@@ -57,17 +57,24 @@ struct
 #define OUT(level, str, args...)                                               \
     {                                                                          \
         if (logger.handler == LOG_FILE)                                        \
-            fprintf(logger.output, str, args);                                 \
+        {                                                                      \
+            fprintf(logger.output, str, ##args);                               \
+            fflush(logger.output);                                             \
+        }                                                                      \
         else if (logger.handler == LOG_SYS)                                    \
-            syslog(LOG_DAEMON | LOG_##level, str, args);                       \
+        {                                                                      \
+            syslog(LOG_DAEMON | LOG_##level, str, ##args);                     \
+        }                                                                      \
         else                                                                   \
+        {                                                                      \
             printf(str, ##args);                                               \
+        }                                                                      \
     }
 
 #define LOG(level, str, args...)                                               \
     {                                                                          \
-        if (level > logger.loglvl)                                             \
-            OUT(level, str, args)                                              \
+        if (level < logger.loglvl)                                             \
+            OUT(level, str, ##args);                                           \
     }
 
 #endif /* LOGGER_H */
