@@ -8,8 +8,9 @@
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
     "files.associations": {
-        "yaml.h": "c",
-        "vector.h": "c",
-        "*.in": "cpp"
+        "*.c.in": "c",
+        "*.h.in": "h",
+        "retif.in": "sh",
     },
+    "cmake.configureOnOpen": false,
 }
