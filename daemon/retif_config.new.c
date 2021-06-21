@@ -1,5 +1,5 @@
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
+#    define _POSIX_C_SOURCE 200809L
 #endif
 
 #include "yaml.h"
@@ -10,8 +10,8 @@
 
 typedef struct conf_kernel
 {
-    long rr_timeslice;     // ms
-    long sched_rt_period;  // us
+    long rr_timeslice; // ms
+    long sched_rt_period; // us
     long sched_rt_runtime; // us
 } conf_kernel_t;
 
@@ -21,7 +21,7 @@ typedef struct conf_plugin
     char *plugin_path;
     int priority_min;
     int priority_max;
-    VECTOR(int, cores);
+    VECTOR(int) cores;
 } conf_plugin_t;
 
 typedef struct acl_properties
@@ -55,8 +55,8 @@ typedef struct conf_acl_rule
 typedef struct configuration
 {
     conf_kernel_t kernel;
-    VECTOR(conf_plugin_t, plugins);
-    VECTOR(conf_acl_rule_t, acl_rules);
+    VECTOR(conf_plugin_t) plugins;
+    VECTOR(conf_acl_rule_t) acl_rules;
 } configuration_t;
 
 // ====================================================== //
@@ -102,9 +102,9 @@ const char key_properties[] = "properties";
 
 // TODO: ACL properties
 
-#define YAML_PARSER_MAP_PAIR(key, ptr) \
-    {                                  \
-        key, (yaml_parser_fn_t)ptr     \
+#define YAML_PARSER_MAP_PAIR(key, ptr)                                         \
+    {                                                                          \
+        key, (yaml_parser_fn_t) ptr                                            \
     }
 
 YAML_PARSER_FN(parse_conf, configuration_t *out)
@@ -123,8 +123,10 @@ YAML_PARSER_FN(parse_conf_kernel, configuration_t *out)
 {
     const yaml_parser_map_t map[] = {
         YAML_PARSER_MAP_PAIR(key_rr_timeslice, parse_conf_kernel_rr_timeslice),
-        YAML_PARSER_MAP_PAIR(key_sched_rt_period, parse_conf_kernel_sched_rt_period),
-        YAML_PARSER_MAP_PAIR(key_sched_rt_runtime, parse_conf_kernel_sched_rt_runtime),
+        YAML_PARSER_MAP_PAIR(key_sched_rt_period,
+            parse_conf_kernel_sched_rt_period),
+        YAML_PARSER_MAP_PAIR(key_sched_rt_runtime,
+            parse_conf_kernel_sched_rt_runtime),
     };
     const size_t map_size = sizeof(map) / sizeof(yaml_parser_map_t);
     conf_kernel_t *out_k = &out->kernel;
@@ -133,10 +135,11 @@ YAML_PARSER_FN(parse_conf_kernel, configuration_t *out)
 
 YAML_PARSER_FN(parse_conf_plugins, configuration_t *out)
 {
-    return yaml_parse_list(
-        document, node,
-        (yaml_parser_fn_t)parse_conf_plugins_item,
-        (vector_t *)&out->plugins, sizeof(conf_plugin_t));
+    vector_initialize((vector_t *) &out->plugins, VECTOR_ISIZE(out->plugins));
+
+    return yaml_parse_list(document, node,
+        (yaml_parser_fn_t) parse_conf_plugins_item, (vector_t *) &out->plugins,
+        sizeof(conf_plugin_t));
 }
 
 YAML_PARSER_FN(parse_conf_acl_rules, configuration_t *out)
@@ -250,19 +253,19 @@ YAML_PARSER_FN(parse_conf_plugins_item_priority, conf_plugin_t *out)
         long min = -1, max = -1;
         int i;
 
-        YAML_FOREACH_ITEM(document, node, i)
+        YAML_FOREACH_ITEM (document, node, i)
         {
             switch (i)
             {
             case 0:
-                ret = yaml_get_long(
-                    document, YAML_NODE_ITEM(document, node, i), &min);
+                ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                    &min);
                 if (ret)
                     goto end_sequence;
                 break;
             case 1:
-                ret = yaml_get_long(
-                    document, YAML_NODE_ITEM(document, node, i), &max);
+                ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                    &max);
                 if (ret)
                     goto end_sequence;
                 break;
@@ -301,6 +304,9 @@ YAML_PARSER_FN(parse_conf_plugins_item_priority, conf_plugin_t *out)
         ret = 1;
         break;
     }
+    default:
+        ret = 1;
+        break;
     }
 
     return ret;
@@ -309,6 +315,8 @@ YAML_PARSER_FN(parse_conf_plugins_item_priority, conf_plugin_t *out)
 YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
 {
     int ret = 0;
+
+    vector_initialize((vector_t *) &out->cores, VECTOR_ISIZE(out->cores));
 
     // This should be a list of all the cores
     switch (node->type)
@@ -322,9 +330,6 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
         char *token = NULL;
         bool in_range = false;
         long value = 0;
-        long num = 0;
-
-        vector_initialize((vector_t *)&out->cores);
 
         ret = yaml_get_string(document, node, &strvalue);
         if (ret)
@@ -341,7 +346,8 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
             if (ret)
                 goto end_scalar;
 
-            if (out->cores.size && value <= out->cores.at[out->cores.size - 1])
+            if (out->cores.size &&
+                value <= out->cores.data[out->cores.size - 1])
             {
                 ret = 1;
                 goto end_scalar;
@@ -350,24 +356,16 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
             if (in_range)
             {
                 // There must be at least one prior element
-                while (out->cores.at[out->cores.size - 1] < value)
+                while (out->cores.data[out->cores.size - 1] < value)
                 {
-                    vector_realloc(
-                        (vector_t *)&out->cores,
-                        out->cores.size + 1,
-                        sizeof(*out->cores.at));
-
-                    out->cores.at[out->cores.size - 1] =
-                        out->cores.at[out->cores.size - 2] + 1;
+                    int newval =
+                        (*(int *) vector_back((vector_t *) &out->cores)) + 1;
+                    vector_push_back((vector_t *) &out->cores, &newval);
                 }
             }
             else
             {
-                vector_realloc(
-                    (vector_t *)&out->cores,
-                    out->cores.size + 1,
-                    sizeof(*out->cores.at));
-                out->cores.at[out->cores.size - 1] = value;
+                vector_push_back((vector_t *) &out->cores, &value);
             }
 
             char d = copy[token - strvalue + strlen(token)];
@@ -407,19 +405,14 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
         long value;
         int i;
 
-        YAML_FOREACH_ITEM(document, node, i)
+        YAML_FOREACH_ITEM (document, node, i)
         {
-            vector_realloc(
-                (vector_t *)&out->cores,
-                out->cores.size + 1,
-                sizeof(*out->cores.at));
-
-            ret = yaml_get_long(
-                document, YAML_NODE_ITEM(document, node, i), &value);
+            ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                &value);
             if (ret)
                 goto end_sequence;
 
-            out->cores.at[out->cores.size - 1] = value;
+            vector_push_back((vector_t *) &out->cores, &value);
         }
 
     end_sequence:
@@ -430,6 +423,9 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
         ret = 1;
         break;
     }
+    default:
+        ret = 1;
+        break;
     }
     return 0;
 }
@@ -438,8 +434,8 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
 
 int parse_document(const char path[])
 {
-    bool done;
     int errcode = 0;
+    // int i;
 
     yaml_parser_t parser;
     yaml_document_t document;
@@ -460,6 +456,18 @@ int parse_document(const char path[])
     node = yaml_document_get_root_node(&document);
     // print_node(&document, node);
     parse_conf(&document, node, &configuration);
+
+    printf("List of plugins:\n");
+
+    {
+        conf_plugin_t *p;
+
+        VECTOR_FOREACH (configuration.plugins, p)
+        {
+            printf(" - %s: \n", p->name);
+        }
+    }
+
 end:
     yaml_document_delete(&document);
     yaml_parser_delete(&parser);
