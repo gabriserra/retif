@@ -52,14 +52,12 @@ set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
 
 # --------------------- Miscellanea ---------------------- #
 
-set(CMAKE_CXX_CLANG_TIDY
-    clang-tidy;
-    -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/; # Should add the binary dir too
-    -fix;
-    -checks=*;)
-set(CMAKE_C_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
-
-
+# set(CMAKE_CXX_CLANG_TIDY
+#     clang-tidy;
+#     -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/; # Should add the binary dir too
+#     -fix;
+#     -checks=*;)
+# set(CMAKE_C_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
 
 # -------------------- Subdirectories -------------------- #
 
