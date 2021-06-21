@@ -50,6 +50,17 @@ set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})
 set(RETIF_PLUGINS_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/retif)
 set(RETIF_DAEMON_PATH ${CMAKE_INSTALL_FULL_SBINDIR})
 
+# --------------------- Miscellanea ---------------------- #
+
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy;
+    -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/; # Should add the binary dir too
+    -fix;
+    -checks=*;)
+set(CMAKE_C_CLANG_TIDY ${CMAKE_CXX_CLANG_TIDY})
+
+
+
 # -------------------- Subdirectories -------------------- #
 
 add_subdirectory(channel)

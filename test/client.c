@@ -1,19 +1,19 @@
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include <retif.h>
 #include <errno.h>
-#include <string.h>
+#include <retif.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-#define T_BUDGET_MIN    10
-#define T_BUDGET_MAX    40
-#define T_PERIOD_MIN    1024
-#define T_PERIOD_MAX    2048
+#define T_BUDGET_MIN 10
+#define T_BUDGET_MAX 40
+#define T_PERIOD_MIN 1024
+#define T_PERIOD_MAX 2048
 
-#define RAND_SEED       1
+#define RAND_SEED 1
 
-void print_err(char* message)
+void print_err(char *message)
 {
     printf("%s", message);
     printf("%s", strerror(errno));
@@ -33,7 +33,7 @@ void daemon_connect()
         printf("# Connected with daemon.\n");
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     uint32_t ret;
     struct rtf_params p = RTF_PARAM_INIT;
@@ -52,7 +52,8 @@ int main(int argc, char* argv[])
     if (ret < 0)
         print_err("# Daemon was unable to serve the request.");
 
-    while(!getc(stdin));
+    while (!getc(stdin))
+        ;
 
     rtf_task_release(&t);
 

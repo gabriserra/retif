@@ -8,20 +8,20 @@
 #ifndef RETIF_CONFIG_H
 #define RETIF_CONFIG_H
 
-#define NUM_OF_SETTINGS             3
-#define SETTINGS_CFG                "@RETIF_CONF_PATH@"
+#define NUM_OF_SETTINGS 3
+#define SETTINGS_CFG "@RETIF_CONF_PATH@"
 
-#define PROC_RT_PERIOD_SETTING      "sched_rt_period_us"
-#define PROC_RT_PERIOD_FILE         "/proc/sys/kernel/sched_rt_period_us"
-#define PROC_RT_PERIOD_DEFAULT      1000000
+#define PROC_RT_PERIOD_SETTING "sched_rt_period_us"
+#define PROC_RT_PERIOD_FILE "/proc/sys/kernel/sched_rt_period_us"
+#define PROC_RT_PERIOD_DEFAULT 1000000
 
-#define PROC_RT_RUNTIME_SETTING     "sched_rt_runtime_us"
-#define PROC_RT_RUNTIME_FILE        "/proc/sys/kernel/sched_rt_runtime_us"
-#define PROC_RT_RUNTIME_DEFAULT     950000
+#define PROC_RT_RUNTIME_SETTING "sched_rt_runtime_us"
+#define PROC_RT_RUNTIME_FILE "/proc/sys/kernel/sched_rt_runtime_us"
+#define PROC_RT_RUNTIME_DEFAULT 950000
 
-#define PROC_RR_TIMESLICE_SETTING   "sched_rr_timeslice_ms"
-#define PROC_RR_TIMESlICE_FILE      "/proc/sys/kernel/sched_rr_timeslice_ms"
-#define PROC_RR_TIMESLICE_DEFAULT   100
+#define PROC_RR_TIMESLICE_SETTING "sched_rr_timeslice_ms"
+#define PROC_RR_TIMESlICE_FILE "/proc/sys/kernel/sched_rr_timeslice_ms"
+#define PROC_RR_TIMESLICE_DEFAULT 100
 
 /**
  * @brief Read rt kernel parameters
@@ -35,7 +35,7 @@
  * @param rt_runtime pointer to int in which leave current proc rt runtime value
  * @return -1 in case of error, 0 in case of success
  */
-int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
+int rtf_config_get_rt_kernel_params(int *rt_period, int *rt_runtime);
 
 /**
  * @brief Calculate maximum real-time utilization available [0-1]
@@ -48,7 +48,7 @@ int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime);
  * @param rt_max_util pointer to int in which leave sys max utilization
  * @return -1 in case of error, 0 in case of success
  */
-int rtf_config_get_rt_kernel_max_util(float* rt_max_util);
+int rtf_config_get_rt_kernel_max_util(float *rt_max_util);
 
 /**
  * @brief Writes rt kernel parameters
@@ -85,7 +85,7 @@ int rtf_config_restore_rt_kernel_params();
  * @param rr_timeslice pointer to int in which leave current proc rr timeslice
  * @return -1 in case of error, 0 in case of success
  */
-int rtf_config_get_rr_kernel_param(int* rr_timeslice);
+int rtf_config_get_rr_kernel_param(int *rr_timeslice);
 
 /**
  * @brief Writes rr kernel parameter

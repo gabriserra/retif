@@ -5,13 +5,13 @@
  * @brief Allows to configure kernel parameters for real-time scheduling
  */
 
+#include "retif_config.h"
+#include "logger.h"
+#include "retif_utils.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#include "logger.h"
-#include "retif_config.h"
-#include "retif_utils.h"
 
 /**
  * @internal
@@ -23,23 +23,24 @@
  *
  * @endinternal
  */
-int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime)
+int rtf_config_get_rt_kernel_params(int *rt_period, int *rt_runtime)
 {
-    FILE* proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "r");
-    FILE* proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "r");
+    FILE *proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "r");
+    FILE *proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "r");
 
-    if(proc_rt_period == NULL || proc_rt_runtime == NULL)
+    if (proc_rt_period == NULL || proc_rt_runtime == NULL)
     {
         ERR("rtsd error: %s", strerror(errno));
         return -1;
     }
 
-    if(safe_file_read(proc_rt_period, "%d", 1, rt_period) < 0)
+    if (safe_file_read(proc_rt_period, "%d", 1, rt_period) < 0)
         return -1;
-    if(safe_file_read(proc_rt_runtime, "%d", 1, rt_runtime) < 0)
+    if (safe_file_read(proc_rt_runtime, "%d", 1, rt_runtime) < 0)
         return -1;
 
-    LOG("Reading kernel RT data - PERIOD: %d - RUNTIME: %d\n", *rt_period, *rt_runtime);
+    LOG("Reading kernel RT data - PERIOD: %d - RUNTIME: %d\n", *rt_period,
+        *rt_runtime);
 
     fclose(proc_rt_period);
     fclose(proc_rt_runtime);
@@ -57,17 +58,17 @@ int rtf_config_get_rt_kernel_params(int* rt_period, int* rt_runtime)
  *
  * @endinternal
  */
-int rtf_config_get_rt_kernel_max_util(float* rt_max_util)
+int rtf_config_get_rt_kernel_max_util(float *rt_max_util)
 {
     int rt_period, rt_runtime;
 
     if (rtf_config_get_rt_kernel_params(&rt_period, &rt_runtime) < 0)
         return -1;
 
-    if(rt_runtime == -1)
+    if (rt_runtime == -1)
         *rt_max_util = 1;
     else
-        *rt_max_util = rt_runtime / (float)rt_period;
+        *rt_max_util = rt_runtime / (float) rt_period;
 
     return 0;
 }
@@ -83,10 +84,11 @@ int rtf_config_get_rt_kernel_max_util(float* rt_max_util)
  */
 int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime)
 {
-    FILE* proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "w");
-    FILE* proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "w");
+    FILE *proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "w");
+    FILE *proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "w");
 
-    if(proc_rt_period == NULL || proc_rt_runtime == NULL) {
+    if (proc_rt_period == NULL || proc_rt_runtime == NULL)
+    {
         WARN("Error opening proc files in writing mode.\n");
         WARN("%s", strerror(errno));
         return -1;
@@ -95,7 +97,8 @@ int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime)
     fprintf(proc_rt_period, "%d", rt_period);
     fprintf(proc_rt_runtime, "%d", rt_runtime);
 
-    LOG("Written kernel RT data - PERIOD: %d - RUNTIME: %d\n", rt_period, rt_runtime);
+    LOG("Written kernel RT data - PERIOD: %d - RUNTIME: %d\n", rt_period,
+        rt_runtime);
 
     fclose(proc_rt_period);
     fclose(proc_rt_runtime);
@@ -116,9 +119,10 @@ int rtf_config_restore_rt_kernel_params()
 {
     int ret;
 
-    ret = rtf_config_set_rt_kernel_params(PROC_RT_PERIOD_DEFAULT, PROC_RT_RUNTIME_DEFAULT);
+    ret = rtf_config_set_rt_kernel_params(PROC_RT_PERIOD_DEFAULT,
+        PROC_RT_RUNTIME_DEFAULT);
 
-    if(ret < 0)
+    if (ret < 0)
         LOG("Error: Restoring proc file rt parameters failed.\n");
     else
         LOG("Restoring proc file rt parameters successful.\n");
@@ -136,17 +140,18 @@ int rtf_config_restore_rt_kernel_params()
  *
  * @endinternal
  */
-int rtf_config_get_rr_kernel_param(int* rr_timeslice)
+int rtf_config_get_rr_kernel_param(int *rr_timeslice)
 {
-    FILE* proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "r");
+    FILE *proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "r");
 
-    if(proc_rr_timeslice == NULL) {
+    if (proc_rr_timeslice == NULL)
+    {
         LOG("Error opening proc files in reading mode.\n");
         LOG("%s", strerror(errno));
         return -1;
     }
 
-    if(safe_file_read(proc_rr_timeslice, "%d", 1, rr_timeslice) < 0)
+    if (safe_file_read(proc_rr_timeslice, "%d", 1, rr_timeslice) < 0)
         return -1;
 
     LOG("Reading kernel RR data - TIMESLICE: %d \n", *rr_timeslice);
@@ -166,9 +171,10 @@ int rtf_config_get_rr_kernel_param(int* rr_timeslice)
  */
 int rtf_config_set_rr_kernel_param(int rr_timeslice)
 {
-    FILE* proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "w");
+    FILE *proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "w");
 
-    if(proc_rr_timeslice == NULL) {
+    if (proc_rr_timeslice == NULL)
+    {
         WARN("Error opening proc files in writing mode.\n");
         WARN("%s", strerror(errno));
         return -1;
@@ -196,7 +202,7 @@ int rtf_config_restore_rr_kernel_param(int rr_timeslice)
 
     ret = rtf_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
 
-    if(ret < 0)
+    if (ret < 0)
         ERR("Error: Restoring proc file rr parameter failed.\n");
     else
         INFO("Restoring proc file rr parameter successful.\n");
@@ -216,14 +222,15 @@ int rtf_config_restore_rr_kernel_param(int rr_timeslice)
  */
 int rtf_config_apply()
 {
-    FILE* f;
+    FILE *f;
     int rr_timeslice, rt_period, rt_runtime;
 
     f = fopen(SETTINGS_CFG, "r");
 
-    if(f == NULL)
+    if (f == NULL)
     {
-        ERR("Unable to open cfg file. %s. Are plugins installed?\n", strerror(errno));
+        ERR("Unable to open cfg file. %s. Are plugins installed?\n",
+            strerror(errno));
         return -1;
     }
 

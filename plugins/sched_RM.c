@@ -1,24 +1,25 @@
 #define _GNU_SOURCE
 
-#include <sched.h>
-#include <stdlib.h>
 #include <float.h>
+#include <sched.h>
 #include <stdint.h>
+#include <stdlib.h>
 //#include <stdio.h>
+#include "retif_taskset.h"
+#include "retif_utils.h"
+#include <limits.h>
 #include <math.h>
 #include <string.h>
 #include <sys/sysinfo.h>
-#include <limits.h>
-#include "retif_taskset.h"
-#include "retif_utils.h"
 
-#define PERIOD_MAX_US INT_MAX // as defined in /proc/sys/kernel/sched_rt_period_us
+#define PERIOD_MAX_US                                                          \
+    INT_MAX // as defined in /proc/sys/kernel/sched_rt_period_us
 #define PERIOD_MIN_US 1
 
 #define MAX_CPU 32
 #define MAX_PRIO 100
 
-static unsigned int dist_prio[MAX_CPU] = { 0 };
+static unsigned int dist_prio[MAX_CPU] = {0};
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC BOUND: perform the sched. analysis under fp
@@ -27,26 +28,26 @@ static unsigned int dist_prio[MAX_CPU] = { 0 };
 /**
  * @brief Hyperbolic bound analysis for the taskset
  */
-unsigned int hyperbolic_bound(struct rtf_taskset* ts)
+unsigned int hyperbolic_bound(struct rtf_taskset *ts)
 {
     float res;
     iterator_t iterator;
-    struct rtf_task* t;
+    struct rtf_task *t;
 
     res = 1;
     iterator = rtf_taskset_iterator_init(ts);
 
-    for(; iterator != NULL; iterator = iterator_get_next(iterator))
+    for (; iterator != NULL; iterator = iterator_get_next(iterator))
     {
         t = rtf_taskset_iterator_get_elem(iterator);
 
         if (t->params.period == 0 || t->params.runtime == 0)
             continue;
 
-        res *= (t->params.runtime / (float)t->params.period) + 1;
+        res *= (t->params.runtime / (float) t->params.period) + 1;
     }
 
-    if(res > 2)
+    if (res > 2)
         return 0;
 
     return 1;
@@ -59,11 +60,12 @@ unsigned int hyperbolic_bound(struct rtf_taskset* ts)
 /**
  * @brief Given min/max plugin prio, normalize @p prio in that window
  */
-uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio, unsigned cpu)
+uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio,
+    unsigned cpu)
 {
     float slope;
 
-    slope = (max_prio_s - min_prio_s + 1) / (float)(dist_prio[cpu]-1);
+    slope = (max_prio_s - min_prio_s + 1) / (float) (dist_prio[cpu] - 1);
 
     return min_prio_s + slope * prio;
 }
@@ -71,7 +73,7 @@ uint32_t prio_remap(uint32_t max_prio_s, uint32_t min_prio_s, uint32_t prio, uns
 /**
  * @brief Given pointer to plugin struct @p this, retrieve least loaded cpu
  */
-static uint32_t least_loaded_cpu(struct rtf_plugin* this)
+static uint32_t least_loaded_cpu(struct rtf_plugin *this)
 {
     int cpu_num;
     float free_rm_max;
@@ -80,7 +82,7 @@ static uint32_t least_loaded_cpu(struct rtf_plugin* this)
     free_rm_max_cpu = this->cpulist[0];
     free_rm_max = this->util_free_percpu[free_rm_max_cpu];
 
-    for(int i = 1; i < this->cputot; i++)
+    for (int i = 1; i < this->cputot; i++)
     {
         cpu_num = this->cpulist[i];
 
@@ -91,12 +93,12 @@ static uint32_t least_loaded_cpu(struct rtf_plugin* this)
     return free_rm_max_cpu;
 }
 
-static float eval_util_missing(struct rtf_plugin* this, float task_util)
+static float eval_util_missing(struct rtf_plugin *this, float task_util)
 {
     int cpu_min;
 
-    for(int i = 0; i < this->cputot; i++)
-        if(task_util <= this->util_free_percpu[this->cpulist[i]])
+    for (int i = 0; i < this->cputot; i++)
+        if (task_util <= this->util_free_percpu[this->cpulist[i]])
             return 0;
 
     cpu_min = least_loaded_cpu(this);
@@ -104,9 +106,10 @@ static float eval_util_missing(struct rtf_plugin* this, float task_util)
     return task_util - this->util_free_percpu[cpu_min];
 }
 
-static uint8_t has_another_preference(struct rtf_plugin* this, struct rtf_task* t)
+static uint8_t has_another_preference(struct rtf_plugin *this,
+    struct rtf_task *t)
 {
-    char* preferred = rtf_task_get_preferred_plugin(t);
+    char *preferred = rtf_task_get_preferred_plugin(t);
 
     if (preferred != NULL && strcmp(this->name, preferred) != 0)
         return 1;
@@ -114,7 +117,7 @@ static uint8_t has_another_preference(struct rtf_plugin* this, struct rtf_task* 
     return 0;
 }
 
-static int utilization_test(struct rtf_plugin* this, float task_util)
+static int utilization_test(struct rtf_plugin *this, float task_util)
 {
     float missing_util = eval_util_missing(this, task_util);
 
@@ -124,7 +127,8 @@ static int utilization_test(struct rtf_plugin* this, float task_util)
         return RTF_NO;
 }
 
-// static int count_unique_periods(struct rtf_plugin* this, struct rtf_taskset* ts, unsigned free_cpu)
+// static int count_unique_periods(struct rtf_plugin* this, struct rtf_taskset*
+// ts, unsigned free_cpu)
 // {
 //     struct rtf_task* t_rm;
 //     iterator_t iterator;
@@ -151,16 +155,16 @@ static int utilization_test(struct rtf_plugin* this, float task_util)
 //     return dist_prio;
 // }
 
-static void assign_priorities(struct rtf_plugin* this, unsigned int cpu)
+static void assign_priorities(struct rtf_plugin *this, unsigned int cpu)
 {
-    unsigned int curr_prio;   // real prio
+    unsigned int curr_prio; // real prio
     unsigned int prec_period; // user data
     unsigned int dist_prio_idx;
 
     iterator_t iterator;
-    struct rtf_task* t_rm;
+    struct rtf_task *t_rm;
 
-    curr_prio = this->prio_min-1;
+    curr_prio = this->prio_min - 1;
     prec_period = -1;
     dist_prio_idx = 0;
 
@@ -178,12 +182,12 @@ static void assign_priorities(struct rtf_plugin* this, unsigned int cpu)
             }
             else
             {
-                curr_prio = prio_remap(this->prio_max, this->prio_min, dist_prio_idx++, cpu);
+                curr_prio = prio_remap(this->prio_max, this->prio_min,
+                    dist_prio_idx++, cpu);
                 rtf_task_set_real_priority(t_rm, curr_prio);
                 prec_period = rtf_task_get_period(t_rm);
             }
         }
-
     }
     else
     {
@@ -202,7 +206,6 @@ static void assign_priorities(struct rtf_plugin* this, unsigned int cpu)
             }
         }
     }
-
 }
 
 // -----------------------------------------------------------------------------
@@ -212,7 +215,7 @@ static void assign_priorities(struct rtf_plugin* this, unsigned int cpu)
 /**
  * @brief Used by plugin to initializes itself
  */
-int rtf_plg_task_init(struct rtf_plugin* this)
+int rtf_plg_task_init(struct rtf_plugin *this)
 {
     return RTF_OK;
 }
@@ -220,7 +223,8 @@ int rtf_plg_task_init(struct rtf_plugin* this)
 /**
  * @brief Used by plugin to perform a new task admission test
  */
-int rtf_plg_task_accept(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
+int rtf_plg_task_accept(struct rtf_plugin *this, struct rtf_taskset *ts,
+    struct rtf_task *t)
 {
     float task_util;
     int test_res;
@@ -246,9 +250,11 @@ int rtf_plg_task_accept(struct rtf_plugin* this, struct rtf_taskset* ts, struct 
 }
 
 /**
- * @brief Used by plugin to perform a new admission test when task modifies parameters
+ * @brief Used by plugin to perform a new admission test when task modifies
+ * parameters
  */
-int rtf_plg_task_change(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
+int rtf_plg_task_change(struct rtf_plugin *this, struct rtf_taskset *ts,
+    struct rtf_task *t)
 {
     int test_res;
 
@@ -268,7 +274,8 @@ int rtf_plg_task_change(struct rtf_plugin* this, struct rtf_taskset* ts, struct 
 /**
  * @brief Used by plugin to set the task as accepted
  */
-void rtf_plg_task_schedule(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
+void rtf_plg_task_schedule(struct rtf_plugin *this, struct rtf_taskset *ts,
+    struct rtf_task *t)
 {
     float task_util;
     unsigned int cpu;
@@ -279,12 +286,11 @@ void rtf_plg_task_schedule(struct rtf_plugin* this, struct rtf_taskset* ts, stru
     rtf_task_set_cpu(t, cpu);
     t->pluginid = this->id;
 
-    struct node_ptr* inserted =
-        rtf_taskset_add_sorted_pr(&this->tasks[cpu], t);
+    struct node_ptr *inserted = rtf_taskset_add_sorted_pr(&this->tasks[cpu], t);
 
     if (inserted->next != NULL)
     {
-        struct rtf_task* next = (struct rtf_task*)inserted->next->elem;
+        struct rtf_task *next = (struct rtf_task *) inserted->next->elem;
 
         if (rtf_task_get_period(next) == t->params.period)
         {
@@ -311,7 +317,7 @@ void rtf_plg_task_schedule(struct rtf_plugin* this, struct rtf_taskset* ts, stru
 /**
  * @brief Used by plugin to set rt scheduler for a task
  */
-int rtf_plg_task_attach(struct rtf_task* t)
+int rtf_plg_task_attach(struct rtf_task *t)
 {
     struct sched_param attr;
     cpu_set_t my_set;
@@ -319,12 +325,12 @@ int rtf_plg_task_attach(struct rtf_task* t)
     CPU_ZERO(&my_set);
     CPU_SET(t->cpu, &my_set);
 
-    if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
+    if (sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
         return RTF_ERROR;
 
     attr.sched_priority = t->schedprio;
 
-    if(sched_setscheduler(t->tid, SCHED_FIFO, &attr) < 0)
+    if (sched_setscheduler(t->tid, SCHED_FIFO, &attr) < 0)
         return RTF_ERROR;
 
     return RTF_OK;
@@ -333,22 +339,22 @@ int rtf_plg_task_attach(struct rtf_task* t)
 /**
  * @brief Used by plugin to reset scheduler (other) for a task
  */
-int rtf_plg_task_detach(struct rtf_task* t)
+int rtf_plg_task_detach(struct rtf_task *t)
 {
     struct sched_param attr;
     cpu_set_t my_set;
 
     CPU_ZERO(&my_set);
 
-    for(int i = 0; i < get_nprocs2(); i++)
+    for (int i = 0; i < get_nprocs2(); i++)
         CPU_SET(i, &my_set);
 
-    if(sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
+    if (sched_setaffinity(t->tid, sizeof(cpu_set_t), &my_set) < 0)
         return RTF_ERROR;
 
     attr.sched_priority = 0;
 
-    if(sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
+    if (sched_setscheduler(t->tid, SCHED_OTHER, &attr) < 0)
         return RTF_ERROR;
 
     return RTF_OK;
@@ -357,18 +363,18 @@ int rtf_plg_task_detach(struct rtf_task* t)
 /**
  * @brief Used by plugin to perform a release of previous accepted task
  */
-int rtf_plg_task_release(struct rtf_plugin* this, struct rtf_taskset* ts, struct rtf_task* t)
+int rtf_plg_task_release(struct rtf_plugin *this, struct rtf_taskset *ts,
+    struct rtf_task *t)
 {
     iterator_t iterator;
-    struct rtf_task* t_rm;
+    struct rtf_task *t_rm;
 
     iterator = rtf_taskset_iterator_init(&this->tasks[t->cpu]);
 
     for (; iterator != NULL; iterator = iterator_get_next(iterator))
     {
         t_rm = rtf_taskset_iterator_get_elem(iterator);
-        if (t_rm->params.period == t->params.period
-            && t_rm->id != t->id)
+        if (t_rm->params.period == t->params.period && t_rm->id != t->id)
         {
             dist_prio[t->cpu]--;
             break;
@@ -383,7 +389,8 @@ int rtf_plg_task_release(struct rtf_plugin* this, struct rtf_taskset* ts, struct
     t->pluginid = -1;
     this->task_count_percpu[t->cpu]--;
 
-    if (sched_getscheduler(t->tid) != SCHED_FIFO) // means no attached flow of ex.
+    if (sched_getscheduler(t->tid) !=
+        SCHED_FIFO) // means no attached flow of ex.
         return RTF_OK;
 
     return rtf_plg_task_detach(t);

@@ -1,10 +1,10 @@
-#include <stdlib.h>
-#include <sys/time.h>
-#include <string.h>
-#include <stdarg.h>
-#include <sys/sysinfo.h>
-#include "logger.h"
 #include "retif_utils.h"
+#include "logger.h"
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/sysinfo.h>
+#include <sys/time.h>
 
 // -----------------------------------------------------------------------------
 // FILE, CONFIG & PLUGIN UTILS (FUNCTIONS)
@@ -19,7 +19,7 @@
  *
  * @endinternal
  */
-int get_cfg_line(FILE* f, char buffer[CFG_COLUMN_MAX])
+int get_cfg_line(FILE *f, char buffer[CFG_COLUMN_MAX])
 {
     enum CFG_LINE ln;
 
@@ -31,17 +31,17 @@ int get_cfg_line(FILE* f, char buffer[CFG_COLUMN_MAX])
 
     switch (buffer[0])
     {
-        case CFG_COMMENT_TOKEN:
-            ln = COMMENT;
-            break;
-        case CFG_SETTINGS_TOKEN:
-            ln = SETTINGS_HEAD;
-            break;
-        case '\n':
-            ln = NEWLINE;
-            break;
-        default:
-            ln = SETTINGS_BODY;
+    case CFG_COMMENT_TOKEN:
+        ln = COMMENT;
+        break;
+    case CFG_SETTINGS_TOKEN:
+        ln = SETTINGS_HEAD;
+        break;
+    case '\n':
+        ln = NEWLINE;
+        break;
+    default:
+        ln = SETTINGS_BODY;
     }
 
     return ln;
@@ -55,19 +55,19 @@ int get_cfg_line(FILE* f, char buffer[CFG_COLUMN_MAX])
  *
  * @endinternal
  */
-void go_to_settings_head(FILE* f)
+void go_to_settings_head(FILE *f)
 {
     char buffer[CFG_COLUMN_MAX];
     enum CFG_LINE ln;
 
-    while(1)
+    while (1)
     {
         ln = get_cfg_line(f, buffer);
 
-        if(ln == -1)
+        if (ln == -1)
             break;
 
-        if(ln == SETTINGS_HEAD)
+        if (ln == SETTINGS_HEAD)
             break;
     }
 }
@@ -80,7 +80,7 @@ void go_to_settings_head(FILE* f)
  *
  * @endinternal
  */
-int count_num_of_settings(FILE* f)
+int count_num_of_settings(FILE *f)
 {
     long start_pos;
     int num_of_elem;
@@ -89,9 +89,9 @@ int count_num_of_settings(FILE* f)
     start_pos = ftell(f);
     num_of_elem = 0;
 
-    while(!feof(f))
+    while (!feof(f))
     {
-        if(fgets(buffer, CFG_COLUMN_MAX, f) != NULL)
+        if (fgets(buffer, CFG_COLUMN_MAX, f) != NULL)
             num_of_elem++;
     }
 
@@ -100,7 +100,7 @@ int count_num_of_settings(FILE* f)
     return num_of_elem;
 }
 
-int safe_file_read(FILE* f, char* format, int argnum, ...)
+int safe_file_read(FILE *f, char *format, int argnum, ...)
 {
     int ret;
     va_list arglist;
@@ -118,7 +118,7 @@ int safe_file_read(FILE* f, char* format, int argnum, ...)
     return 0;
 }
 
-int extract_num_from_line(FILE* f, int* content)
+int extract_num_from_line(FILE *f, int *content)
 {
     char buffer[CFG_COLUMN_MAX];
 
@@ -145,15 +145,15 @@ int extract_num_from_line(FILE* f, int* content)
  *
  * @endinternal
  */
-void* array_alloc_wcopy(uint32_t nmemb, size_t size, const void* src)
+void *array_alloc_wcopy(uint32_t nmemb, size_t size, const void *src)
 {
-    void* dest = calloc(nmemb, size);
+    void *dest = calloc(nmemb, size);
 
     if (dest == NULL)
         return NULL;
 
     for (int i = 0; i < nmemb; i++)
-        memcpy(dest+(i*size), src, size);
+        memcpy(dest + (i * size), src, size);
 
     return dest;
 }
@@ -162,46 +162,53 @@ void* array_alloc_wcopy(uint32_t nmemb, size_t size, const void* src)
 // TIME UTILS (FUNCTIONS)
 // -----------------------------------------------------------------------------
 
-void time_add_us(struct timespec *t, uint64_t us) {
+void time_add_us(struct timespec *t, uint64_t us)
+{
     t->tv_sec += MICRO_TO_SEC(us);
     t->tv_nsec += MICRO_TO_NANO(us % EXP6);
 
-    if (t->tv_nsec > EXP9) {
+    if (t->tv_nsec > EXP9)
+    {
         t->tv_nsec -= EXP9;
         t->tv_sec += 1;
     }
 }
 
-void time_add_ms(struct timespec *t, uint32_t ms) {
+void time_add_ms(struct timespec *t, uint32_t ms)
+{
     t->tv_sec += MILLI_TO_SEC(ms);
     t->tv_nsec += MILLI_TO_NANO(ms % EXP3);
 
-    if (t->tv_nsec > EXP9) {
+    if (t->tv_nsec > EXP9)
+    {
         t->tv_nsec -= EXP9;
         t->tv_sec += 1;
     }
 }
 
-int time_cmp(struct timespec* t1, struct timespec* t2) {
+int time_cmp(struct timespec *t1, struct timespec *t2)
+{
     if (t1->tv_sec > t2->tv_sec)
-            return 1;
+        return 1;
     if (t1->tv_sec < t2->tv_sec)
-            return -1;
+        return -1;
 
     if (t1->tv_nsec > t2->tv_nsec)
-            return 1;
+        return 1;
     if (t1->tv_nsec < t2->tv_nsec)
-            return -1;
+        return -1;
 
     return 0;
 }
 
-void time_copy(struct timespec* td, struct timespec* ts) {
-    td->tv_sec  = ts->tv_sec;
+void time_copy(struct timespec *td, struct timespec *ts)
+{
+    td->tv_sec = ts->tv_sec;
     td->tv_nsec = ts->tv_nsec;
 }
 
-uint64_t timespec_to_us(struct timespec *t) {
+uint64_t timespec_to_us(struct timespec *t)
+{
     uint64_t us;
 
     us = SEC_TO_MICRO(t->tv_sec);
@@ -210,12 +217,14 @@ uint64_t timespec_to_us(struct timespec *t) {
     return us;
 }
 
-void us_to_timespec(struct timespec *t, uint64_t us) {
+void us_to_timespec(struct timespec *t, uint64_t us)
+{
     t->tv_sec = MICRO_TO_SEC(us);
     t->tv_nsec = MICRO_TO_NANO(us % EXP6);
 }
 
-uint32_t timespec_to_ms(struct timespec *t) {
+uint32_t timespec_to_ms(struct timespec *t)
+{
     uint32_t ms;
 
     ms = SEC_TO_MILLI(t->tv_sec);
@@ -224,44 +233,51 @@ uint32_t timespec_to_ms(struct timespec *t) {
     return ms;
 }
 
-void ms_to_timespec(struct timespec *t, uint32_t ms) {
+void ms_to_timespec(struct timespec *t, uint32_t ms)
+{
     t->tv_sec = MILLI_TO_SEC(ms);
     t->tv_nsec = MILLI_TO_NANO(ms % EXP3);
 }
 
-struct timespec get_time_now(clockid_t clk) {
+struct timespec get_time_now(clockid_t clk)
+{
     struct timespec ts;
 
     clock_gettime(clk, &ts);
     return ts;
 }
 
-void get_time_now2(clockid_t clk, struct timespec* t) {
+void get_time_now2(clockid_t clk, struct timespec *t)
+{
     clock_gettime(clk, t);
 }
 
-uint32_t get_time_now_ms(clockid_t clk) {
+uint32_t get_time_now_ms(clockid_t clk)
+{
     struct timespec ts;
 
     clock_gettime(clk, &ts);
     return timespec_to_ms(&ts);
 }
 
-struct timespec get_thread_time() {
+struct timespec get_thread_time()
+{
     struct timespec ts;
 
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
     return ts;
 }
 
-uint32_t get_thread_time_ms() {
+uint32_t get_thread_time_ms()
+{
     struct timespec ts;
 
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
     return timespec_to_ms(&ts);
 }
 
-void compute_for(uint32_t exec_milli_max) {
+void compute_for(uint32_t exec_milli_max)
+{
     uint32_t exec_milli;
     struct timespec t_curr;
     struct timespec t_end;
@@ -271,21 +287,24 @@ void compute_for(uint32_t exec_milli_max) {
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t_end);
     time_add_ms(&t_end, exec_milli);
 
-    while(1) {
-        __asm__ ("nop"); // simulate computation of something..
+    while (1)
+    {
+        __asm__("nop"); // simulate computation of something..
         clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t_curr);
 
-        if(time_cmp(&t_curr, &t_end) > 0)
+        if (time_cmp(&t_curr, &t_end) > 0)
             break;
     }
 }
 
-void wait_next_activation(struct timespec* t_act, uint32_t period_milli) {
+void wait_next_activation(struct timespec *t_act, uint32_t period_milli)
+{
     time_add_ms(t_act, period_milli);
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, t_act, NULL);
 }
 
-void set_timer(uint32_t milli) {
+void set_timer(uint32_t milli)
+{
     struct itimerval t;
     t.it_interval.tv_sec = 0;
     t.it_interval.tv_usec = MILLI_TO_MICRO(milli);

@@ -1,36 +1,35 @@
-#include <string.h>
+#include "retif_plugin.h"
+#include "logger.h"
+#include "retif_taskset.h"
+#include "retif_utils.h"
 #include <dlfcn.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 #include <sys/sysinfo.h>
-#include "logger.h"
-#include "retif_utils.h"
-#include "retif_plugin.h"
-#include "retif_taskset.h"
 
 // -----------------------------------------------------------------------------
 // PRIVATE INTERNAL METHODS
 // -----------------------------------------------------------------------------
 
-static void read_plg_name(char* line, char* name)
+static void read_plg_name(char *line, char *name)
 {
     sscanf(line, "%s", name);
 }
 
-static void read_plg_priopool(char* line, int* prio_min, int* prio_max)
+static void read_plg_priopool(char *line, int *prio_min, int *prio_max)
 {
     sscanf(line, "%d%*[-/]%d", prio_min, prio_max);
 }
 
-static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
+static void read_plg_cpus(char *line, int *cputotnum, int *cpulist)
 {
     int cnum;
     int cmax;
-    char* token;
-    char* init;
-    char* end;
+    char *token;
+    char *init;
+    char *end;
 
     cnum = 0;
     cmax = get_nprocs2();
@@ -45,7 +44,8 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
 
         if (cnum >= cmax)
         {
-            ERR("Your configuration include a greater number of CPU than present.\n");
+            ERR("Your configuration include a greater number of CPU than "
+                "present.\n");
             return;
         }
 
@@ -64,7 +64,8 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
     {
         if (cnum >= cmax)
         {
-            ERR("Your configuration include a greater number of CPU than present.\n");
+            ERR("Your configuration include a greater number of CPU than "
+                "present.\n");
             break;
         }
 
@@ -84,7 +85,7 @@ static void read_plg_cpus(char* line, int* cputotnum, int* cpulist)
  *
  * @endinternal
  */
-static void read_conf(FILE* f, struct rtf_plugin* plg, int num_of_plugin)
+static void read_conf(FILE *f, struct rtf_plugin *plg, int num_of_plugin)
 {
     int i, j;
     int num_cpu;
@@ -97,10 +98,10 @@ static void read_conf(FILE* f, struct rtf_plugin* plg, int num_of_plugin)
         // TODO: Find a way to limit max str
         // TODO: Check plugin priory windows are consistent with order
 
-        plg[i].cpulist              = calloc(num_cpu, sizeof(int));
-        plg[i].util_free_percpu     = calloc(num_cpu, sizeof(int));
-        plg[i].task_count_percpu    = calloc(num_cpu, sizeof(int));
-        plg[i].tasks                = calloc(num_cpu, sizeof(struct rtf_taskset));
+        plg[i].cpulist = calloc(num_cpu, sizeof(int));
+        plg[i].util_free_percpu = calloc(num_cpu, sizeof(int));
+        plg[i].task_count_percpu = calloc(num_cpu, sizeof(int));
+        plg[i].tasks = calloc(num_cpu, sizeof(struct rtf_taskset));
 
         // set free util to 1
         for (j = 0; j < num_cpu; j++)
@@ -126,20 +127,21 @@ static void read_conf(FILE* f, struct rtf_plugin* plg, int num_of_plugin)
  *
  * @endinternal
  */
-static void load_symbols(struct rtf_plugin* plg, unsigned int index, void* dl_ptr)
+static void load_symbols(struct rtf_plugin *plg, unsigned int index,
+    void *dl_ptr)
 {
     int cpunum = get_nprocs2();
 
-    plg[index].id                       = index;
-    plg[index].cpunum                   = cpunum;
-    plg[index].dl_ptr                   = dl_ptr;
-    plg[index].rtf_plg_task_init        = dlsym(dl_ptr, RTF_API_INIT);
-    plg[index].rtf_plg_task_accept      = dlsym(dl_ptr, RTF_API_ACCEPT);
-    plg[index].rtf_plg_task_change      = dlsym(dl_ptr, RTF_API_CHANGE);
-    plg[index].rtf_plg_task_release     = dlsym(dl_ptr, RTF_API_RELEASE);
-    plg[index].rtf_plg_task_schedule    = dlsym(dl_ptr, RTF_API_SCHEDULE);
-    plg[index].rtf_plg_task_attach      = dlsym(dl_ptr, RTF_API_ATTACH);
-    plg[index].rtf_plg_task_detach      = dlsym(dl_ptr, RTF_API_DETACH);
+    plg[index].id = index;
+    plg[index].cpunum = cpunum;
+    plg[index].dl_ptr = dl_ptr;
+    plg[index].rtf_plg_task_init = dlsym(dl_ptr, RTF_API_INIT);
+    plg[index].rtf_plg_task_accept = dlsym(dl_ptr, RTF_API_ACCEPT);
+    plg[index].rtf_plg_task_change = dlsym(dl_ptr, RTF_API_CHANGE);
+    plg[index].rtf_plg_task_release = dlsym(dl_ptr, RTF_API_RELEASE);
+    plg[index].rtf_plg_task_schedule = dlsym(dl_ptr, RTF_API_SCHEDULE);
+    plg[index].rtf_plg_task_attach = dlsym(dl_ptr, RTF_API_ATTACH);
+    plg[index].rtf_plg_task_detach = dlsym(dl_ptr, RTF_API_DETACH);
 }
 
 /**
@@ -149,12 +151,12 @@ static void load_symbols(struct rtf_plugin* plg, unsigned int index, void* dl_pt
  *
  * @endinternal
  */
-static int load_libraries(struct rtf_plugin* plg, int num_of_plugin)
+static int load_libraries(struct rtf_plugin *plg, int num_of_plugin)
 {
-    void* dl_ptr;
+    void *dl_ptr;
 
     // FIXME: too short path length! This leads to buffer overflow!
-    for(int i = 0; i < num_of_plugin; i++)
+    for (int i = 0; i < num_of_plugin; i++)
     {
         strcpy(plg[i].path, PLUGIN_PREFIX);
         strcat(plg[i].path, plg[i].name);
@@ -187,26 +189,27 @@ static int load_libraries(struct rtf_plugin* plg, int num_of_plugin)
  *
  * @endinternal
  */
-int rtf_plugins_init(struct rtf_plugin** plgs, int* num_of_plugins)
+int rtf_plugins_init(struct rtf_plugin **plgs, int *num_of_plugins)
 {
-    FILE* f;
+    FILE *f;
     int num_plugin;
 
     f = fopen(PLUGIN_CFG, "r");
 
-    if(f == NULL)
+    if (f == NULL)
     {
-        ERR("Unable to open cfg file. %s. Are plugins installed?\n", strerror(errno));
+        ERR("Unable to open cfg file. %s. Are plugins installed?\n",
+            strerror(errno));
         return -1;
     }
 
     go_to_settings_head(f); // skip kernel param settings
     go_to_settings_head(f);
 
-    num_plugin  = count_num_of_settings(f);
+    num_plugin = count_num_of_settings(f);
 
-    (*num_of_plugins)           = num_plugin;
-    (*plgs)                     = calloc(num_plugin, sizeof(struct rtf_plugin));
+    (*num_of_plugins) = num_plugin;
+    (*plgs) = calloc(num_plugin, sizeof(struct rtf_plugin));
 
     read_conf(f, *plgs, num_plugin);
 
@@ -226,9 +229,9 @@ int rtf_plugins_init(struct rtf_plugin** plgs, int* num_of_plugins)
  *
  * @endinternal
  */
-void rtf_plugins_destroy(struct rtf_plugin* plgs, int plugin_num)
+void rtf_plugins_destroy(struct rtf_plugin *plgs, int plugin_num)
 {
-    for(int i = 0; i < plugin_num; i++)
+    for (int i = 0; i < plugin_num; i++)
     {
         free(plgs[i].util_free_percpu);
         free(plgs[i].cpulist);

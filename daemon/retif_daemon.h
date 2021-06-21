@@ -12,9 +12,9 @@
 #ifndef RETIF_DAEMON_H
 #define RETIF_DAEMON_H
 
-#include "retif_taskset.h"
 #include "retif_channel.h"
 #include "retif_scheduler.h"
+#include "retif_taskset.h"
 
 /**
  * @brief Main daemon data structure
@@ -39,7 +39,7 @@ struct rtf_daemon
  * @param data main daemon data structure
  * @return 0 in case of success, -1 otherwise
  */
-int rtf_daemon_init(struct rtf_daemon* data);
+int rtf_daemon_init(struct rtf_daemon *data);
 
 /**
  * @brief Realizes daemon loop
@@ -48,7 +48,7 @@ int rtf_daemon_init(struct rtf_daemon* data);
  *
  * @param data main daemon data structure
  */
-void rtf_daemon_loop(struct rtf_daemon* data);
+void rtf_daemon_loop(struct rtf_daemon *data);
 
 /**
  * @brief Dumps all daemon info
@@ -58,7 +58,7 @@ void rtf_daemon_loop(struct rtf_daemon* data);
  *
  * @param data main daemon data structure
  */
-void rtf_daemon_dump(struct rtf_daemon* data);
+void rtf_daemon_dump(struct rtf_daemon *data);
 
 /**
  * @brief Tear down daemon safely
@@ -68,6 +68,6 @@ void rtf_daemon_dump(struct rtf_daemon* data);
  *
  * @param data main daemon data structure
  */
-void rtf_daemon_destroy(struct rtf_daemon* data);
+void rtf_daemon_destroy(struct rtf_daemon *data);
 
 #endif /* RETIF_DAEMON_H */

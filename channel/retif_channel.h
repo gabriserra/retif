@@ -16,17 +16,18 @@
 #ifndef RETIF_CHANNEL_H
 #define RETIF_CHANNEL_H
 
-#include "usocket.h"
 #include "retif_types.h"
+#include "usocket.h"
 
-#define CHANNEL_PATH_CARRIER    "/run/retif_channel.sock"
-#define CHANNEL_PATH_ACCESS     "/run/retif_channel.sock"
-#define CHANNEL_MAX_SIZE        SET_MAX_SIZE
+#define CHANNEL_PATH_CARRIER "/run/retif_channel.sock"
+#define CHANNEL_PATH_ACCESS "/run/retif_channel.sock"
+#define CHANNEL_MAX_SIZE SET_MAX_SIZE
 
 /**
  * @brief Data-structure that each client must use to communicate with daemon
  */
-struct rtf_access {
+struct rtf_access
+{
     struct usocket sock;
     struct rtf_request req;
     struct rtf_reply rep;
@@ -35,7 +36,8 @@ struct rtf_access {
 /**
  * @brief Data-structure that the server use to keep info about clients
  */
-struct rtf_carrier {
+struct rtf_carrier
+{
     struct usocket sock;
     int last_n[CHANNEL_MAX_SIZE];
     struct rtf_request last_req[CHANNEL_MAX_SIZE];
@@ -46,13 +48,13 @@ struct rtf_carrier {
 // CHANNEL ACCESS METHODS
 // -----------------------------------------------------------------------------
 
-int rtf_access_init(struct rtf_access* c);
+int rtf_access_init(struct rtf_access *c);
 
-int rtf_access_connect(struct rtf_access* c);
+int rtf_access_connect(struct rtf_access *c);
 
-int rtf_access_recv(struct rtf_access* c);
+int rtf_access_recv(struct rtf_access *c);
 
-int rtf_access_send(struct rtf_access* c);
+int rtf_access_send(struct rtf_access *c);
 
 // -----------------------------------------------------------------------------
 // CHANNEL CARRIER METHODS
@@ -67,7 +69,7 @@ int rtf_access_send(struct rtf_access* c);
  * @param c pointer to channel data structure of the daemon
  * @return -1 in case of errors or 0 otherwise
  */
-int rtf_carrier_init(struct rtf_carrier* c);
+int rtf_carrier_init(struct rtf_carrier *c);
 
 /**
  * @brief Receives new data from clients
@@ -76,7 +78,7 @@ int rtf_carrier_init(struct rtf_carrier* c);
  *
  * @param c pointer to channel data structure of the daemon
  */
-void rtf_carrier_update(struct rtf_carrier* c);
+void rtf_carrier_update(struct rtf_carrier *c);
 
 /**
  * @brief Sends a reply to a client
@@ -91,7 +93,7 @@ void rtf_carrier_update(struct rtf_carrier* c);
  * @param cli_id id descriptor of the client
  * @return the number of byte sent in case of success
  */
-int rtf_carrier_send(struct rtf_carrier* c, struct rtf_reply* rep, int cli_id);
+int rtf_carrier_send(struct rtf_carrier *c, struct rtf_reply *rep, int cli_id);
 
 /**
  * @brief Returns the highest number of client connection descriptor
@@ -102,7 +104,7 @@ int rtf_carrier_send(struct rtf_carrier* c, struct rtf_reply* rep, int cli_id);
  * @param c pointer to channel data structure of the daemon
  * @return the highest number of descriptor [0-SET_MAX_SIZE]
  */
-int rtf_carrier_get_conn(struct rtf_carrier* c);
+int rtf_carrier_get_conn(struct rtf_carrier *c);
 
 /**
  * @brief Returns the last request made by the client
@@ -114,7 +116,7 @@ int rtf_carrier_get_conn(struct rtf_carrier* c);
  * @param cli_id id descriptor of the client
  * @return copy of request data structure
  */
-struct rtf_request rtf_carrier_get_req(struct rtf_carrier* c, int cli_id);
+struct rtf_request rtf_carrier_get_req(struct rtf_carrier *c, int cli_id);
 
 /**
  * @brief Checks if given client has sent something
@@ -127,7 +129,7 @@ struct rtf_request rtf_carrier_get_req(struct rtf_carrier* c, int cli_id);
  * @param cli_id id descriptor of the client
  * @return 1 if something was sent, 0 otherwise
  */
-int rtf_carrier_is_updated(struct rtf_carrier* c, int cli_id);
+int rtf_carrier_is_updated(struct rtf_carrier *c, int cli_id);
 
 /**
  * @brief Clears the request of @p cli_id
@@ -138,7 +140,7 @@ int rtf_carrier_is_updated(struct rtf_carrier* c, int cli_id);
  * @param c pointer to channel data structure of the daemon
  * @param cli_id id descriptor of the client
  */
-void rtf_carrier_req_clear(struct rtf_carrier* c, int cli_id);
+void rtf_carrier_req_clear(struct rtf_carrier *c, int cli_id);
 
 /**
  * @brief Returns the current state of the client
@@ -150,7 +152,7 @@ void rtf_carrier_req_clear(struct rtf_carrier* c, int cli_id);
  * @param cli_id id descriptor of the client
  * @return enum that describe client state (EMPTY, CONNECTED, DISCONNECTED, ERR)
  */
-enum CLIENT_STATE rtf_carrier_get_state(struct rtf_carrier* c, int cli_id);
+enum CLIENT_STATE rtf_carrier_get_state(struct rtf_carrier *c, int cli_id);
 
 /**
  * @brief Sets the current state of the client
@@ -162,7 +164,8 @@ enum CLIENT_STATE rtf_carrier_get_state(struct rtf_carrier* c, int cli_id);
  * @param cli_id id descriptor of the client
  * @param s describe client state (EMPTY, CONNECTED, DISCONNECTED, ERR)
  */
-void rtf_carrier_set_state(struct rtf_carrier* c, int cli_id, enum CLIENT_STATE s);
+void rtf_carrier_set_state(struct rtf_carrier *c, int cli_id,
+    enum CLIENT_STATE s);
 
 /**
  * @brief Returns the pid of the client
@@ -173,7 +176,7 @@ void rtf_carrier_set_state(struct rtf_carrier* c, int cli_id, enum CLIENT_STATE 
  * @param cli_id id descriptor of the client
  * @return pid of the client
  */
-pid_t rtf_carrier_get_pid(struct rtf_carrier* c, int cli_id);
+pid_t rtf_carrier_get_pid(struct rtf_carrier *c, int cli_id);
 
 /**
  * @brief Sets the pid of the client
@@ -184,7 +187,7 @@ pid_t rtf_carrier_get_pid(struct rtf_carrier* c, int cli_id);
  * @param cli_id id descriptor of the client
  * @param pid pid of the client that will be associated with the descriptor
  */
-void rtf_carrier_set_pid(struct rtf_carrier* c, int cli_id, pid_t pid);
+void rtf_carrier_set_pid(struct rtf_carrier *c, int cli_id, pid_t pid);
 
 /**
  * @brief Dumps the connection info
@@ -193,6 +196,6 @@ void rtf_carrier_set_pid(struct rtf_carrier* c, int cli_id, pid_t pid);
  *
  * @param c pointer to channel data structure of the daemon
  */
-void rtf_carrier_dump(struct rtf_carrier* c);
+void rtf_carrier_dump(struct rtf_carrier *c);
 
-#endif	// RETIF_CHANNEL_H
+#endif // RETIF_CHANNEL_H
