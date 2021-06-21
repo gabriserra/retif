@@ -2,8 +2,8 @@
 bin
 build
 
-# Ignore editor preferences
-.vscode
+# Do not ignore editor preferences
+# .vscode
 
 # Ignore experimental results and benchmark binaries
 *.csv
