@@ -117,10 +117,10 @@ function parse_opt_args() {
             return 0
             ;;
         d)
-            package_deb=1
+            package_deb=ON
             ;;
         r)
-            package_rpm=1
+            package_rpm=ON
             ;;
         b)
             if [ -z "$OPTARG" ]; then
@@ -230,7 +230,11 @@ function configure() {
         return 0
     fi
 
-    cmake -S "$path_src" -B "$path_build" -DCMAKE_BUILD_TYPE="$build_type"
+    cmake -S "$path_src" -B "$path_build" \
+        -DCMAKE_BUILD_TYPE="$build_type" \
+        -DCPACK_ENABLE_DEB="$package_deb" \
+        -DCPACK_ENABLE_RPM="$package_rpm"
+
     ran_configure=1
 }
 
@@ -268,7 +272,20 @@ function package() {
         return 0
     fi
 
-    # TODO: this
+    configure
+    build
+
+    (
+        set -e
+        cd "$path_build"
+        sudo cpack
+        sudo chown -R $USER:$USER .
+    )
+
+    if [ "$package_deb" = 'ON' ]; then
+        # TODO: sign the deb package
+    fi
+
     ran_package=1
 }
 
@@ -280,8 +297,8 @@ function package() {
     path_src="$path_proj"
     path_build="$path_proj/build"
     build_type="Release"
-    package_deb=0
-    package_rpm=0
+    package_deb=OFF
+    package_rpm=OFF
 
     commands=()
 

@@ -17,7 +17,11 @@ set(CPACK_RESOURCE_FILE_LICENSE ${PROJECT_SOURCE_DIR}/LICENSE)
 set(CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/README.md)
 
 set(CPACK_PACKAGE_FILE_NAME
-${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_HOST_SYSTEM_PROCESSOR}
+    ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_HOST_SYSTEM_PROCESSOR}
+)
+
+set(CPACK_SOURCE_PACKAGE_FILE_NAME 
+    ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-src
 )
 
 # Directories to ignore when building a `source` package
@@ -28,8 +32,12 @@ set(CPACK_SOURCE_IGNORE_FILES
     /\\\\.DS_Store
 )
 
-# Each generator will have its own options (they will auto-include in the list
-# of active generators too)
+unset(CPACK_GENERATOR)
+unset(CPACK_SOURCE_GENERATOR)
+
+# Each generator will have its own options (they will
+# auto-include in the list of active generators too)
+include(${CMAKE_CURRENT_LIST_DIR}/archives/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/deb/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/rpm/CMakeLists.txt)
 
