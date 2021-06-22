@@ -98,7 +98,6 @@ static struct rtf_reply req_task_modify(struct rtf_daemon *data, int cli_id)
 
     res = rtf_scheduler_task_change(&(data->sched), &req.payload.param,
         req.payload.ids.rsvid);
-    res = req.payload.ids.rsvid; // TO BE DELETED
 
     if (res == RTF_NO)
     {
@@ -139,9 +138,16 @@ static struct rtf_reply req_task_attach(struct rtf_daemon *data, int cli_id)
 
     if (rtf_scheduler_task_attach(&(data->sched), req.payload.ids.rsvid,
             req.payload.ids.pid) < 0)
+    {
         rep.rep_type = RTF_TASK_ATTACH_ERR;
+        LOG(WARNING, "Unable to attach PID: %d to given task.\n",
+            req.payload.ids.pid);
+    }
     else
+    {
         rep.rep_type = RTF_TASK_ATTACH_OK;
+        LOG(INFO, "PID: %d attached.\n", req.payload.ids.pid);
+    }
 
     return rep;
 }
