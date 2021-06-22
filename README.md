@@ -65,11 +65,11 @@ components of the framework and to install them in the appropriate locations.
    ```
 2. Run the build script (it will invoke CMake for you)
    ```sh
-   ./build.sh
+   ./m build
    ```
 3. Install (requires superuser privileges)
    ```sh
-   sudo ./install.sh
+   sudo ./m install
    ```
 
 ## Usage
