@@ -284,6 +284,7 @@ function package() {
 
     if [ "$package_deb" = 'ON' ]; then
         # TODO: sign the deb package
+        :
     fi
 
     ran_package=1
