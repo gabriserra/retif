@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 
 #ifndef RETIF_PUBLIC_TYPES
-#    define RETIF_PUBLIC_TYPES
+#define RETIF_PUBLIC_TYPES
 
 struct rtf_params
 {
