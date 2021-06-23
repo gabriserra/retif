@@ -46,6 +46,7 @@ function toshortopts() {
     while [ $# -gt 0 ]; do
         case $1 in
         --help) printf ' %s' '-h' ;;
+        --verbose) printf ' %s' '-v' ;;
         --deb) printf ' %s' '-d' ;;
         --rpm) printf ' %s' '-r' ;;
         --build-type) printf ' %s' '-b' ;;
@@ -116,6 +117,9 @@ function parse_opt_args() {
             pos_args=()
             return 0
             ;;
+        v)
+            verbose=ON
+            ;;
         d)
             package_deb=ON
             ;;
@@ -182,12 +186,14 @@ Runs the specified list of commands using the given arguments
 
 List of options (all optional):  
   -h, --help        Prints this help message and returns
+  -v, --verbose     Prints more info during execution
   -d, --deb         Enables the generation of the deb package
   -r, --rpm         Enables the generation of the rpm package
   -b, --build-type TARGET[=release*|debug|release-wdebug]
                     Specifies which version of the project to build
   -p, --build-path BUILDPATH[=build]
                     Specifies which path to use to build the project
+  
 
 List of commands:
     build           (Re-)Build the project
@@ -232,6 +238,7 @@ function configure() {
 
     cmake -S "$path_src" -B "$path_build" \
         -DCMAKE_BUILD_TYPE="$build_type" \
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL="$verbose" \
         -DCPACK_ENABLE_DEB="$package_deb" \
         -DCPACK_ENABLE_RPM="$package_rpm"
 
@@ -243,6 +250,7 @@ function install() {
         return 0
     fi
 
+    build
     sudo cmake --build "$path_build" --target install
     ran_install=1
 }
@@ -300,12 +308,13 @@ function package() {
     build_type="Release"
     package_deb=OFF
     package_rpm=OFF
+    verbose=OFF
 
     commands=()
 
     opt_args=()
     pos_args=()
-    optstring='hdrb:p:'
+    optstring='hvdrb:p:'
 
     OPTERR=0
 
