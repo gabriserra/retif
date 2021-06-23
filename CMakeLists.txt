@@ -20,6 +20,13 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+if(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
+    string(REGEX REPLACE "(\-O[011123456789])" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    string(REGEX REPLACE "(\-O[011123456789])" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O0")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -O0")
+endif(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
+
 # ------------------- Paths Management ------------------- #
 
 # Install directory changes depending on build mode
