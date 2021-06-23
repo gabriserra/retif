@@ -62,6 +62,8 @@ enum CLIENT_STATE
 #ifndef RETIF_PUBLIC_TYPES
 #define RETIF_PUBLIC_TYPES
 
+#define PLUGIN_MAX_NAME 32
+// FIXME: fixed length string
 struct rtf_params
 {
     uint64_t runtime; // required runtime [microseconds]

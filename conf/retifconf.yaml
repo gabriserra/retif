@@ -1,23 +1,22 @@
 configuration:
-  kernel:
+  system:
     rr_timeslice: 100 # ms
-    sched_rt_period: 1000000 # us
-    sched_rt_runtime: 950000 # us
+    sched_max_util: 0.95 # [0.-1.]
   plugins:
     - name: EDF
-      plugin: retif/sched_EDF.so
+      plugin: sched_EDF.so
       priority: 100
       cores: 0
     - name: RM
-      plugin: retif/sched_RM.so
+      plugin: sched_RM.so
       priority: [50, 99]
       cores: [1, 2]
     - name: RR
-      plugin: retif/sched_RR.so
+      plugin: sched_RR.so
       priority: [1, 49]
       cores: [1, 2]
     - name: FP
-      plugin: retif/sched_FP.so
+      plugin: sched_FP.so
       priority: 1-99
       cores: 3-7
   rules:

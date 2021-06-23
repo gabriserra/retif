@@ -13,6 +13,7 @@
 #define RETIF_DAEMON_H
 
 #include "retif_channel.h"
+#include "retif_config.h"
 #include "retif_scheduler.h"
 #include "retif_taskset.h"
 
@@ -25,6 +26,8 @@
  */
 struct rtf_daemon
 {
+    struct proc_backup proc_backup;
+    configuration_t config;
     struct rtf_carrier chann;
     struct rtf_scheduler sched;
     struct rtf_taskset tasks;

@@ -1,3 +1,7 @@
+#pragma once
+#ifndef RETIF_VECTOR_H
+#define RETIF_VECTOR_H
+
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -33,6 +37,7 @@ typedef struct vector __VECTOR_CONTENT(void) vector_t;
 void vector_initialize(vector_t *v, size_t item_size);
 static inline void vector_swap(vector_t *v1, vector_t *v2);
 
+// Helper functions
 static inline size_t __vector_addr_diff(void *first, void *last);
 static inline void *__vector_addr_add(void *first, size_t diff);
 
@@ -159,3 +164,5 @@ static inline void vector_swap(vector_t *v1, vector_t *v2)
     *v1 = *v2;
     *v2 = v;
 }
+
+#endif // RETIF_VECTOR_H
