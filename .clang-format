@@ -34,7 +34,7 @@ ForEachMacros: ['YAML_FOREACH_PAIR', 'YAML_FOREACH_ITEM', 'VECTOR_FOREACH', 'VEC
 TypenameMacros: ['VECTOR']
 IncludeBlocks: Preserve
 IndentCaseLabels: 'false'
-IndentPPDirectives: AfterHash
+IndentPPDirectives: None
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'

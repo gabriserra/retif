@@ -12,8 +12,8 @@
 #define RTF_NO -1
 
 #ifndef RETIF_PLUGIN_H
-#    define PLUGIN_MAX_NAME 32
-#    define PLUGIN_MAX_PATH 1024
+#define PLUGIN_MAX_NAME 32
+#define PLUGIN_MAX_PATH 1024
 #endif
 
 typedef uint32_t rtf_id_t;
@@ -60,7 +60,7 @@ enum CLIENT_STATE
 };
 
 #ifndef RETIF_PUBLIC_TYPES
-#    define RETIF_PUBLIC_TYPES
+#define RETIF_PUBLIC_TYPES
 
 struct rtf_params
 {
