@@ -310,15 +310,16 @@ int rtf_daemon_process_req(struct rtf_daemon *data, int cli_id)
  *
  * @endinternal
  */
-void rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
+int rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
 {
     int sent;
+    int res;
 
-    if (rtf_daemon_check_for_fail(data, cli_id))
-        return;
+    if ((res = rtf_daemon_check_for_fail(data, cli_id)) != 0)
+        return res;
 
-    if (!rtf_daemon_check_for_update(data, cli_id))
-        return;
+    if ((res = rtf_daemon_check_for_update(data, cli_id)) != 0)
+        return -1;
 
     sent = rtf_daemon_process_req(data, cli_id);
     rtf_carrier_req_clear(&(data->chann), cli_id);
@@ -341,12 +342,31 @@ void rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
  */
 int rtf_daemon_init(struct rtf_daemon *data)
 {
+    if (parse_configuration(&(data->config), SETTINGS_CFG) != 0)
+    {
+        LOG(ERR, "Unable to read configuration from path %s!\n", SETTINGS_CFG);
+        return -1;
+    }
+
+    if (save_rt_kernel_params(&(data->proc_backup)) != 0)
+    {
+        LOG(ERR, "Unable to read scheduling real-time params from procfs!\n");
+        return -1;
+    }
+
+    if (set_rt_kernel_params(&(data->config.system)) != 0)
+    {
+        // TODO: EDF double check
+        LOG(WARNING, "Unable to apply param configurations. Daemon will "
+                     "continue.\n");
+    }
+
     if (rtf_carrier_init(&(data->chann)) < 0)
         return -1;
 
     rtf_taskset_init(&(data->tasks));
 
-    if (rtf_scheduler_init(&(data->sched), &(data->tasks)) < 0)
+    if (rtf_scheduler_init(&(data->config), &(data->sched), &(data->tasks)) < 0)
         return -1;
 
     return 0;
@@ -366,7 +386,12 @@ void rtf_daemon_loop(struct rtf_daemon *data)
         rtf_carrier_update(&(data->chann));
 
         for (int i = 0; i <= rtf_carrier_get_conn(&(data->chann)); i++)
-            rtf_daemon_handle_req(data, i);
+        {
+            if (rtf_daemon_handle_req(data, i))
+            {
+                // TODO: close connection here
+            }
+        }
     }
 }
 
@@ -411,4 +436,6 @@ void rtf_daemon_destroy(struct rtf_daemon *data)
     }
 
     rtf_scheduler_destroy(&(data->sched));
+
+    restore_rt_kernel_params(&(data->proc_backup));
 }

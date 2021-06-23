@@ -5,259 +5,484 @@
  * @brief Allows to configure kernel parameters for real-time scheduling
  */
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include "retif_config.h"
 #include "logger.h"
-#include "retif_utils.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "retif_yaml.h"
 
-/**
- * @internal
- *
- * Reads rt_period and rt_runtime from proc files and
- * write their values in @p rt_period and @p rt_runtime. Returns
- * -1 in case of errors (leaving untouched params) or 0
- * in case of success.
- *
- * @endinternal
- */
-int rtf_config_get_rt_kernel_params(int *rt_period, int *rt_runtime)
+#define PROC_RT_RUNTIME_FILE "/proc/sys/kernel/sched_rt_runtime_us"
+#define PROC_RR_TIMESLICE_FILE "/proc/sys/kernel/sched_rr_timeslice_ms"
+
+// TODO: Check plugin priory windows are consistent with order
+
+int file_read_long(const char *fpath, long *value)
 {
-    FILE *proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "r");
-    FILE *proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "r");
-
-    if (proc_rt_period == NULL || proc_rt_runtime == NULL)
-    {
-        LOG(ERR, "rtsd error: %s", strerror(errno));
-        return -1;
-    }
-
-    if (safe_file_read(proc_rt_period, "%d", 1, rt_period) < 0)
-        return -1;
-    if (safe_file_read(proc_rt_runtime, "%d", 1, rt_runtime) < 0)
-        return -1;
-
-    LOG(DEBUG, "Reading kernel RT data - PERIOD: %d - RUNTIME: %d\n",
-        *rt_period, *rt_runtime);
-
-    fclose(proc_rt_period);
-    fclose(proc_rt_runtime);
-
-    return 0;
-}
-
-/**
- * @internal
- *
- * Reads rt_period and rt_runtime from proc files and
- * calculate maximum utilization available for RT processes normalized from
- * 0 to 1. Returns -1 in case of errors (leaving untouched param) or 0
- * in case of success.
- *
- * @endinternal
- */
-int rtf_config_get_rt_kernel_max_util(float *rt_max_util)
-{
-    int rt_period, rt_runtime;
-
-    if (rtf_config_get_rt_kernel_params(&rt_period, &rt_runtime) < 0)
-        return -1;
-
-    if (rt_runtime == -1)
-        *rt_max_util = 1;
-    else
-        *rt_max_util = rt_runtime / (float) rt_period;
-
-    return 0;
-}
-
-/**
- * @internal
- *
- * Writes rt_period and rt_runtime in proc files taking desired
- * values from @p rt_period and @p rt_runtime. Returns
- * -1 in case of errors or 0 in case of success.
- *
- * @endinternal
- */
-int rtf_config_set_rt_kernel_params(int rt_period, int rt_runtime)
-{
-    FILE *proc_rt_period = fopen(PROC_RT_PERIOD_FILE, "w");
-    FILE *proc_rt_runtime = fopen(PROC_RT_RUNTIME_FILE, "w");
-
-    if (proc_rt_period == NULL || proc_rt_runtime == NULL)
-    {
-        LOG(WARNING, "Error opening proc files in writing mode.\n");
-        LOG(WARNING, "%s", strerror(errno));
-        return -1;
-    }
-
-    fprintf(proc_rt_period, "%d", rt_period);
-    fprintf(proc_rt_runtime, "%d", rt_runtime);
-
-    LOG(DEBUG, "Written kernel RT data - PERIOD: %d - RUNTIME: %d\n", rt_period,
-        rt_runtime);
-
-    fclose(proc_rt_period);
-    fclose(proc_rt_runtime);
-
-    return 0;
-}
-
-/**
- * @internal
- *
- * Restores rt_period and rt_runtime in proc files to default values
- * reading default constants in library. Returns
- * -1 in case of errors or 0 in case of success.
- *
- * @endinternal
- */
-int rtf_config_restore_rt_kernel_params()
-{
-    int ret;
-
-    ret = rtf_config_set_rt_kernel_params(PROC_RT_PERIOD_DEFAULT,
-        PROC_RT_RUNTIME_DEFAULT);
-
-    if (ret < 0)
-    {
-        LOG(DEBUG, "Error: Restoring proc file rt parameters failed.\n");
-    }
-    else
-    {
-        LOG(DEBUG, "Restoring proc file rt parameters successful.\n");
-    }
-
-    return ret;
-}
-
-/**
- * @internal
- *
- * Reads rr_timeslice from proc files and
- * write its values in @p rr_timeslice. Returns
- * -1 in case of errors (leaving untouched param) or 0
- * in case of success.
- *
- * @endinternal
- */
-int rtf_config_get_rr_kernel_param(int *rr_timeslice)
-{
-    FILE *proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "r");
-
-    if (proc_rr_timeslice == NULL)
-    {
-        LOG(DEBUG, "Error opening proc files in reading mode.\n");
-        LOG(DEBUG, "%s", strerror(errno));
-        return -1;
-    }
-
-    if (safe_file_read(proc_rr_timeslice, "%d", 1, rr_timeslice) < 0)
-        return -1;
-
-    LOG(DEBUG, "Reading kernel RR data - TIMESLICE: %d \n", *rr_timeslice);
-    fclose(proc_rr_timeslice);
-
-    return 0;
-}
-
-/**
- * @internal
- *
- * Writes rr_timeslice in proc files taking desired
- * value from @p rr_timeslice. Returns
- * -1 in case of errors or 0 in case of success.
- *
- * @endinternal
- */
-int rtf_config_set_rr_kernel_param(int rr_timeslice)
-{
-    FILE *proc_rr_timeslice = fopen(PROC_RR_TIMESlICE_FILE, "w");
-
-    if (proc_rr_timeslice == NULL)
-    {
-        LOG(WARNING, "Error opening proc files in writing mode.\n");
-        LOG(WARNING, "%s", strerror(errno));
-        return -1;
-    }
-
-    fprintf(proc_rr_timeslice, "%d", rr_timeslice);
-    LOG(DEBUG, "Written kernel RR data - TIMESLICE: %d \n", rr_timeslice);
-    fclose(proc_rr_timeslice);
-
-    return 0;
-}
-
-/**
- * @internal
- *
- * Restores rr_timeslice in proc files to default values
- * reading default constant in library. Returns
- * -1 in case of errors or 0 in case of success.
- *
- * @endinternal
- */
-int rtf_config_restore_rr_kernel_param(int rr_timeslice)
-{
-    int ret;
-
-    ret = rtf_config_set_rr_kernel_param(PROC_RR_TIMESLICE_DEFAULT);
-
-    if (ret < 0)
-    {
-        LOG(ERR, "Error: Restoring proc file rr parameter failed.\n");
-    }
-    else
-    {
-        LOG(INFO, "Restoring proc file rr parameter successful.\n");
-    }
-
-    return ret;
-}
-
-/**
- * @internal
- *
- * Opens the configuration file, reads the settings specified by the sysadmin
- * and apply new settings, overriding previous one. Returns 0 if successful,
- * -1 in case of errors (unable to open file or to specified settins are not
- * valid)
- *
- * @endinternal
- */
-int rtf_config_apply()
-{
-    FILE *f;
-    int rr_timeslice, rt_period, rt_runtime;
-
-    f = fopen(SETTINGS_CFG, "r");
-
+    FILE *f = fopen(fpath, "r");
     if (f == NULL)
     {
-        LOG(ERR, "Unable to open cfg file. %s. Are plugins installed?\n",
-            strerror(errno));
+        LOG(WARNING, "Error opening %s in reading mode.\n", fpath);
+        LOG(WARNING, "%s", strerror(errno));
         return -1;
     }
 
-    go_to_settings_head(f);
-
-    if (extract_num_from_line(f, &rr_timeslice) != 1)
-        return -1;
-    if (extract_num_from_line(f, &rt_period) != 1)
-        return -1;
-    if (extract_num_from_line(f, &rt_runtime) != 1)
-        return -1;
-
-    if (rtf_config_set_rt_kernel_params(rt_period, rt_runtime) < 0)
-        return -1;
-
-    if (rtf_config_set_rr_kernel_param(rr_timeslice) < 0)
-        return -1;
-
+    int res = fscanf(f, "%ld", value);
     fclose(f);
 
+    if (res > 0)
+    {
+        LOG(DEBUG, "Read %ld from %s.\n", *value, fpath);
+        return 0;
+    }
+
+    LOG(WARNING, "Could not read from %s.\n", fpath);
+    return 1;
+}
+
+int file_write(const char *fpath, long value)
+{
+    FILE *f = fopen(fpath, "w");
+    if (f == NULL)
+    {
+        LOG(WARNING, "Error opening %s in writing mode.\n", fpath);
+        LOG(WARNING, "%s", strerror(errno));
+        return -1;
+    }
+
+    int res = fprintf(f, "%ld", value);
+    fclose(f);
+
+    if (res > 0)
+    {
+        LOG(DEBUG, "Written %ld in %s.\n", value, fpath);
+        return 0;
+    }
+
+    LOG(WARNING, "Could not write %ld in %s.\n", value, fpath);
+    return 1;
+}
+
+int set_rt_kernel_params(conf_system_t *c)
+{
+    int res = 0;
+    if ((res = file_write(PROC_RR_TIMESLICE_FILE, c->rr_timeslice)) != 0)
+        return res;
+    if ((res = file_write(PROC_RT_RUNTIME_FILE, -1)) != 0)
+        return res;
     return 0;
+}
+
+int save_rt_kernel_params(struct proc_backup *b)
+{
+    int res = 0;
+    if ((res = file_read_long(PROC_RR_TIMESLICE_FILE, &b->rr_timeslice)) != 0)
+        return res;
+    if ((res = file_read_long(PROC_RT_RUNTIME_FILE, &b->rt_runtime)) != 0)
+        return res;
+    return 0;
+}
+
+int restore_rt_kernel_params(struct proc_backup *b)
+{
+    int res = 0;
+    if ((res = file_write(PROC_RR_TIMESLICE_FILE, b->rr_timeslice)) != 0)
+        return res;
+    if ((res = file_write(PROC_RT_RUNTIME_FILE, b->rt_runtime)) != 0)
+        return res;
+    return 0;
+}
+
+// ====================================================== //
+// --------------- Function Declarations ---------------- //
+// ====================================================== //
+
+YAML_PARSER_FN(parse_conf, configuration_t *out);
+YAML_PARSER_FN(parse_conf_system, configuration_t *out);
+YAML_PARSER_FN(parse_conf_plugins, configuration_t *out);
+YAML_PARSER_FN(parse_conf_acl_rules, configuration_t *out);
+
+YAML_PARSER_FN(parse_conf_system_rr_timeslice, conf_system_t *out);
+YAML_PARSER_FN(parse_conf_system_sched_max_util, conf_system_t *out);
+
+YAML_PARSER_FN(parse_conf_plugins_item, conf_plugin_t *out);
+YAML_PARSER_FN(parse_conf_plugins_item_name, conf_plugin_t *out);
+YAML_PARSER_FN(parse_conf_plugins_item_plugin_path, conf_plugin_t *out);
+YAML_PARSER_FN(parse_conf_plugins_item_priority, conf_plugin_t *out);
+YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out);
+
+// ====================================================== //
+// ---------------- Function Definitions ---------------- //
+// ====================================================== //
+
+const char key_conf[] = "configuration";
+const char key_system[] = "system";
+const char key_plugins[] = "plugins";
+const char key_acl_rules[] = "rules";
+
+const char key_rr_timeslice[] = "rr_timeslice";
+const char key_sched_max_util[] = "sched_max_util";
+
+const char key_name[] = "name";
+const char key_plugin[] = "plugin";
+const char key_priority[] = "priority";
+const char key_cores[] = "cores";
+
+const char key_domain[] = "domain";
+const char key_type[] = "type";
+const char key_properties[] = "properties";
+
+// TODO: ACL properties
+
+#define YAML_PARSER_MAP_PAIR(key, ptr)                                         \
+    {                                                                          \
+        key, (yaml_parser_fn_t) ptr                                            \
+    }
+
+YAML_PARSER_FN(parse_conf, configuration_t *out)
+{
+    const yaml_parser_map_t map[] = {
+        YAML_PARSER_MAP_PAIR(key_conf, parse_conf),
+        YAML_PARSER_MAP_PAIR(key_system, parse_conf_system),
+        YAML_PARSER_MAP_PAIR(key_plugins, parse_conf_plugins),
+        YAML_PARSER_MAP_PAIR(key_acl_rules, parse_conf_acl_rules),
+    };
+    const size_t map_size = sizeof(map) / sizeof(yaml_parser_map_t);
+    return yaml_parse_mapping(document, node, map, map_size, out);
+}
+
+YAML_PARSER_FN(parse_conf_system, configuration_t *out)
+{
+    const yaml_parser_map_t map[] = {
+        YAML_PARSER_MAP_PAIR(key_rr_timeslice, parse_conf_system_rr_timeslice),
+        YAML_PARSER_MAP_PAIR(key_sched_max_util,
+            parse_conf_system_sched_max_util),
+    };
+    const size_t map_size = sizeof(map) / sizeof(yaml_parser_map_t);
+    conf_system_t *out_k = &out->system;
+    return yaml_parse_mapping(document, node, map, map_size, out_k);
+}
+
+YAML_PARSER_FN(parse_conf_plugins, configuration_t *out)
+{
+    vector_initialize((vector_t *) &out->plugins, VECTOR_ISIZE(out->plugins));
+
+    return yaml_parse_list(document, node,
+        (yaml_parser_fn_t) parse_conf_plugins_item, (vector_t *) &out->plugins,
+        sizeof(conf_plugin_t));
+}
+
+YAML_PARSER_FN(parse_conf_acl_rules, configuration_t *out)
+{
+    // TODO:
+    return 0;
+}
+
+YAML_PARSER_FN(parse_conf_system_rr_timeslice, conf_system_t *out)
+{
+    return yaml_get_long(document, node, &out->rr_timeslice);
+}
+
+YAML_PARSER_FN(parse_conf_system_sched_max_util, conf_system_t *out)
+{
+    return yaml_get_double(document, node, &out->sched_max_util);
+}
+
+YAML_PARSER_FN(parse_conf_plugins_item, conf_plugin_t *out)
+{
+    const yaml_parser_map_t map[] = {
+        YAML_PARSER_MAP_PAIR(key_name, parse_conf_plugins_item_name),
+        YAML_PARSER_MAP_PAIR(key_plugin, parse_conf_plugins_item_plugin_path),
+        YAML_PARSER_MAP_PAIR(key_priority, parse_conf_plugins_item_priority),
+        YAML_PARSER_MAP_PAIR(key_cores, parse_conf_plugins_item_cores),
+    };
+    const size_t map_size = sizeof(map) / sizeof(yaml_parser_map_t);
+    return yaml_parse_mapping(document, node, map, map_size, out);
+}
+
+YAML_PARSER_FN(parse_conf_plugins_item_name, conf_plugin_t *out)
+{
+    return yaml_get_string(document, node, &out->name);
+}
+
+YAML_PARSER_FN(parse_conf_plugins_item_plugin_path, conf_plugin_t *out)
+{
+    return yaml_get_string(document, node, &out->plugin_path);
+}
+
+YAML_PARSER_FN(parse_conf_plugins_item_priority, conf_plugin_t *out)
+{
+    int ret = 0;
+
+    switch (node->type)
+    {
+    case YAML_SCALAR_NODE:
+    {
+        // Either a single value is given or a range in the
+        // form min-max is provided
+        const char delim[] = "-";
+        char *strvalue = NULL;
+        char *saveptr = NULL;
+        char *token = NULL;
+        long min = -1, max = -1;
+
+        ret = yaml_get_string(document, node, &strvalue);
+        if (ret)
+            goto end_scalar;
+
+        token = strtok_r(strvalue, delim, &saveptr);
+        if (token == NULL)
+        {
+            // First token cannot be NULL!
+            ret = 1;
+            goto end_scalar;
+        }
+
+        ret = string_to_long(token, &min);
+        if (ret)
+        {
+            goto end_scalar;
+        }
+
+        token = strtok_r(NULL, delim, &saveptr);
+        if (token == NULL)
+        {
+            max = min;
+        }
+        else
+        {
+            ret = string_to_long(token, &max);
+            if (ret)
+            {
+                goto end_scalar;
+            }
+        }
+
+        if (min < 0 || max < 0)
+        {
+            ret = 1;
+            goto end_scalar;
+        }
+
+        out->priority_min = min;
+        out->priority_max = max;
+
+    end_scalar:
+        free(strvalue);
+        break;
+    }
+    case YAML_SEQUENCE_NODE:
+    {
+        // Either a single value is given or a range in the
+        // form [min, max] is provided
+        long min = -1, max = -1;
+        int i;
+
+        YAML_FOREACH_ITEM (document, node, i)
+        {
+            switch (i)
+            {
+            case 0:
+                ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                    &min);
+                if (ret)
+                    goto end_sequence;
+                break;
+            case 1:
+                ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                    &max);
+                if (ret)
+                    goto end_sequence;
+                break;
+            default:
+                ret = 1;
+                goto end_sequence;
+            }
+        }
+
+        if (i == 0)
+        {
+            // Empty sequence not allowed
+            ret = 1;
+            goto end_sequence;
+        }
+
+        if (i == 1)
+        {
+            max = min;
+        }
+
+        if (min < 0 || max < 0)
+        {
+            ret = 1;
+            goto end_sequence;
+        }
+
+        out->priority_min = min;
+        out->priority_max = max;
+
+    end_sequence:
+        break;
+    }
+    case YAML_MAPPING_NODE:
+    {
+        ret = 1;
+        break;
+    }
+    default:
+        ret = 1;
+        break;
+    }
+
+    return ret;
+}
+
+YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
+{
+    int ret = 0;
+
+    vector_initialize((vector_t *) &out->cores, VECTOR_ISIZE(out->cores));
+
+    // This should be a list of all the cores
+    switch (node->type)
+    {
+    case YAML_SCALAR_NODE:
+    {
+        const char delim[] = ",-";
+        char *strvalue = NULL;
+        char *saveptr = NULL;
+        char *copy = NULL;
+        char *token = NULL;
+        bool in_range = false;
+        long value = 0;
+
+        ret = yaml_get_string(document, node, &strvalue);
+        if (ret)
+            goto end_scalar;
+
+        copy = strdup(strvalue);
+        token = strtok_r(strvalue, delim, &saveptr);
+
+        // NOTE: this implementation is broken if multiple delimiters are used
+        // one after the other without any number in between
+        while (token)
+        {
+            ret = string_to_long(token, &value);
+            if (ret)
+                goto end_scalar;
+
+            if (out->cores.size &&
+                value <= out->cores.data[out->cores.size - 1])
+            {
+                ret = 1;
+                goto end_scalar;
+            }
+
+            if (in_range)
+            {
+                // There must be at least one prior element
+                while (out->cores.data[out->cores.size - 1] < value)
+                {
+                    int newval =
+                        (*(int *) vector_back((vector_t *) &out->cores)) + 1;
+                    vector_push_back((vector_t *) &out->cores, &newval);
+                }
+            }
+            else
+            {
+                vector_push_back((vector_t *) &out->cores, &value);
+            }
+
+            char d = copy[token - strvalue + strlen(token)];
+
+            switch (d)
+            {
+            case ',':
+                in_range = false;
+                break;
+            case '-':
+                if (in_range)
+                {
+                    ret = 1;
+                    goto end_scalar;
+                }
+                in_range = true;
+                break;
+            case '\0':
+                // Don't care, the next loop will exit
+                break;
+            default:
+                break;
+            }
+
+            token = strtok_r(NULL, delim, &saveptr);
+        }
+
+    end_scalar:
+        free(strvalue);
+        free(copy);
+        break;
+    }
+    case YAML_SEQUENCE_NODE:
+    {
+        ret = 1;
+
+        long value;
+        int i;
+
+        YAML_FOREACH_ITEM (document, node, i)
+        {
+            ret = yaml_get_long(document, YAML_NODE_ITEM(document, node, i),
+                &value);
+            if (ret)
+                goto end_sequence;
+
+            vector_push_back((vector_t *) &out->cores, &value);
+        }
+
+    end_sequence:
+        break;
+    }
+    case YAML_MAPPING_NODE:
+    {
+        ret = 1;
+        break;
+    }
+    default:
+        ret = 1;
+        break;
+    }
+    return 0;
+}
+
+// ---------------------------------------------------------
+
+int parse_configuration(configuration_t *conf, const char path[])
+{
+    int res = 0;
+    yaml_parser_t parser;
+    yaml_document_t document;
+    yaml_node_t *node;
+    FILE *input = NULL;
+
+    input = fopen(path, "rb");
+    yaml_parser_initialize(&parser);
+    yaml_parser_set_input_file(&parser, input);
+
+    res = yaml_parser_load(&parser, &document);
+    if (res != 1)
+    {
+        goto end;
+    }
+
+    node = yaml_document_get_root_node(&document);
+    res = parse_conf(&document, node, conf);
+
+end:
+    yaml_document_delete(&document);
+    yaml_parser_delete(&parser);
+    fclose(input);
+
+    return res;
 }

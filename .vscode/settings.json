@@ -8,9 +8,11 @@
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
     "files.associations": {
-        "*.c.in": "c",
-        "*.h.in": "h",
         "retif.in": "sh",
+        "retif_config.h.in": "c",
+        "retif_plugin.h.in": "c",
+        "retif_yaml.h": "c",
+        "typeinfo": "c"
     },
     "cmake.configureOnOpen": false,
 }

@@ -222,7 +222,7 @@ function build() {
     fi
 
     configure
-    cmake --build "$path_build" --parallel
+    cmake --build "$path_build" # --parallel
     ran_build=1
 }
 

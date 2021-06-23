@@ -27,7 +27,8 @@ struct rtf_scheduler
  * @param s pointer to scheduler data struct
  * @param ts pointer to taskset data struct
  */
-int rtf_scheduler_init(struct rtf_scheduler *s, struct rtf_taskset *ts);
+int rtf_scheduler_init(configuration_t *conf, struct rtf_scheduler *s,
+    struct rtf_taskset *ts);
 
 /**
  * @brief Deallocate scheduler stuff
