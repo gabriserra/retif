@@ -18,17 +18,12 @@ set_property(TARGET retifd
 
 # find_package(PkgConfig REQUIRED)
 # pkg_check_modules(YAML REQUIRED yaml)
-find_library(YAML yaml NAMES yaml)
-
-message(YAML: ${YAML})
-message(YAML_INCLUDE_DIR: ${YAML_INCLUDE_DIR})
-message(YAML_LIBRARIES: ${YAML_LIBRARIES})
+# find_library(YAML yaml NAMES yaml)
 
 target_include_directories(retifd
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${YAML_INCLUDE_DIR}
 )
 
 target_link_libraries(retifd
