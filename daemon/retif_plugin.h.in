@@ -80,7 +80,6 @@ struct rtf_plugin
     int prio_min;
     int prio_max;
     int *cpulist;
-    int cpunum;
     int cputot;
     float *util_free_percpu;
     int *task_count_percpu;
