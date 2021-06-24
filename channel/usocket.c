@@ -354,6 +354,7 @@ int usocket_add_connections(struct usocket *us)
 void usocket_remove_connection(struct usocket *us, int fd)
 {
     FD_CLR(fd, &(us->conn_set));
+    close(fd);
 }
 
 /**

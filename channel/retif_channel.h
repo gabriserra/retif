@@ -198,4 +198,13 @@ void rtf_carrier_set_pid(struct rtf_carrier *c, int cli_id, pid_t pid);
  */
 void rtf_carrier_dump(struct rtf_carrier *c);
 
+/**
+ * @brief Closes the connection
+ *
+ * Rempoves the fd from the active set and closes it.
+ *
+ * @param c pointer to channel data structure of the daemon
+ */
+void rtf_carrier_close(struct rtf_carrier *c, int cli_id);
+
 #endif // RETIF_CHANNEL_H
