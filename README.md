@@ -80,7 +80,7 @@ To install all required dependencies:
    ```
 - On Fedora and Red Hat-based distributions
    ```sh
-   sudo dnf install build-essential cmake libyaml-devel
+   sudo dnf install make automake gcc cmake libyaml-devel
    ```
 
 Once you have all dependencies sorted out, follow these steps:
