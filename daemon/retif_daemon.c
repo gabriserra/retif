@@ -318,14 +318,16 @@ int rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
     if ((res = rtf_daemon_check_for_fail(data, cli_id)) != 0)
         return res;
 
-    if ((res = rtf_daemon_check_for_update(data, cli_id)) != 0)
-        return -1;
+    if ((res = rtf_daemon_check_for_update(data, cli_id)) == 0)
+        return 0;
 
     sent = rtf_daemon_process_req(data, cli_id);
     rtf_carrier_req_clear(&(data->chann), cli_id);
 
     if (sent <= 0)
         rtf_carrier_set_state(&(data->chann), cli_id, ERROR);
+
+    return 0;
 }
 
 // -----------------------------------------------------------------------------
