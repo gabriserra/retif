@@ -46,17 +46,43 @@ a copy.
 
 ## Getting Started
 
-As of now, Retif can be obtained by building its sources. Soon, with each
-release of the framework we will attach packages for major linux distributions,
-as well as self-contained binary archives.
+We provide both binaries and sources to install Retif on your system. Bear in
+mind that not all platforms may be supported equally. Retif is built and tested
+on Ubuntu 20.04 and on Fedora 34.
 
-### Prerequisites
+### Installing from binaries
+
+[Releases][releases-url] page contains binary and source packages for Retif. All
+packages are **not** self-updating, so you may want to checkout the
+[releases][releases-url] page from time to time.
+
+- On Debian-based distributions, you can use the provided `.deb` package to
+  install all Retif components and its dependencies.
+
+- On Red Hat and Fedora-based distributions, you can use the provided `.rpm`
+  package to install all Retif components and its dependencies.
+
+- For all other distributions, try the tar/zip archives.
+
+### Installing from sources
 
 Building Retif from sources requires a reasonably recent version of
 [CMake][cmake-url] to be installed, which will be used to build all the
-components of the framework and to install them in the appropriate locations.
+components of the framework and to install them in the appropriate locations. In
+addition, [libyaml][libyaml-url] library must be installed on your system (with
+its headers as well).
 
-### Installing from sources
+To install all required dependencies:
+ - On Ubuntu and Debian-based distributions
+   ```sh
+   sudo apt install build-essential cmake libyaml-dev
+   ```
+- On Fedora and Red Hat-based distributions
+   ```sh
+   sudo dnf install build-essential cmake libyaml-devel
+   ```
+
+Once you have all dependencies sorted out, follow these steps:
 
 1. Clone the repo
    ```sh
@@ -104,6 +130,10 @@ can serve the request, the user application receives a positive response. Refer
 to the [plugins](plugins) directory for more info.
 
 ### Running the Retif daemon
+
+> **NOTE**: Support for the `retif` service on Fedora and Red Hat systems is not
+> available as of now, you should start the `retifd` command yourself in
+> background.
 
 Retif relies on a daemon application to run in the background. To start the
 daemon you can use `service` or `systemctl`:
@@ -279,6 +309,7 @@ If you want to cite, please refer to:
 [youtube-url]: https://www.youtube.com/watch?v=9Y0KXTPXL14
 [cmake-url]: https://cmake.org
 [docs-url]: https://codedocs.xyz/gabriserra/retif
+[libyaml-url]: https://github.com/yaml/libyaml
 
 [bugs-url]: https://github.com/gabriserra/retif/labels/bug
 [contributors-url]: https://github.com/gabriserra/retif/graphs/contributors
@@ -286,6 +317,7 @@ If you want to cite, please refer to:
 [issues-url]: https://github.com/gabriserra/retif/issues
 [license-url]: https://github.com/gabriserra/retif/blob/master/LICENSE.txt
 [stars-url]: https://github.com/gabriserra/retif/stargazers
+[releases-url]: https://github.com/gabriserra/retif/releases
 
 [gabri-serra-url]: https://github.com/gabriserra
 [gabri-ara-url]: https://github.com/gabrieleara
