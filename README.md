@@ -31,13 +31,14 @@ requests.
 The framework has been the subject of two publications from Scuola Superiore
 Sant'Anna, Pisa:
  - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (May 19-21,
-   2020), "**[An Architecture for Declarative Real-Time Scheduling on Linux][paper-url]**".
-   In *Proceedings of the 23rd IEEE International Symposium on Real-Time
-   Distributed Computing* (IEEE ISORC 2020), Nashville, Tennessee, USA (pp.
-   44-55), IEEE.
- - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (*to
-   appear*), "**ReTiF: A Declarative Real-Time Scheduling Framework for POSIX
-   Systems**". In *Journal of Systems Architecture (JSA)*, Elsevier.
+   2020), "**[An Architecture for Declarative Real-Time Scheduling on
+   Linux][paper-isorc-url]**". In *Proceedings of the 23rd IEEE International
+   Symposium on Real-Time Distributed Computing* (IEEE ISORC 2020), Nashville,
+   Tennessee, USA (pp. 44-55), IEEE.
+ - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (2021),
+   "**[ReTiF: A Declarative Real-Time Scheduling Framework for POSIX
+   Systems][paper-jsa-url]**". In *Journal of Systems Architecture (JSA)*,
+   Elsevier. **[Open Access]**
 
 The presentation of the conference paper above can be found on
 [YouTube][youtube-url]. Please refer to the journal paper above for a detailed
@@ -286,15 +287,30 @@ license. Read more [here](https://choosealicense.com/licenses/gpl-3.0/).
 If you want to cite, please refer to:
 
 ```bibtex
-@inproceedings{serraetal:20:isorc,
-    author =       {Serra, Gabriele and Ara, Gabriele and Fara, Pietro and Cucinotta, Tommaso},
-    title =        {An Architecture for Declarative Real-TimeScheduling on Linux},
-    year =         {2020}
-    keywords =     {real-time, scheduling, declarative, linux},
+@inproceedings{serraetal:2020:isorc,
+  doi       = {10.1109/isorc49007.2020.00013},
+  url       = {https://doi.org/10.1109/isorc49007.2020.00013},
+  year      = {2020},
+  month     = may,
+  publisher = {{IEEE}},
+  author    = {Gabriele Serra and Gabriele Ara and Pietro Fara and Tommaso Cucinotta},
+  title     = {An Architecture for Declarative Real-Time Scheduling on Linux},
+  booktitle = {2020 {IEEE} 23rd International Symposium on Real-Time Distributed Computing ({ISORC})}
+}
+
+@article{serraetal:2021:jsa,
+  doi       = {10.1016/j.sysarc.2021.102210},
+  url       = {https://doi.org/10.1016/j.sysarc.2021.102210},
+  year      = {2021},
+  month     = sep,
+  publisher = {Elsevier {BV}},
+  volume    = {118},
+  pages     = {102210},
+  author    = {Gabriele Serra and Gabriele Ara and Pietro Fara and Tommaso Cucinotta},
+  title     = {{ReTiF}: A declarative real-time scheduling framework for {POSIX} systems},
+  journal   = {Journal of Systems Architecture}
 }
 ```
-
-> Journal article to appear soon.
 
 <!-------------------------- Markdown Links & Images -------------------------->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -305,7 +321,8 @@ If you want to cite, please refer to:
 
 <!------------------------- Urls -------------------------->
 
-[paper-url]: https://doi.org/10.1109/ISORC49007.2020.00013
+[paper-isorc-url]: https://doi.org/10.1109/ISORC49007.2020.00013
+[paper-jsa-url]: https://doi.org/10.1016/j.sysarc.2021.102210
 [youtube-url]: https://www.youtube.com/watch?v=9Y0KXTPXL14
 [cmake-url]: https://cmake.org
 [docs-url]: https://codedocs.xyz/gabriserra/retif
