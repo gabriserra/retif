@@ -1,7 +1,56 @@
+## ========================================================================== ##
+## -------------------- Retif Daemon Configuration File --------------------- ##
+## ========================================================================== ##
+
+# All configurations start with this root property name
 configuration:
+
+  ## ======================================================================== ##
+  ## ---------------------- System-wide Configuration ----------------------- ##
+  ## ======================================================================== ##
+
+  # General system-wide configurations
+  #
+  #   rr_timeslice: the value to be set in the system procfs for the
+  #   sched_rr_timeslice_ms property. It is expressed in milliseconds.
+  #
+  #   sched_max_util: The maximum portion of the CPU time that can be utilized
+  #   *per-CPU* by tasks that declare their runtime. Must be in the range [0,1].
+
   system:
-    rr_timeslice: 100 # ms
-    sched_max_util: .95 # [0.-1.]
+    rr_timeslice: 100
+    sched_max_util: .95
+
+  ## ======================================================================== ##
+  ## ------------------------------- Plugins -------------------------------- ##
+  ## ======================================================================== ##
+
+  # The list of plugins to be loaded by the daemon on startup Each plugin
+  # requires:
+  #
+  # - a unique name for each plugin.
+  #
+  # - a path in which the corresponding .so file can be found; this can be an
+  #   absolute path (starting with '/'), a relative path with respect to the
+  #   path of the configuration file, or a relative path with respect to the
+  #   system-wide install directory for plugins (typically a subdirectory named
+  #   `retif` in the `/usr/lib/` subtree). The exact path of this install
+  #   directory changes across distributions, but you can look it up by
+  #   searching a known installed plugin on your system (try `find / -name
+  #   sched_EDF.so 2>/dev/null`).
+  #
+  # - the range of POSIX priorities that the plugin can access; it can be a
+  #   single priority, a list of two values [min, max] or a string representing
+  #   the range in the form min-max. **NOTE**: priorities among plugins sharing
+  #   cores must be non-overlapping and plugins specified first in the list
+  #   shall have higher priorities than the other plugins that share cores with
+  #   them.
+  #
+  # - the list of cores on which the plugin will operate. This can be a single
+  #   value, an array list of values or a string in the form similar to the one
+  #   accepted by `taskset -c`. The cores do not need to be adjacent, but the
+  #   list must be specified in ascending core id order.
+
   plugins:
     - name: EDF
       plugin: sched_EDF.so
@@ -19,16 +68,24 @@ configuration:
       plugin: sched_FP.so
       priority: 1-99
       cores: 3-7
-  rules:
-    - domain: user1
-      type: user
-      plugin: EDF
-      properties:
-        - max_utilization: 0.7
-        - max_period: 10000
-    - domain: cdrom
-      type: group
-      plugin:
-      properties:
-        - max_utilization: 0.1
-        - max_period: 100
+
+  ## ======================================================================== ##
+  ## -------------------------- ACL Configuration --------------------------- ##
+  ## ======================================================================== ##
+
+  # Following elements are placeholders for the implementation of Retif ACL
+  # mechanism.
+
+  # rules:
+  #   - domain: user1
+  #     type: user
+  #     plugin: EDF
+  #     properties:
+  #       - max_utilization: 0.7
+  #       - max_period: 10000
+  #   - domain: cdrom
+  #     type: group
+  #     plugin:
+  #     properties:
+  #       - max_utilization: 0.1
+  #       - max_period: 100
