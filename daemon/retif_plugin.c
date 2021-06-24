@@ -273,7 +273,7 @@ int rtf_plugins_init(vector_conf_plugin_t *confs, struct rtf_plugin **out_plgs,
 
     size_t num_cpu = get_nprocs2();
 
-    for (i = 0; confs->size; ++i)
+    for (i = 0; i < confs->size; ++i)
     {
         plgs[i].id = i;
         plgs[i].cpunum = num_cpu; // TODO: remove cpunum in favor of cputot

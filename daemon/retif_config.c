@@ -478,7 +478,7 @@ int parse_configuration(configuration_t *conf, const char path[])
 
     node = yaml_document_get_root_node(&document);
     res = parse_conf(&document, node, conf);
-
+    // TODO: post-read conf check!
 end:
     yaml_document_delete(&document);
     yaml_parser_delete(&parser);

@@ -7,12 +7,12 @@
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
     "editor.formatOnSaveMode": "file",
+    "cmake.configureOnOpen": false,
+    "C_Cpp.autoAddFileAssociations": false,
     "files.associations": {
         "retif.in": "sh",
         "retif_config.h.in": "c",
         "retif_plugin.h.in": "c",
         "retif_yaml.h": "c",
-        "typeinfo": "c"
     },
-    "cmake.configureOnOpen": false,
 }
