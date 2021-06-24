@@ -33,6 +33,8 @@ struct rtf_daemon
     struct rtf_taskset tasks;
 };
 
+extern char *conf_file_path;
+
 /**
  * @brief Initializes daemon data structure
  *

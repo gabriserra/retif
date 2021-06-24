@@ -34,4 +34,4 @@ endif (BUILD_DOC)
 
 # --------- Install and Packaging Documentation ---------- #
 
-# TODO
+# TODO: Install and packaging documentation

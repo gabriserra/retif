@@ -344,9 +344,9 @@ int rtf_daemon_handle_req(struct rtf_daemon *data, int cli_id)
  */
 int rtf_daemon_init(struct rtf_daemon *data)
 {
-    if (parse_configuration(&(data->config), SETTINGS_CFG) != 0)
+    if (parse_configuration(&(data->config), conf_file_path) != 0)
     {
-        LOG(ERR, "Unable to read configuration from path %s!\n", SETTINGS_CFG);
+        LOG(ERR, "Configuration in path %s contains errors!\n", conf_file_path);
         return -1;
     }
 
@@ -364,12 +364,18 @@ int rtf_daemon_init(struct rtf_daemon *data)
     }
 
     if (rtf_carrier_init(&(data->chann)) < 0)
+    {
+        LOG(ERR, "Unable to initialize Unix socket carrier.\n");
         return -1;
+    }
 
     rtf_taskset_init(&(data->tasks));
 
     if (rtf_scheduler_init(&(data->config), &(data->sched), &(data->tasks)) < 0)
+    {
+        LOG(ERR, "Unable to initialize schdulers.\n");
         return -1;
+    }
 
     return 0;
 }

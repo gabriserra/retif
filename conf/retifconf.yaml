@@ -1,7 +1,7 @@
 configuration:
   system:
     rr_timeslice: 100 # ms
-    sched_max_util: 0.95 # [0.-1.]
+    sched_max_util: .95 # [0.-1.]
   plugins:
     - name: EDF
       plugin: sched_EDF.so
