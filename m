@@ -49,6 +49,8 @@ function toshortopts() {
         --verbose) printf ' %s' '-v' ;;
         --deb) printf ' %s' '-d' ;;
         --rpm) printf ' %s' '-r' ;;
+        --jobs) printf ' %s' '-j' ;;
+        --parallel) printf ' %s' '-J' ;;
         --build-type) printf ' %s' '-b' ;;
         --build-path) printf ' %s' '-p' ;;
         *) printf ' %s' "$1" ;;
@@ -126,6 +128,15 @@ function parse_opt_args() {
         r)
             package_rpm=ON
             ;;
+        j)
+            if [ -z "$OPTARG" ]; then
+                missing_argument '-j|--jobs'
+                return 1
+            fi
+            ;;
+        J)
+            jobs=""
+            ;;
         b)
             if [ -z "$OPTARG" ]; then
                 missing_argument '-b|--build-type'
@@ -189,6 +200,10 @@ List of options (all optional):
   -v, --verbose     Prints more info during execution
   -d, --deb         Enables the generation of the deb package
   -r, --rpm         Enables the generation of the rpm package
+  -J, --parallel    Enables parallel build execution with a default number of
+                    processes
+  -j, --jobs JOBS
+                    Enables parallel build execution with JOBS processes
   -b, --build-type TARGET[=release*|debug|release-wdebug]
                     Specifies which version of the project to build
   -p, --build-path BUILDPATH[=build]
@@ -222,7 +237,7 @@ function build() {
     fi
 
     configure
-    cmake --build "$path_build" # --parallel
+    cmake --build "$path_build" --parallel $jobs
     ran_build=1
 }
 
@@ -309,12 +324,13 @@ function package() {
     package_deb=OFF
     package_rpm=OFF
     verbose=OFF
+    jobs=1
 
     commands=()
 
     opt_args=()
     pos_args=()
-    optstring='hvdrb:p:'
+    optstring='hvJj:drb:p:'
 
     OPTERR=0
 
