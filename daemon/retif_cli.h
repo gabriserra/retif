@@ -6,10 +6,11 @@ static char doc[] = "ReTif enables simplified access from userspace to "
 static struct argp_option options[] = {
     {"loglevel", 'l', "LEVEL", 0, "Set the logging verbosity level"},
     {"output", 'o', "FILE", 0, "Output to FILE instead of standard output"},
-    {0}};
+    {"config", 'c', "CONF.yaml", 0, "Configuration file"}, {0}};
 
 struct arguments
 {
     int level;
     char *output_file;
+    char *conf_file;
 };

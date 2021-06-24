@@ -13,6 +13,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <limits.h>
 #include <stdio.h>
 #include <syslog.h>
 

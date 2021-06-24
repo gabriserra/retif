@@ -1,11 +1,13 @@
 #include "retif_plugin.h"
 #include "logger.h"
 #include "retif_config.h"
+#include "retif_daemon.h"
 #include "retif_taskset.h"
 #include "retif_utils.h"
 #include "vector.h"
 #include <dlfcn.h>
 #include <errno.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -224,16 +226,24 @@ int find_and_open_plugin(struct rtf_plugin *plg)
         }
     }
 
+    char *curpath = calloc(strlen(conf_file_path) + 1, sizeof(char));
+    strcpy(curpath, conf_file_path);
+    dirname(curpath);
+    strcat(curpath, "/");
+
     // Current working directory
-    res = open_plugin_dll("./", plg->path, plg);
+    res = open_plugin_dll(curpath, plg->path, plg);
     switch (res)
     {
     case 0:
-        return 0;
+
+        res = 0;
+        goto end;
     case -1:
         LOG(ERR, "Unable to open %s plugin from path %s: %s.\n", plg->name,
-            fullpath("./", plg->path), dlerror());
-        return -1;
+            fullpath(curpath, plg->path), dlerror());
+        res = -1;
+        goto end;
     }
 
     // Default directory
@@ -241,15 +251,22 @@ int find_and_open_plugin(struct rtf_plugin *plg)
     switch (res)
     {
     case 0:
-        return 0;
+        res = 0;
+        goto end;
     case -1:
         LOG(ERR, "Unable to open %s plugin from path %s: %s.\n", plg->name,
             fullpath(PLUGIN_DEFAULT_INSTALLPATH, plg->path), dlerror());
-        return -1;
+        res = -1;
+        goto end;
     }
 
     LOG(ERR, "Unable to locate %s plugin from %s.\n", plg->name, plg->path);
-    return -1;
+    res = -1;
+    goto end;
+
+end:
+    free(curpath);
+    return res;
 }
 
 /**

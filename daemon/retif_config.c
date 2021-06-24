@@ -11,12 +11,11 @@
 
 #include "retif_config.h"
 #include "logger.h"
+#include "retif_utils.h"
 #include "retif_yaml.h"
 
 #define PROC_RT_RUNTIME_FILE "/proc/sys/kernel/sched_rt_runtime_us"
 #define PROC_RR_TIMESLICE_FILE "/proc/sys/kernel/sched_rr_timeslice_ms"
-
-// TODO: Check plugin priory windows are consistent with order
 
 int file_read_long(const char *fpath, long *value)
 {
@@ -175,7 +174,7 @@ YAML_PARSER_FN(parse_conf_plugins, configuration_t *out)
 
 YAML_PARSER_FN(parse_conf_acl_rules, configuration_t *out)
 {
-    // TODO:
+    // TODO: ACL properties
     return 0;
 }
 
@@ -458,6 +457,8 @@ YAML_PARSER_FN(parse_conf_plugins_item_cores, conf_plugin_t *out)
 
 // ---------------------------------------------------------
 
+bool configuration_valid(configuration_t *conf);
+
 int parse_configuration(configuration_t *conf, const char path[])
 {
     int res = 0;
@@ -473,12 +474,24 @@ int parse_configuration(configuration_t *conf, const char path[])
     res = yaml_parser_load(&parser, &document);
     if (res != 1)
     {
+        LOG(ERR, "Unable to parse %s as a YAML file.\n", path);
         goto end;
     }
 
     node = yaml_document_get_root_node(&document);
     res = parse_conf(&document, node, conf);
-    // TODO: post-read conf check!
+    if (res != 0)
+    {
+        LOG(ERR, "Problem parsing the configuration file %s.\n", path);
+        goto end;
+    }
+
+    if (!configuration_valid(conf))
+    {
+        res = 1;
+        goto end;
+    }
+
 end:
     yaml_document_delete(&document);
     yaml_parser_delete(&parser);
@@ -486,3 +499,160 @@ end:
 
     return res;
 }
+
+typedef bool (*conf_check_fn_t)(configuration_t *conf);
+
+bool check_cpus(configuration_t *conf)
+{
+    conf_plugin_t *p;
+    int *c;
+
+    size_t num_procs = get_nprocs2();
+
+    VECTOR_FOREACH (conf->plugins, p)
+    {
+        VECTOR_FOREACH (p->cores, c)
+        {
+            if (*c >= num_procs)
+            {
+                LOG(ERR,
+                    "Plugin %s requires CPU %d which is not present in the "
+                    "system.\n",
+                    p->name, *c);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool plugins_have_common_cpus(conf_plugin_t *p1, conf_plugin_t *p2)
+{
+    int i, j;
+    for (i = 0, j = 0; i < p1->cores.size && j < p2->cores.size;)
+    {
+        if (p1->cores.data[i] < p2->cores.data[j])
+        {
+            ++i;
+        }
+        else if (p1->cores.data[i] > p2->cores.data[j])
+        {
+            ++j;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool check_priority_windows(configuration_t *conf)
+{
+    size_t high, low;
+    conf_plugin_t *phigh, *plow;
+    vector_conf_plugin_t *plugins = &conf->plugins;
+
+    for (high = 0; high < plugins->size; ++high)
+    {
+        for (low = high + 1; low < plugins->size; ++low)
+        {
+            phigh = &(plugins->data[high]);
+            plow = &(plugins->data[low]);
+            if (plugins_have_common_cpus(phigh, plow))
+            {
+                if (phigh->priority_min <= plow->priority_max)
+                {
+                    LOG(ERR,
+                        "Plugin %s shares a core with plugin %s but their "
+                        "priorities overlap: [%d-%d] and [%d-%d].\n",
+                        phigh->name, plow->name, phigh->priority_min,
+                        phigh->priority_max, plow->priority_min,
+                        plow->priority_max);
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool check_minmax_priorities(configuration_t *conf)
+{
+    conf_plugin_t *p;
+    int *c;
+
+    VECTOR_FOREACH (conf->plugins, p)
+    {
+        if (p->priority_min > p->priority_max)
+        {
+            LOG(ERR, "Plugin %s has inverted min/max priorities: [%d-%d].\n",
+                p->name, p->priority_min, p->priority_max);
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_max_util(configuration_t *conf)
+{
+    if (conf->system.sched_max_util < 0. || conf->system.sched_max_util > 1.)
+    {
+        LOG(ERR, "Attribute system:sched_max_util out of range [0-1]: %f.\n",
+            conf->system.sched_max_util);
+        return false;
+    }
+    return true;
+}
+
+bool check_plugin_names(configuration_t *conf)
+{
+    size_t high, low;
+    conf_plugin_t *phigh, *plow;
+    vector_conf_plugin_t *plugins = &conf->plugins;
+
+    for (high = 0; high < plugins->size; ++high)
+    {
+        for (low = high + 1; low < plugins->size; ++low)
+        {
+            phigh = &(plugins->data[high]);
+            plow = &(plugins->data[low]);
+            if (strcmp(phigh->name, plow->name) == 0)
+            {
+                LOG(ERR,
+                    "Two plugins (indexes %ld and %ld) share the same name: "
+                    "%s.\n",
+                    high, low, phigh->name);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool configuration_valid(configuration_t *conf)
+{
+    conf_check_fn_t checks[] = {
+        check_max_util,
+        check_cpus,
+        check_minmax_priorities,
+        check_priority_windows,
+        check_plugin_names,
+    };
+
+    for (size_t i = 0; i < sizeof(checks) / sizeof(conf_check_fn_t); ++i)
+    {
+        if (!checks[i](conf))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// TODO: verbose logging when parsing configuration
