@@ -235,6 +235,7 @@ int rtf_daemon_check_for_fail(struct rtf_daemon *data, int cli_id)
     pid = rtf_carrier_get_pid(&(data->chann), cli_id);
 
     rtf_scheduler_delete(&(data->sched), pid);
+    rtf_carrier_close(&(data->chann), cli_id);
 
     return 1;
 }
