@@ -293,7 +293,6 @@ int rtf_plugins_init(vector_conf_plugin_t *confs, struct rtf_plugin **out_plgs,
     for (i = 0; i < confs->size; ++i)
     {
         plgs[i].id = i;
-        plgs[i].cpunum = num_cpu; // TODO: remove cpunum in favor of cputot
         plgs[i].cputot = confs->data[i].cores.size;
         plgs[i].prio_min = confs->data[i].priority_min;
         plgs[i].prio_max = confs->data[i].priority_max;
