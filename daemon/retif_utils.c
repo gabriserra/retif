@@ -9,158 +9,6 @@
 #include <sys/time.h>
 
 // -----------------------------------------------------------------------------
-// FILE, CONFIG & PLUGIN UTILS (FUNCTIONS)
-// -----------------------------------------------------------------------------
-
-/**
- * @internal
- *
- * Gets a line from the configuration file and returns the type of line
- * encountered based on the first char (COMMENT, SETTINGS_HEAD, SETTINGS_BODY,
- * NEWLINE)
- *
- * @endinternal
- */
-int get_cfg_line(FILE *f, char buffer[CFG_COLUMN_MAX])
-{
-    enum CFG_LINE ln;
-
-    if (fgets(buffer, CFG_COLUMN_MAX, f) == NULL)
-    {
-        LOG(WARNING, "Read null from CFG file. Bad configuration.\n");
-        return -1;
-    }
-
-    switch (buffer[0])
-    {
-    case CFG_COMMENT_TOKEN:
-        ln = COMMENT;
-        break;
-    case CFG_SETTINGS_TOKEN:
-        ln = SETTINGS_HEAD;
-        break;
-    case '\n':
-        ln = NEWLINE;
-        break;
-    default:
-        ln = SETTINGS_BODY;
-    }
-
-    return ln;
-}
-
-/**
- * @internal
- *
- * Takes a configuration file in input and skip all rows that do
- * not represent useful information (comment and/or newline ..)
- *
- * @endinternal
- */
-void go_to_settings_head(FILE *f)
-{
-    char buffer[CFG_COLUMN_MAX];
-    enum CFG_LINE ln;
-
-    while (1)
-    {
-        ln = get_cfg_line(f, buffer);
-
-        if (ln == -1)
-            break;
-
-        if (ln == SETTINGS_HEAD)
-            break;
-    }
-}
-
-/**
- * @internal
- *
- * Take as input the configuration file with the stream positioned at
- * SETTINGS_HEAD and get the number of lines. Returns the number of rows read.
- *
- * @endinternal
- */
-int count_num_of_settings(FILE *f)
-{
-    long start_pos;
-    int num_of_elem;
-    char buffer[CFG_COLUMN_MAX];
-
-    start_pos = ftell(f);
-    num_of_elem = 0;
-
-    while (!feof(f))
-    {
-        if (fgets(buffer, CFG_COLUMN_MAX, f) != NULL)
-            num_of_elem++;
-    }
-
-    fseek(f, start_pos, SEEK_SET);
-
-    return num_of_elem;
-}
-
-int safe_file_read(FILE *f, char *format, int argnum, ...)
-{
-    int ret;
-    va_list arglist;
-
-    va_start(arglist, argnum);
-    ret = vfscanf(f, format, arglist);
-    va_end(arglist);
-
-    if (ret != argnum)
-    {
-        LOG(WARNING, "Unable to read from file.\n");
-        return -1;
-    }
-
-    return 0;
-}
-
-int extract_num_from_line(FILE *f, int *content)
-{
-    char buffer[CFG_COLUMN_MAX];
-
-    if (fgets(buffer, CFG_COLUMN_MAX, f) == NULL)
-    {
-        LOG(WARNING, "Unable to read from file.\n");
-        return -1;
-    }
-
-    return sscanf(buffer, "%d", content) == 1;
-}
-
-// -----------------------------------------------------------------------------
-// MEMORY UTILS
-// -----------------------------------------------------------------------------
-
-/**
- * @internal
- *
- * Allocates @p nmbemb slots of @p size bytes of memory and initializes the
- * previous allocated memory slots copying @p size bytes from @p src. Returns
- * NULL if was not possible to allocate memory or the pointer to the memory area
- * allocated in case of success.
- *
- * @endinternal
- */
-void *array_alloc_wcopy(uint32_t nmemb, size_t size, const void *src)
-{
-    void *dest = calloc(nmemb, size);
-
-    if (dest == NULL)
-        return NULL;
-
-    for (int i = 0; i < nmemb; i++)
-        memcpy(dest + (i * size), src, size);
-
-    return dest;
-}
-
-// -----------------------------------------------------------------------------
 // TIME UTILS (FUNCTIONS)
 // -----------------------------------------------------------------------------
 
@@ -321,4 +169,50 @@ int get_nprocs2(void)
 #else
     return get_nprocs();
 #endif
+}
+
+int file_read_long(const char *fpath, long *value)
+{
+    FILE *f = fopen(fpath, "r");
+    if (f == NULL)
+    {
+        LOG(WARNING, "Error opening %s in reading mode.\n", fpath);
+        LOG(WARNING, "%s", strerror(errno));
+        return -1;
+    }
+
+    int res = fscanf(f, "%ld", value);
+    fclose(f);
+
+    if (res > 0)
+    {
+        LOG(DEBUG, "Read %ld from %s.\n", *value, fpath);
+        return 0;
+    }
+
+    LOG(WARNING, "Could not read from %s.\n", fpath);
+    return 1;
+}
+
+int file_write_long(const char *fpath, long value)
+{
+    FILE *f = fopen(fpath, "w");
+    if (f == NULL)
+    {
+        LOG(WARNING, "Error opening %s in writing mode.\n", fpath);
+        LOG(WARNING, "%s", strerror(errno));
+        return -1;
+    }
+
+    int res = fprintf(f, "%ld", value);
+    fclose(f);
+
+    if (res > 0)
+    {
+        LOG(DEBUG, "Written %ld in %s.\n", value, fpath);
+        return 0;
+    }
+
+    LOG(WARNING, "Could not write %ld in %s.\n", value, fpath);
+    return 1;
 }
