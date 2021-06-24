@@ -13,7 +13,7 @@
 <!-- [![Forks][forks-shield]][forks-url] -->
 <!-- [![Stars][stars-shield]][stars-url] -->
 
-# Retif - Real-Time Framework for POSIX Systems
+# Retif &ndash; Real-Time Framework for POSIX Systems
 
 Retif (or ReTiF) is a novel framework that enables unprivileged access to the
 real-time features of Unix-based operating systems in a controlled manner. The
