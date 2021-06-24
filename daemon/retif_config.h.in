@@ -13,6 +13,10 @@
 
 #define SETTINGS_CFG "@RETIF_CONF_PATH@"
 
+#define PROC_RT_PERIOD_FILE "/proc/sys/kernel/sched_rt_period_us"
+#define PROC_RT_RUNTIME_FILE "/proc/sys/kernel/sched_rt_runtime_us"
+#define PROC_RR_TIMESLICE_FILE "/proc/sys/kernel/sched_rr_timeslice_ms"
+
 // ====================================================== //
 // ------------------ Data Structures ------------------- //
 // ====================================================== //

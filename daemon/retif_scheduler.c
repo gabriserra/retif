@@ -103,17 +103,31 @@ static int rtf_scheduler_test_and_modify(struct rtf_scheduler *s,
 int rtf_scheduler_init(configuration_t *conf, struct rtf_scheduler *s,
     struct rtf_taskset *ts)
 {
-    // TODO: check that value in procfs is either -1 or
-    // greater or equal than configured max util float
+    int res;
+    long rt_runtime;
+    long rt_period;
+    double procfs_max_util;
 
-    // sys_rt_util; if
-    // (rtf_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
-    // {
-    //     LOG(WARNING, "Unable to read rt proc files.\n");
-    //     LOG(WARNING,
-    //         "Daemon will continue assuming 95%% as max utilization.\n");
-    //     sys_rt_util = 0.95;
-    // }
+    res = file_read_long(PROC_RT_RUNTIME_FILE, &rt_runtime);
+    res = res | file_read_long(PROC_RT_PERIOD_FILE, &rt_period);
+    if (res)
+    {
+        LOG(ERR, "Could not read from procfs!\n");
+        return res;
+    }
+
+    procfs_max_util = (((double) rt_runtime) / ((double) rt_period));
+
+    if (rt_runtime != -1 && procfs_max_util < conf->system.sched_max_util)
+    {
+        LOG(ERR,
+            "The max utilization allowed on this system is %f, but the "
+            "configuration requires at least %f!\n",
+            procfs_max_util, conf->system.sched_max_util);
+        LOG(ERR, "You can disable it by writing -1 to sched_rt_runtime_us in "
+                 "proc.\n");
+        return -1;
+    }
 
     s->taskset = ts;
     s->last_task_id = 0;

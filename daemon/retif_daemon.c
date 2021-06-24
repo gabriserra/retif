@@ -396,10 +396,7 @@ void rtf_daemon_loop(struct rtf_daemon *data)
 
         for (int i = 0; i <= rtf_carrier_get_conn(&(data->chann)); i++)
         {
-            if (rtf_daemon_handle_req(data, i))
-            {
-                // TODO: close connection here
-            }
+            rtf_daemon_handle_req(data, i);
         }
     }
 }

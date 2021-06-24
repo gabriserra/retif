@@ -14,61 +14,12 @@
 #include "retif_utils.h"
 #include "retif_yaml.h"
 
-#define PROC_RT_RUNTIME_FILE "/proc/sys/kernel/sched_rt_runtime_us"
-#define PROC_RR_TIMESLICE_FILE "/proc/sys/kernel/sched_rr_timeslice_ms"
-
-int file_read_long(const char *fpath, long *value)
-{
-    FILE *f = fopen(fpath, "r");
-    if (f == NULL)
-    {
-        LOG(WARNING, "Error opening %s in reading mode.\n", fpath);
-        LOG(WARNING, "%s", strerror(errno));
-        return -1;
-    }
-
-    int res = fscanf(f, "%ld", value);
-    fclose(f);
-
-    if (res > 0)
-    {
-        LOG(DEBUG, "Read %ld from %s.\n", *value, fpath);
-        return 0;
-    }
-
-    LOG(WARNING, "Could not read from %s.\n", fpath);
-    return 1;
-}
-
-int file_write(const char *fpath, long value)
-{
-    FILE *f = fopen(fpath, "w");
-    if (f == NULL)
-    {
-        LOG(WARNING, "Error opening %s in writing mode.\n", fpath);
-        LOG(WARNING, "%s", strerror(errno));
-        return -1;
-    }
-
-    int res = fprintf(f, "%ld", value);
-    fclose(f);
-
-    if (res > 0)
-    {
-        LOG(DEBUG, "Written %ld in %s.\n", value, fpath);
-        return 0;
-    }
-
-    LOG(WARNING, "Could not write %ld in %s.\n", value, fpath);
-    return 1;
-}
-
 int set_rt_kernel_params(conf_system_t *c)
 {
     int res = 0;
-    if ((res = file_write(PROC_RR_TIMESLICE_FILE, c->rr_timeslice)) != 0)
+    if ((res = file_write_long(PROC_RR_TIMESLICE_FILE, c->rr_timeslice)) != 0)
         return res;
-    if ((res = file_write(PROC_RT_RUNTIME_FILE, -1)) != 0)
+    if ((res = file_write_long(PROC_RT_RUNTIME_FILE, -1)) != 0)
         return res;
     return 0;
 }
@@ -86,9 +37,9 @@ int save_rt_kernel_params(struct proc_backup *b)
 int restore_rt_kernel_params(struct proc_backup *b)
 {
     int res = 0;
-    if ((res = file_write(PROC_RR_TIMESLICE_FILE, b->rr_timeslice)) != 0)
+    if ((res = file_write_long(PROC_RR_TIMESLICE_FILE, b->rr_timeslice)) != 0)
         return res;
-    if ((res = file_write(PROC_RT_RUNTIME_FILE, b->rt_runtime)) != 0)
+    if ((res = file_write_long(PROC_RT_RUNTIME_FILE, b->rt_runtime)) != 0)
         return res;
     return 0;
 }
