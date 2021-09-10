@@ -5,15 +5,13 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define RTF_OK 1
-#define RTF_FAIL 0
-#define RTF_ERROR -1
-#define RTF_PARTIAL 0
-#define RTF_NO -1
-
 #ifndef RETIF_PLUGIN_H
 #    define PLUGIN_MAX_NAME 32
 #    define PLUGIN_MAX_PATH 1024
+#endif
+
+#ifndef RETIF_CHANNEL_H
+#    define CHANNEL_MAX_SIZE SET_MAX_SIZE
 #endif
 
 typedef uint32_t rtf_id_t;
@@ -22,6 +20,13 @@ typedef uint32_t plgid_t;
 enum REQ_TYPE
 {
     RTF_CONNECTION,
+    RTF_PLUGINS_INFO,
+    RTF_PLUGIN_INFO,
+    RTF_CONNECTIONS_INFO,
+    RTF_CONNECTION_INFO,
+    RTF_TASKS_INFO,
+    RTF_TASK_INFO,
+    RTF_TASK_MONITOR,
     RTF_TASK_CREATE,
     RTF_TASK_MODIFY,
     RTF_TASK_ATTACH,
@@ -33,6 +38,15 @@ enum REQ_TYPE
 enum REP_TYPE
 {
     RTF_REQUEST_ERR,
+    RTF_PLUGINS_INFO_OK,
+    RTF_PLUGIN_INFO_OK,
+    RTF_PLUGIN_INFO_ERR,
+    RTF_CONNECTIONS_INFO_OK,
+    RTF_CONNECTION_INFO_OK,
+    RTF_CONNECTION_INFO_ERR,
+    RTF_TASKS_INFO_OK,
+    RTF_TASK_INFO_OK,
+    RTF_TASK_INFO_ERR,
     RTF_CONNECTION_OK,
     RTF_CONNECTION_ERR,
     RTF_TASK_CREATE_OK,
@@ -61,6 +75,12 @@ enum CLIENT_STATE
 
 #ifndef RETIF_PUBLIC_TYPES
 #    define RETIF_PUBLIC_TYPES
+
+#    define RTF_OK 1
+#    define RTF_FAIL 0
+#    define RTF_ERROR -1
+#    define RTF_PARTIAL 0
+#    define RTF_NO -1
 
 struct rtf_params
 {
@@ -94,7 +114,41 @@ struct rtf_request
 struct rtf_reply
 {
     enum REP_TYPE rep_type;
-    float payload;
+    union
+    {
+        float response;
+        int nconnected;
+        int ntask;
+        int nplugin;
+        struct
+        {
+            int descriptor;
+            pid_t pid;
+            int state;
+            int ntask;
+        } client;
+        struct
+        {
+            pid_t tid;
+            pid_t ppid;
+            rtf_id_t rsvid;
+            int priority;
+            int period;
+            float util;
+            char plugin[PLUGIN_MAX_NAME];
+        } task;
+        struct
+        {
+            char name[PLUGIN_MAX_NAME];
+            int numcpu;
+        } plugin;
+        struct
+        {
+            int cpunum;
+            float freeu;
+            int ntask;
+        } cpu;
+    } payload;
 };
 
 struct rtf_client

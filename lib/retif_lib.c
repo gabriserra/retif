@@ -251,7 +251,7 @@ int rtf_task_create(struct rtf_task *t, struct rtf_params *p)
     if (t->c->rep.rep_type == RTF_TASK_CREATE_ERR)
         return RTF_FAIL;
 
-    t->task_id = (uint32_t) t->c->rep.payload;
+    t->task_id = (uint32_t) t->c->rep.payload.response;
     return RTF_OK;
 }
 

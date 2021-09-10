@@ -58,19 +58,19 @@ static struct rtf_reply req_task_create(struct rtf_daemon *data, int cli_id)
     if (res == RTF_NO)
     {
         rep.rep_type = RTF_TASK_CREATE_ERR;
-        rep.payload = -1;
+        rep.payload.response = -1;
         LOG(DEBUG, "It is NOT possible to guarantee these parameters!\n");
     }
     else if (res == RTF_PARTIAL)
     {
         rep.rep_type = RTF_TASK_CREATE_PART;
-        rep.payload = rtf_id;
+        rep.payload.response = rtf_id;
         LOG(DEBUG, "Task created with min budget. Res. id: %d\n", rtf_id);
     }
     else
     {
         rep.rep_type = RTF_TASK_CREATE_OK;
-        rep.payload = rtf_id;
+        rep.payload.response = rtf_id;
         LOG(DEBUG,
             "It is possible to guarantee these parameters. Res. id: %d\n",
             rtf_id);
