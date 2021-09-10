@@ -15,9 +15,9 @@
 // TIME UTILS (MACRO - TYPES)
 // -----------------------------------------------------------------------------
 
-#define EXP3 1000
-#define EXP6 1000000
-#define EXP9 1000000000
+#define EXP3 1000.0
+#define EXP6 1000000.0
+#define EXP9 1000000000.0
 
 #define SEC_TO_MILLI(sec) sec *EXP3
 #define SEC_TO_MICRO(sec) sec *EXP6
@@ -41,6 +41,12 @@
 
 #ifndef RETIF_PUBLIC_TYPES
 #    define RETIF_PUBLIC_TYPES
+
+#    define RTF_OK 1
+#    define RTF_FAIL 0
+#    define RTF_ERROR -1
+#    define RTF_PARTIAL 0
+#    define RTF_NO -1
 
 struct rtf_params
 {
