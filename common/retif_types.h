@@ -20,10 +20,11 @@ typedef uint32_t plgid_t;
 enum REQ_TYPE
 {
     RTF_CONNECTION,
-    RTF_PLUGINS_INFO,
-    RTF_PLUGIN_INFO,
     RTF_CONNECTIONS_INFO,
     RTF_CONNECTION_INFO,
+    RTF_PLUGINS_INFO,
+    RTF_PLUGIN_INFO,
+    RTF_PLUGIN_CPU_INFO,
     RTF_TASKS_INFO,
     RTF_TASK_INFO,
     RTF_TASK_MONITOR,
@@ -38,17 +39,19 @@ enum REQ_TYPE
 enum REP_TYPE
 {
     RTF_REQUEST_ERR,
-    RTF_PLUGINS_INFO_OK,
-    RTF_PLUGIN_INFO_OK,
-    RTF_PLUGIN_INFO_ERR,
+    RTF_CONNECTION_OK,
+    RTF_CONNECTION_ERR,
     RTF_CONNECTIONS_INFO_OK,
     RTF_CONNECTION_INFO_OK,
     RTF_CONNECTION_INFO_ERR,
+    RTF_PLUGINS_INFO_OK,
+    RTF_PLUGIN_INFO_OK,
+    RTF_PLUGIN_INFO_ERR,
+    RTF_PLUGIN_CPU_INFO_OK,
+    RTF_PLUGIN_CPU_INFO_ERR,
     RTF_TASKS_INFO_OK,
     RTF_TASK_INFO_OK,
     RTF_TASK_INFO_ERR,
-    RTF_CONNECTION_OK,
-    RTF_CONNECTION_ERR,
     RTF_TASK_CREATE_OK,
     RTF_TASK_CREATE_PART,
     RTF_TASK_CREATE_ERR,
@@ -93,9 +96,41 @@ struct rtf_params
     uint8_t ignore_admission; // preference to avoid test
 };
 
+struct rtf_client_info
+{
+    pid_t pid;
+    int state;
+};
+struct rtf_task_info
+{
+    pid_t tid;
+    pid_t ppid;
+    int priority;
+    int period;
+    float util;
+    int pluginid;
+};
+struct rtf_plugin_info
+{
+    char name[PLUGIN_MAX_NAME];
+    int cpunum;
+};
+struct rtf_cpu_info
+{
+    int cpunum;
+    float freeu;
+    int ntask;
+};
+
 #endif
 
 struct rtf_ids
+{
+    pid_t pid;
+    rtf_id_t rsvid;
+};
+
+struct rtf_desc
 {
     pid_t pid;
     rtf_id_t rsvid;
@@ -106,6 +141,11 @@ struct rtf_request
     enum REQ_TYPE req_type;
     union
     {
+        struct
+        {
+            int id;
+            int desc;
+        } q;
         struct rtf_ids ids;
         struct rtf_params param;
     } payload;
@@ -120,34 +160,10 @@ struct rtf_reply
         int nconnected;
         int ntask;
         int nplugin;
-        struct
-        {
-            int descriptor;
-            pid_t pid;
-            int state;
-            int ntask;
-        } client;
-        struct
-        {
-            pid_t tid;
-            pid_t ppid;
-            rtf_id_t rsvid;
-            int priority;
-            int period;
-            float util;
-            char plugin[PLUGIN_MAX_NAME];
-        } task;
-        struct
-        {
-            char name[PLUGIN_MAX_NAME];
-            int numcpu;
-        } plugin;
-        struct
-        {
-            int cpunum;
-            float freeu;
-            int ntask;
-        } cpu;
+        struct rtf_client_info client;
+        struct rtf_task_info task;
+        struct rtf_plugin_info plugin;
+        struct rtf_cpu_info cpu;
     } payload;
 };
 

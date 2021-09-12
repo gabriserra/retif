@@ -91,6 +91,14 @@ void rtf_carrier_update(struct rtf_carrier *c)
             (int *) &(c->last_n), sizeof(struct rtf_request)) < 0)
         return;
 
+    // FIXME:
+    /*  When receiving using a socket, 0 means the other side closed
+        the connection, -1 means an error occurred.
+        Here, when 0 bytes received, could means no update, cause when daemon
+        is waken up, last_n is setted to 0.
+        We need to discriminate 0 from -1.
+    */
+
     for (i = 0; i <= n; i++)
     {
         if (i == c->sock.socket)
@@ -99,12 +107,12 @@ void rtf_carrier_update(struct rtf_carrier *c)
             continue;
         else if (c->client[i].state == EMPTY && c->last_n[i] != 0)
             c->client[i].state = CONNECTED;
-        else if (c->client[i].state == CONNECTED && c->last_n[i] > 0)
+        else if (c->client[i].state == CONNECTED && c->last_n[i] >= 0)
             continue;
         else if (c->last_n[i] < 0)
-            c->client[i].state = ERROR;
-        else
             c->client[i].state = DISCONNECTED;
+        else
+            c->client[i].state = ERROR;
     }
 }
 
@@ -178,7 +186,8 @@ void rtf_carrier_req_clear(struct rtf_carrier *c, int cli_id)
 /**
  * @internal
  *
- * Returns the current state of the client associated with descriptor @p cli_id
+ * Returns the current state of the client associated with descriptor @p
+ * cli_id
  *
  * @endinternal
  */

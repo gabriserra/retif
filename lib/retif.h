@@ -74,6 +74,32 @@ struct rtf_task
 
 static const struct rtf_task RTF_TASK_INIT = {0};
 
+struct rtf_client_info
+{
+    pid_t pid;
+    int state;
+};
+struct rtf_task_info
+{
+    pid_t tid;
+    pid_t ppid;
+    int priority;
+    int period;
+    float util;
+    int pluginid;
+};
+struct rtf_plugin_info
+{
+    char name[PLUGIN_MAX_NAME];
+    int cpunum;
+};
+struct rtf_cpu_info
+{
+    int cpunum;
+    float freeu;
+    int ntask;
+};
+
 #endif
 
 // -----------------------------------------------------------------------------
@@ -116,6 +142,21 @@ void rtf_params_ignore_admission(struct rtf_params *p,
 // -----------------------------------------------------------------------------
 
 int rtf_connect();
+
+int rtf_connections_info();
+
+int rtf_plugins_info();
+
+int rtf_tasks_info();
+
+int rtf_connection_info(unsigned int desc, struct rtf_client_info *data);
+
+int rtf_task_info(unsigned int desc, struct rtf_task_info *data);
+
+int rtf_plugin_info(unsigned int desc, struct rtf_plugin_info *data);
+
+int rtf_plugin_cpu_info(unsigned int desc, unsigned int cpuid,
+    struct rtf_cpu_info *data);
 
 void rtf_task_init(struct rtf_task *t);
 
