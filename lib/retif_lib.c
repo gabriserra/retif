@@ -261,7 +261,7 @@ int rtf_tasks_info()
 {
     struct rtf_access *channel = &main_channel;
 
-    channel->req.req_type = RTF_PLUGINS_INFO;
+    channel->req.req_type = RTF_TASKS_INFO;
 
     if (rtf_task_communicate(channel) < 0)
         return RTF_ERROR;

@@ -357,7 +357,7 @@ any_t list_search_elem(struct list *l, any_t elem,
     struct node_ptr *n;
 
     for (n = l->root; n != NULL; n = n->next)
-        if (!cmpfun(n->elem, elem))
+        if (cmpfun(n->elem, elem))
             return n->elem;
 
     return NULL;
@@ -403,7 +403,7 @@ any_t list_remove(struct list *l, any_t key,
 
     prec = l->root;
 
-    for (seek = l->root->next; seek != NULL && cmpfun(seek->elem, key) != 0;)
+    for (seek = l->root->next; seek != NULL && cmpfun(seek->elem, key) == 0;)
     {
         prec = prec->next;
         seek = seek->next;

@@ -81,7 +81,7 @@ static struct rtf_reply req_tasks_info(struct rtf_daemon *data, int cli_id)
     LOG(DEBUG, "Received RTF_TASKS_INFO from client: %d\n", cli_id);
 
     rep.rep_type = RTF_PLUGINS_INFO_OK;
-    rep.payload.ntask = data->sched.last_task_id;
+    rep.payload.ntask = data->sched.taskset->tasks.n;
 
     return rep;
 }
@@ -180,7 +180,7 @@ static struct rtf_reply req_task_info(struct rtf_daemon *data, int cli_id)
     struct rtf_task *task;
 
     req = rtf_carrier_get_req(&(data->chann), cli_id);
-    task = rtf_taskset_search(&(data->tasks), req.payload.q.id);
+    task = rtf_taskset_search(&(data->tasks), req.payload.q.desc);
 
     LOG(DEBUG, "Received RTF_TASK_INFO from client: %d\n", cli_id);
 
@@ -452,7 +452,7 @@ int rtf_daemon_process_req(struct rtf_daemon *data, int cli_id)
         rep = req_connections_info(data, cli_id);
         break;
     case RTF_CONNECTION_INFO:
-        rep = req_connections_info(data, cli_id);
+        rep = req_connection_info(data, cli_id);
         break;
     case RTF_PLUGINS_INFO:
         rep = req_plugins_info(data, cli_id);

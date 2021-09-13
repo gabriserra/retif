@@ -85,7 +85,7 @@ void rtf_carrier_update(struct rtf_carrier *c)
     int i, n;
 
     n = usocket_get_maxfd(&(c->sock));
-    memset(&(c->last_n), 0, n + 1);
+    memset(&(c->last_n), 0, (sizeof(int)) * (n + 1));
 
     if (usocket_recvall(&(c->sock), (void *) &(c->last_req),
             (int *) &(c->last_n), sizeof(struct rtf_request)) < 0)
@@ -105,7 +105,7 @@ void rtf_carrier_update(struct rtf_carrier *c)
             continue;
         else if (c->client[i].state == EMPTY && c->last_n[i] == 0)
             continue;
-        else if (c->client[i].state == EMPTY && c->last_n[i] != 0)
+        else if (c->client[i].state == EMPTY && c->last_n[i] > 0)
             c->client[i].state = CONNECTED;
         else if (c->client[i].state == CONNECTED && c->last_n[i] >= 0)
             continue;
