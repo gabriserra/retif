@@ -140,13 +140,21 @@ The Retif library provides a simple API that streamlines communication with the
 Retif daemon.
 
 The following table shows the main functions exposed by the library:
-| Function           | Description                                                                                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rtf_task_create`  | Performs task admission test and applies the specified `rtf_params` to the new task.                                                                                              |
-| `rtf_task_change`  | Performs a new task admission test with the specified `rtf_params`; in case of failure the task maintains its old parameters.                                                     |
-| `rtf_task_release` | Releases a task, freeing its resources and detaching the attached POSIX thread, if any.                                                                                           |
-| `rtf_task_attach`  | Attaches a POSIX thread id to the given task.                                                                                                                                     |
-| `rtf_task_detach`  | Detaches the POSIX thread assigned to a task; after this call, the thread runs with a non real-time priority and the task reference can then be attached to another POSIX thread. |
+| Function           		| Description                                                                                                                                                                       	|
+| -----------------------------	| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| `rtf_task_create`  		| Performs task admission test and applies the specified `rtf_params` to the new task.                                                                                              	|
+| `rtf_task_change`  		| Performs a new task admission test with the specified `rtf_params`; in case of failure the task maintains its old parameters.                                                     	|
+| `rtf_task_release` 		| Releases a task, freeing its resources and detaching the attached POSIX thread, if any.                                                                                           	|
+| `rtf_task_attach`  		| Attaches a POSIX thread id to the given task.                                                                                                                                     	|
+| `rtf_task_detach`  		| Detaches the POSIX thread assigned to a task; after this call, the thread runs with a non real-time priority and the task reference can then be attached to another POSIX thread. 	|
+| `rtf_connections_info`  	| Retrieve the number of clients currently connected to the daemon. 															|
+| `rtf_connection_info`  	| Retrieve info about a connected client. 																		|
+| `rtf_tasks_info`  		| Retrieve the number of task accepted by the daemon. 																	|
+| `rtf_task_info`  		| Retrieve info about an accepted task. 																		|
+| `rtf_tasks_info`  		| Retrieve the number of registered plugins. 																		|
+| `rtf_task_info`  		| Retrieve info about a registered plugin. 																		|
+| `rtf_plugin_cpu_info`  	| Retrieve aggregate data relative to a specified CPU under the control of a registered plugin. 											|
+
 
 Applications can declare the scheduling parameters of each real-time task by
 filling an instance of the opaque type `rtf_params`, using the functions
