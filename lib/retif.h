@@ -48,6 +48,14 @@
 #    define RTF_PARTIAL 0
 #    define RTF_NO -1
 
+enum CLIENT_STATE
+{
+    EMPTY,
+    CONNECTED,
+    DISCONNECTED,
+    ERROR
+};
+
 struct rtf_params
 {
     uint64_t runtime; // required runtime [microseconds]
@@ -91,7 +99,7 @@ struct rtf_task_info
 struct rtf_plugin_info
 {
     char name[PLUGIN_MAX_NAME];
-    int cpunum;
+    int cputot;
 };
 struct rtf_cpu_info
 {

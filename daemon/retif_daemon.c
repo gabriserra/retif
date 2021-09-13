@@ -134,7 +134,7 @@ static struct rtf_reply req_plugin_info(struct rtf_daemon *data, int cli_id)
         rep.rep_type = RTF_PLUGIN_INFO_OK;
         strncpy(rep.payload.plugin.name, data->sched.plugin[pdesc].name,
             PLUGIN_MAX_NAME);
-        rep.payload.plugin.cpunum = data->sched.plugin[pdesc].cpunum;
+        rep.payload.plugin.cputot = data->sched.plugin[pdesc].cputot;
     }
 
     return rep;
@@ -159,7 +159,7 @@ static struct rtf_reply req_plugin_cpu_info(struct rtf_daemon *data, int cli_id)
     {
         rep.rep_type = RTF_PLUGIN_CPU_INFO_ERR;
     }
-    else if (cpuid >= data->sched.plugin[pdesc].cputot)
+    else
     {
         rep.rep_type = RTF_PLUGIN_CPU_INFO_OK;
         rep.payload.cpu.cpunum = data->sched.plugin[pdesc].cpulist[cpuid];
