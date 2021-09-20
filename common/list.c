@@ -403,7 +403,7 @@ any_t list_remove(struct list *l, any_t key,
 
     prec = l->root;
 
-    for (seek = l->root->next; seek != NULL && cmpfun(seek->elem, key) != 0;)
+    for (seek = l->root->next; seek != NULL && cmpfun(seek->elem, key) == 0;)
     {
         prec = prec->next;
         seek = seek->next;

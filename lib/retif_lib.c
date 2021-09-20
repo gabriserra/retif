@@ -54,7 +54,7 @@ static int rtf_task_communicate(struct rtf_access *c)
 static void time_add_ms(struct timespec *t, uint32_t ms)
 {
     t->tv_sec += MILLI_TO_SEC(ms);
-    t->tv_nsec += MILLI_TO_NANO(ms % EXP3);
+    t->tv_nsec += MILLI_TO_NANO(ms % (int) EXP3);
 
     if (t->tv_nsec > EXP9)
     {
@@ -233,6 +233,112 @@ int rtf_connect()
     return RTF_OK;
 }
 
+int rtf_connections_info()
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_CONNECTIONS_INFO;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    return channel->rep.payload.nconnected;
+}
+
+int rtf_plugins_info()
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_PLUGINS_INFO;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    return channel->rep.payload.nplugin;
+}
+
+int rtf_tasks_info()
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_TASKS_INFO;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    return channel->rep.payload.ntask;
+}
+
+int rtf_connection_info(unsigned int desc, struct rtf_client_info *data)
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_CONNECTION_INFO;
+    channel->req.payload.q.desc = desc;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    if (channel->rep.rep_type == RTF_CONNECTION_INFO_ERR)
+        return RTF_ERROR;
+
+    memcpy(data, &channel->rep.payload.client, sizeof(struct rtf_client_info));
+    return RTF_OK;
+}
+
+int rtf_task_info(unsigned int desc, struct rtf_task_info *data)
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_TASK_INFO;
+    channel->req.payload.q.desc = desc;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    if (channel->rep.rep_type == RTF_TASK_INFO_ERR)
+        return RTF_ERROR;
+
+    memcpy(data, &channel->rep.payload.task, sizeof(struct rtf_task_info));
+    return RTF_OK;
+}
+
+int rtf_plugin_info(unsigned int desc, struct rtf_plugin_info *data)
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_PLUGIN_INFO;
+    channel->req.payload.q.desc = desc;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    if (channel->rep.rep_type == RTF_PLUGIN_INFO_ERR)
+        return RTF_ERROR;
+
+    memcpy(data, &channel->rep.payload.plugin, sizeof(struct rtf_plugin_info));
+    return RTF_OK;
+}
+
+int rtf_plugin_cpu_info(unsigned int desc, unsigned int cpuid,
+    struct rtf_cpu_info *data)
+{
+    struct rtf_access *channel = &main_channel;
+
+    channel->req.req_type = RTF_PLUGIN_CPU_INFO;
+    channel->req.payload.q.desc = desc;
+    channel->req.payload.q.id = cpuid;
+
+    if (rtf_task_communicate(channel) < 0)
+        return RTF_ERROR;
+
+    if (channel->rep.rep_type == RTF_PLUGIN_CPU_INFO_ERR)
+        return RTF_ERROR;
+
+    memcpy(data, &channel->rep.payload.cpu, sizeof(struct rtf_cpu_info));
+    return RTF_OK;
+}
+
 void rtf_task_init(struct rtf_task *t)
 {
     t->c = &main_channel;
@@ -251,7 +357,7 @@ int rtf_task_create(struct rtf_task *t, struct rtf_params *p)
     if (t->c->rep.rep_type == RTF_TASK_CREATE_ERR)
         return RTF_FAIL;
 
-    t->task_id = (uint32_t) t->c->rep.payload;
+    t->task_id = (uint32_t) t->c->rep.payload.response;
     return RTF_OK;
 }
 

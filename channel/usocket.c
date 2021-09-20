@@ -313,7 +313,10 @@ int usocket_recvall(struct usocket *us, void *data, int nrecv[SET_MAX_SIZE],
         nrecv[i] = recv(i, data + (i * size), size, 0);
 
         if (!nrecv[i])
+        {
+            nrecv[i] = -1;
             FD_CLR(i, &(us->conn_set));
+        }
     }
 
     return 0;

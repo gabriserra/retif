@@ -15,9 +15,9 @@
 // TIME UTILS (MACRO - TYPES)
 // -----------------------------------------------------------------------------
 
-#define EXP3 1000
-#define EXP6 1000000
-#define EXP9 1000000000
+#define EXP3 1000.0
+#define EXP6 1000000.0
+#define EXP9 1000000000.0
 
 #define SEC_TO_MILLI(sec) sec *EXP3
 #define SEC_TO_MICRO(sec) sec *EXP6
@@ -41,6 +41,20 @@
 
 #ifndef RETIF_PUBLIC_TYPES
 #define RETIF_PUBLIC_TYPES
+
+#    define RTF_OK 1
+#    define RTF_FAIL 0
+#    define RTF_ERROR -1
+#    define RTF_PARTIAL 0
+#    define RTF_NO -1
+
+enum CLIENT_STATE
+{
+    EMPTY,
+    CONNECTED,
+    DISCONNECTED,
+    ERROR
+};
 
 struct rtf_params
 {
@@ -67,6 +81,32 @@ struct rtf_task
 };
 
 static const struct rtf_task RTF_TASK_INIT = {0};
+
+struct rtf_client_info
+{
+    pid_t pid;
+    int state;
+};
+struct rtf_task_info
+{
+    pid_t tid;
+    pid_t ppid;
+    int priority;
+    int period;
+    float util;
+    int pluginid;
+};
+struct rtf_plugin_info
+{
+    char name[PLUGIN_MAX_NAME];
+    int cputot;
+};
+struct rtf_cpu_info
+{
+    int cpunum;
+    float freeu;
+    int ntask;
+};
 
 #endif
 
@@ -110,6 +150,21 @@ void rtf_params_ignore_admission(struct rtf_params *p,
 // -----------------------------------------------------------------------------
 
 int rtf_connect();
+
+int rtf_connections_info();
+
+int rtf_plugins_info();
+
+int rtf_tasks_info();
+
+int rtf_connection_info(unsigned int desc, struct rtf_client_info *data);
+
+int rtf_task_info(unsigned int desc, struct rtf_task_info *data);
+
+int rtf_plugin_info(unsigned int desc, struct rtf_plugin_info *data);
+
+int rtf_plugin_cpu_info(unsigned int desc, unsigned int cpuid,
+    struct rtf_cpu_info *data);
 
 void rtf_task_init(struct rtf_task *t);
 

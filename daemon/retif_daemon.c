@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // -----------------------------------------------------------------------------
 // REQUEST HANDLING METHODS
@@ -34,6 +35,172 @@ static struct rtf_reply req_connection(struct rtf_daemon *data, int cli_id)
     return rep;
 }
 
+static struct rtf_reply req_connections_info(struct rtf_daemon *data,
+    int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+    int nclients = 0;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+
+    LOG(DEBUG, "Received RTF_CONNECTIONS_INFO from client: %d\n", cli_id);
+
+    for (int i = 0; i < CHANNEL_MAX_SIZE; i++)
+        if (data->chann.client[i].pid != 0)
+            nclients++;
+
+    rep.rep_type = RTF_CONNECTIONS_INFO_OK;
+    rep.payload.nconnected = nclients;
+
+    return rep;
+}
+
+static struct rtf_reply req_plugins_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+
+    LOG(DEBUG, "Received RTF_PLUGINGS_INFO from client: %d\n", cli_id);
+
+    rep.rep_type = RTF_PLUGINS_INFO_OK;
+    rep.payload.nplugin = data->sched.num_of_plugins;
+
+    return rep;
+}
+
+static struct rtf_reply req_tasks_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+
+    LOG(DEBUG, "Received RTF_TASKS_INFO from client: %d\n", cli_id);
+
+    rep.rep_type = RTF_PLUGINS_INFO_OK;
+    rep.payload.ntask = data->sched.taskset->tasks.n;
+
+    return rep;
+}
+
+static struct rtf_reply req_connection_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+    struct rtf_client *client;
+    int cdesc;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+    cdesc = req.payload.q.desc;
+
+    LOG(DEBUG, "Received RTF_CONNECTION_INFO from client: %d\n", cli_id);
+
+    if (cdesc > CHANNEL_MAX_SIZE || data->chann.client[cdesc].pid == 0)
+    {
+        rep.rep_type = RTF_CONNECTION_INFO_ERR;
+    }
+    else
+    {
+        rep.rep_type = RTF_CONNECTION_INFO_OK;
+        rep.payload.client.pid = data->chann.client[cdesc].pid;
+        rep.payload.client.state = data->chann.client[cdesc].state;
+    }
+
+    return rep;
+}
+
+static struct rtf_reply req_plugin_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+    struct rtf_client *client;
+    int pdesc;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+
+    pdesc = req.payload.q.desc;
+
+    LOG(DEBUG, "Received RTF_PLUGIN_INFO from client: %d\n", cli_id);
+
+    if (pdesc >= data->sched.num_of_plugins)
+    {
+        rep.rep_type = RTF_PLUGIN_INFO_ERR;
+    }
+    else
+    {
+        rep.rep_type = RTF_PLUGIN_INFO_OK;
+        strncpy(rep.payload.plugin.name, data->sched.plugin[pdesc].name,
+            PLUGIN_MAX_NAME);
+        rep.payload.plugin.cputot = data->sched.plugin[pdesc].cputot;
+    }
+
+    return rep;
+}
+
+static struct rtf_reply req_plugin_cpu_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+    struct rtf_client *client;
+    int pdesc, cpuid;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+
+    pdesc = req.payload.q.desc;
+    cpuid = req.payload.q.id;
+
+    LOG(DEBUG, "Received RTF_PLUGIN_CPU_INFO from client: %d\n", cli_id);
+
+    if (pdesc >= data->sched.num_of_plugins ||
+        cpuid >= data->sched.plugin[pdesc].cputot)
+    {
+        rep.rep_type = RTF_PLUGIN_CPU_INFO_ERR;
+    }
+    else
+    {
+        rep.rep_type = RTF_PLUGIN_CPU_INFO_OK;
+        rep.payload.cpu.cpunum = data->sched.plugin[pdesc].cpulist[cpuid];
+        rep.payload.cpu.ntask =
+            data->sched.plugin[pdesc].task_count_percpu[cpuid];
+        rep.payload.cpu.freeu =
+            data->sched.plugin[pdesc].util_free_percpu[cpuid];
+    }
+
+    return rep;
+}
+
+static struct rtf_reply req_task_info(struct rtf_daemon *data, int cli_id)
+{
+    struct rtf_reply rep;
+    struct rtf_request req;
+    struct rtf_client *client;
+    struct rtf_task *task;
+
+    req = rtf_carrier_get_req(&(data->chann), cli_id);
+    task = rtf_taskset_search(&(data->tasks), req.payload.q.desc);
+
+    LOG(DEBUG, "Received RTF_TASK_INFO from client: %d\n", cli_id);
+
+    if (task == NULL)
+    {
+        rep.rep_type = RTF_TASK_INFO_ERR;
+    }
+    else
+    {
+        rep.rep_type = RTF_TASK_INFO_OK;
+        rep.payload.task.tid = task->tid;
+        rep.payload.task.ppid = task->ptid;
+        rep.payload.task.priority = task->schedprio;
+        rep.payload.task.period = task->params.period;
+        rep.payload.task.pluginid = task->pluginid;
+    }
+
+    return rep;
+}
+
 /**
  * @internal
  *
@@ -58,19 +225,19 @@ static struct rtf_reply req_task_create(struct rtf_daemon *data, int cli_id)
     if (res == RTF_NO)
     {
         rep.rep_type = RTF_TASK_CREATE_ERR;
-        rep.payload = -1;
+        rep.payload.response = -1;
         LOG(DEBUG, "It is NOT possible to guarantee these parameters!\n");
     }
     else if (res == RTF_PARTIAL)
     {
         rep.rep_type = RTF_TASK_CREATE_PART;
-        rep.payload = rtf_id;
+        rep.payload.response = rtf_id;
         LOG(DEBUG, "Task created with min budget. Res. id: %d\n", rtf_id);
     }
     else
     {
         rep.rep_type = RTF_TASK_CREATE_OK;
-        rep.payload = rtf_id;
+        rep.payload.response = rtf_id;
         LOG(DEBUG,
             "It is possible to guarantee these parameters. Res. id: %d\n",
             rtf_id);
@@ -235,6 +402,7 @@ int rtf_daemon_check_for_fail(struct rtf_daemon *data, int cli_id)
     pid = rtf_carrier_get_pid(&(data->chann), cli_id);
 
     rtf_scheduler_delete(&(data->sched), pid);
+    rtf_carrier_set_pid(&(data->chann), cli_id, 0);
     rtf_carrier_close(&(data->chann), cli_id);
 
     return 1;
@@ -280,6 +448,27 @@ int rtf_daemon_process_req(struct rtf_daemon *data, int cli_id)
     {
     case RTF_CONNECTION:
         rep = req_connection(data, cli_id);
+        break;
+    case RTF_CONNECTIONS_INFO:
+        rep = req_connections_info(data, cli_id);
+        break;
+    case RTF_CONNECTION_INFO:
+        rep = req_connection_info(data, cli_id);
+        break;
+    case RTF_PLUGINS_INFO:
+        rep = req_plugins_info(data, cli_id);
+        break;
+    case RTF_PLUGIN_INFO:
+        rep = req_plugin_info(data, cli_id);
+        break;
+    case RTF_PLUGIN_CPU_INFO:
+        rep = req_plugin_cpu_info(data, cli_id);
+        break;
+    case RTF_TASKS_INFO:
+        rep = req_tasks_info(data, cli_id);
+        break;
+    case RTF_TASK_INFO:
+        rep = req_task_info(data, cli_id);
         break;
     case RTF_TASK_CREATE:
         rep = req_task_create(data, cli_id);

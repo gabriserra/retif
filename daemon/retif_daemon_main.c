@@ -14,7 +14,7 @@
 #include <string.h>
 
 /**
- * ReTif version and mainteiner info
+ * ReTif version and maintainer info
  */
 const char *retif_version = "ReTif 0.1.0";
 const char *retif_bug_address =
