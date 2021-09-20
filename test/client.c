@@ -35,9 +35,9 @@ void daemon_connect()
         printf("# Connected with daemon.\n");
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-    uint32_t ret;
+    int ret;
     struct rtf_params p = RTF_PARAM_INIT;
     struct rtf_task t = RTF_TASK_INIT;
 

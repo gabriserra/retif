@@ -255,3 +255,8 @@ void rtf_carrier_dump(struct rtf_carrier *c)
             client->state);
     }
 }
+
+void rtf_carrier_close(struct rtf_carrier *c, int cli_id)
+{
+    usocket_remove_connection(&c->sock, cli_id);
+}

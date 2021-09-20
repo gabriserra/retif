@@ -13,7 +13,7 @@
 <!-- [![Forks][forks-shield]][forks-url] -->
 <!-- [![Stars][stars-shield]][stars-url] -->
 
-# Retif - Real-Time Framework for POSIX Systems
+# Retif &ndash; Real-Time Framework for POSIX Systems
 
 Retif (or ReTiF) is a novel framework that enables unprivileged access to the
 real-time features of Unix-based operating systems in a controlled manner. The
@@ -31,13 +31,14 @@ requests.
 The framework has been the subject of two publications from Scuola Superiore
 Sant'Anna, Pisa:
  - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (May 19-21,
-   2020), "**[An Architecture for Declarative Real-Time Scheduling on Linux][paper-url]**".
-   In *Proceedings of the 23rd IEEE International Symposium on Real-Time
-   Distributed Computing* (IEEE ISORC 2020), Nashville, Tennessee, USA (pp.
-   44-55), IEEE.
- - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (*to
-   appear*), "**ReTiF: A Declarative Real-Time Scheduling Framework for POSIX
-   Systems**". In *Journal of Systems Architecture (JSA)*, Elsevier.
+   2020), "**[An Architecture for Declarative Real-Time Scheduling on
+   Linux][paper-isorc-url]**". In *Proceedings of the 23rd IEEE International
+   Symposium on Real-Time Distributed Computing* (IEEE ISORC 2020), Nashville,
+   Tennessee, USA (pp. 44-55), IEEE.
+ - Gabriele Serra, Gabriele Ara, Pietro Fara, and Tommaso Cucinotta (2021),
+   "**[ReTiF: A Declarative Real-Time Scheduling Framework for POSIX
+   Systems][paper-jsa-url]**". In *Journal of Systems Architecture (JSA)*,
+   Elsevier. **[Open Access]**
 
 The presentation of the conference paper above can be found on
 [YouTube][youtube-url]. Please refer to the journal paper above for a detailed
@@ -46,17 +47,43 @@ a copy.
 
 ## Getting Started
 
-As of now, Retif can be obtained by building its sources. Soon, with each
-release of the framework we will attach packages for major linux distributions,
-as well as self-contained binary archives.
+We provide both binaries and sources to install Retif on your system. Bear in
+mind that not all platforms may be supported equally. Retif is built and tested
+on Ubuntu 20.04 and on Fedora 34.
 
-### Prerequisites
+### Installing from binaries
+
+[Releases][releases-url] page contains binary and source packages for Retif. All
+packages are **not** self-updating, so you may want to checkout the
+[releases][releases-url] page from time to time.
+
+- On Debian-based distributions, you can use the provided `.deb` package to
+  install all Retif components and its dependencies.
+
+- On Red Hat and Fedora-based distributions, you can use the provided `.rpm`
+  package to install all Retif components and its dependencies.
+
+- For all other distributions, try the tar/zip archives.
+
+### Installing from sources
 
 Building Retif from sources requires a reasonably recent version of
 [CMake][cmake-url] to be installed, which will be used to build all the
-components of the framework and to install them in the appropriate locations.
+components of the framework and to install them in the appropriate locations. In
+addition, [libyaml][libyaml-url] library must be installed on your system (with
+its headers as well).
 
-### Installing from sources
+To install all required dependencies:
+ - On Ubuntu and Debian-based distributions
+   ```sh
+   sudo apt install build-essential cmake libyaml-dev
+   ```
+- On Fedora and Red Hat-based distributions
+   ```sh
+   sudo dnf install make automake gcc cmake libyaml-devel
+   ```
+
+Once you have all dependencies sorted out, follow these steps:
 
 1. Clone the repo
    ```sh
@@ -104,6 +131,10 @@ can serve the request, the user application receives a positive response. Refer
 to the [plugins](plugins) directory for more info.
 
 ### Running the Retif daemon
+
+> **NOTE**: Support for the `retif` service on Fedora and Red Hat systems is not
+> available as of now, you should start the `retifd` command yourself in
+> background.
 
 Retif relies on a daemon application to run in the background. To start the
 daemon you can use `service` or `systemctl`:
@@ -264,15 +295,30 @@ license. Read more [here](https://choosealicense.com/licenses/gpl-3.0/).
 If you want to cite, please refer to:
 
 ```bibtex
-@inproceedings{serraetal:20:isorc,
-    author =       {Serra, Gabriele and Ara, Gabriele and Fara, Pietro and Cucinotta, Tommaso},
-    title =        {An Architecture for Declarative Real-TimeScheduling on Linux},
-    year =         {2020}
-    keywords =     {real-time, scheduling, declarative, linux},
+@inproceedings{serraetal:2020:isorc,
+  doi       = {10.1109/isorc49007.2020.00013},
+  url       = {https://doi.org/10.1109/isorc49007.2020.00013},
+  year      = {2020},
+  month     = may,
+  publisher = {{IEEE}},
+  author    = {Gabriele Serra and Gabriele Ara and Pietro Fara and Tommaso Cucinotta},
+  title     = {An Architecture for Declarative Real-Time Scheduling on Linux},
+  booktitle = {2020 {IEEE} 23rd International Symposium on Real-Time Distributed Computing ({ISORC})}
+}
+
+@article{serraetal:2021:jsa,
+  doi       = {10.1016/j.sysarc.2021.102210},
+  url       = {https://doi.org/10.1016/j.sysarc.2021.102210},
+  year      = {2021},
+  month     = sep,
+  publisher = {Elsevier {BV}},
+  volume    = {118},
+  pages     = {102210},
+  author    = {Gabriele Serra and Gabriele Ara and Pietro Fara and Tommaso Cucinotta},
+  title     = {{ReTiF}: A declarative real-time scheduling framework for {POSIX} systems},
+  journal   = {Journal of Systems Architecture}
 }
 ```
-
-> Journal article to appear soon.
 
 <!-------------------------- Markdown Links & Images -------------------------->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -283,10 +329,12 @@ If you want to cite, please refer to:
 
 <!------------------------- Urls -------------------------->
 
-[paper-url]: https://doi.org/10.1109/ISORC49007.2020.00013
+[paper-isorc-url]: https://doi.org/10.1109/ISORC49007.2020.00013
+[paper-jsa-url]: https://doi.org/10.1016/j.sysarc.2021.102210
 [youtube-url]: https://www.youtube.com/watch?v=9Y0KXTPXL14
 [cmake-url]: https://cmake.org
 [docs-url]: https://codedocs.xyz/gabriserra/retif
+[libyaml-url]: https://github.com/yaml/libyaml
 
 [bugs-url]: https://github.com/gabriserra/retif/labels/bug
 [contributors-url]: https://github.com/gabriserra/retif/graphs/contributors
@@ -294,6 +342,7 @@ If you want to cite, please refer to:
 [issues-url]: https://github.com/gabriserra/retif/issues
 [license-url]: https://github.com/gabriserra/retif/blob/master/LICENSE.txt
 [stars-url]: https://github.com/gabriserra/retif/stargazers
+[releases-url]: https://github.com/gabriserra/retif/releases
 
 [gabri-serra-url]: https://github.com/gabriserra
 [gabri-ara-url]: https://github.com/gabrieleara

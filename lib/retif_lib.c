@@ -12,13 +12,13 @@
 // -----------------------------------------------------------------------------
 
 #ifndef CLOCK_MONOTONIC
-#    define CLOCK_MONOTONIC 1
+#define CLOCK_MONOTONIC 1
 #endif
 #ifndef CLOCK_THREAD_CPUTIME_ID
-#    define CLOCK_THREAD_CPUTIME_ID 3
+#define CLOCK_THREAD_CPUTIME_ID 3
 #endif
 #ifndef TIMER_ABSTIME
-#    define TIMER_ABSTIME 0x01
+#define TIMER_ABSTIME 0x01
 #endif
 
 // -----------------------------------------------------------------------------

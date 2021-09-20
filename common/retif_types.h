@@ -6,8 +6,8 @@
 #include <time.h>
 
 #ifndef RETIF_PLUGIN_H
-#    define PLUGIN_MAX_NAME 32
-#    define PLUGIN_MAX_PATH 1024
+#define PLUGIN_MAX_NAME 32
+#define PLUGIN_MAX_PATH 1024
 #endif
 
 #ifndef RETIF_CHANNEL_H
@@ -84,6 +84,8 @@ enum CLIENT_STATE
     DISCONNECTED,
     ERROR
 };
+
+#define PLUGIN_MAX_NAME 32 // FIXME: fixed length string
 
 struct rtf_params
 {

@@ -16,7 +16,8 @@
 	"extensions": [
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
-		"eamodio.gitlens"
+		"eamodio.gitlens",
+		"gruntfuggly.todo-tree",
 	],
 	// Important: use this to login as vscode user, rather than root
 	"remoteUser": "vscode"

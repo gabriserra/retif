@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * ReTif version and maintainer info
@@ -23,6 +24,8 @@ struct rtf_daemon data;
 
 struct LOGGER logger;
 
+char *conf_file_path = NULL;
+
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct arguments *args = state->input;
@@ -34,6 +37,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
     case 'o':
         args->output_file = arg;
+        break;
+    case 'c':
+        args->conf_file = arg;
         break;
     case ARGP_KEY_ARG:
         /* Too many arguments. */
@@ -80,6 +86,7 @@ int main(int argc, char *argv[])
 
     arguments.level = 20;
     arguments.output_file = "\0";
+    arguments.conf_file = SETTINGS_CFG;
 
     struct argp argp = {options, parse_opt, 0, doc};
 
@@ -93,11 +100,22 @@ int main(int argc, char *argv[])
         logger.output = fopen(arguments.output_file, "a");
     }
 
+    LOG(ERR, "-------------------------------\r\n");
+
+    if (*arguments.conf_file == '\0')
+    {
+        LOG(ERR, "Empty argument to -c|--config option!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    conf_file_path = calloc(strlen(arguments.conf_file) + 1, sizeof(char));
+    strcpy(conf_file_path, arguments.conf_file);
+
     LOG(INFO, "ReTiF daemon - Daemon started.\r\n");
 
     if (rtf_daemon_init(&data) < 0)
     {
-        LOG(ERR, "Unexpected error in initialization phase.\n");
+        LOG(ERR, "Could not initialize Retif daemon.\n");
         exit(EXIT_FAILURE);
     }
 

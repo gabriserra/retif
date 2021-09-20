@@ -10,6 +10,8 @@ project(
 
 # --------------------- Build types ---------------------- #
 
+# add_compile_options(-Wall -Wextra -Wunused-function) # -pedantic -Werror)
+
 set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
@@ -19,6 +21,13 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
     "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
+
+if(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
+    string(REGEX REPLACE "(\-O[011123456789])" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    string(REGEX REPLACE "(\-O[011123456789])" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O0")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -O0")
+endif(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
 
 # ------------------- Paths Management ------------------- #
 
@@ -43,7 +52,7 @@ endif ()
 include(GNUInstallDirs)
 
 # Location of important files that are going to be installed
-set(RETIF_CONF_FNAME retif.conf)
+set(RETIF_CONF_FNAME retifconf.yaml)
 
 # Set all destination paths for various components that will be installed
 set(RETIF_CONF_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${RETIF_CONF_FNAME})

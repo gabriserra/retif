@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 
 #ifndef RETIF_PUBLIC_TYPES
-#    define RETIF_PUBLIC_TYPES
+#define RETIF_PUBLIC_TYPES
 
 #    define RTF_OK 1
 #    define RTF_FAIL 0

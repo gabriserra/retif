@@ -7,6 +7,7 @@ add_executable(retifd
     retif_task.c
     retif_taskset.c
     retif_utils.c
+    vector.c
 )
 
 # This will allow plugins to link against symbols provided by the daemon
@@ -14,6 +15,10 @@ add_executable(retifd
 set_property(TARGET retifd
     PROPERTY ENABLE_EXPORTS 1
 )
+
+# find_package(PkgConfig REQUIRED)
+# pkg_check_modules(YAML REQUIRED yaml)
+# find_library(YAML yaml NAMES yaml)
 
 target_include_directories(retifd
     PRIVATE
@@ -26,6 +31,7 @@ target_link_libraries(retifd
     ${CMAKE_DL_LIBS}
     retif_channel
     retif_common
+    yaml
 )
 
 # ----------------------- Service ------------------------ #

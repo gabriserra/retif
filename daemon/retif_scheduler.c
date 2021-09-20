@@ -100,29 +100,40 @@ static int rtf_scheduler_test_and_modify(struct rtf_scheduler *s,
  *
  * @endinternal
  */
-int rtf_scheduler_init(struct rtf_scheduler *s, struct rtf_taskset *ts)
+int rtf_scheduler_init(configuration_t *conf, struct rtf_scheduler *s,
+    struct rtf_taskset *ts)
 {
-    float sys_rt_util;
+    int res;
+    long rt_runtime;
+    long rt_period;
+    double procfs_max_util;
 
-    if (rtf_config_apply() < 0)
+    res = file_read_long(PROC_RT_RUNTIME_FILE, &rt_runtime);
+    res = res | file_read_long(PROC_RT_PERIOD_FILE, &rt_period);
+    if (res)
     {
-        LOG(WARNING,
-            "Unable to apply param configurations. Daemon will continue.\n");
+        LOG(ERR, "Could not read from procfs!\n");
+        return res;
     }
 
-    if (rtf_config_get_rt_kernel_max_util(&sys_rt_util) < 0)
+    procfs_max_util = (((double) rt_runtime) / ((double) rt_period));
+
+    if (rt_runtime != -1 && procfs_max_util < conf->system.sched_max_util)
     {
-        LOG(WARNING, "Unable to read rt proc files.\n");
-        LOG(WARNING,
-            "Daemon will continue assuming 95%% as max utilization.\n");
-        sys_rt_util = 0.95;
+        LOG(ERR,
+            "The max utilization allowed on this system is %f, but the "
+            "configuration requires at least %f!\n",
+            procfs_max_util, conf->system.sched_max_util);
+        LOG(ERR, "You can disable it by writing -1 to sched_rt_runtime_us in "
+                 "proc.\n");
+        return -1;
     }
 
     s->taskset = ts;
     s->last_task_id = 0;
     s->num_of_cpu = get_nprocs2();
 
-    return rtf_plugins_init(&(s->plugin), &(s->num_of_plugins));
+    return rtf_plugins_init(&conf->plugins, &(s->plugin), &(s->num_of_plugins));
 }
 
 /**
@@ -135,8 +146,6 @@ int rtf_scheduler_init(struct rtf_scheduler *s, struct rtf_taskset *ts)
 void rtf_scheduler_destroy(struct rtf_scheduler *s)
 {
     rtf_plugins_destroy(s->plugin, s->num_of_plugins);
-    rtf_config_restore_rr_kernel_param();
-    rtf_config_restore_rt_kernel_params();
 }
 
 void rtf_scheduler_delete(struct rtf_scheduler *s, pid_t ppid)

@@ -357,6 +357,7 @@ int usocket_add_connections(struct usocket *us)
 void usocket_remove_connection(struct usocket *us, int fd)
 {
     FD_CLR(fd, &(us->conn_set));
+    close(fd);
 }
 
 /**
@@ -369,9 +370,9 @@ void usocket_remove_connection(struct usocket *us, int fd)
 int usocket_get_credentials(struct usocket *us, int fd)
 {
     struct ucred *ucredp;
-    socklen_t len;
+    socklen_t len = sizeof(struct ucred);
 
-    ucredp = calloc(1, sizeof(struct ucred));
+    ucredp = calloc(1, len);
 
     if (ucredp == NULL)
     {
