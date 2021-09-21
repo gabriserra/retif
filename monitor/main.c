@@ -97,15 +97,20 @@ void printTasks()
     printf("> Number of tasks: %d\n", ntask);
     reset();
 
-    for (int i = 1; i <= ntask; i++)
+    for (int desc = 1, count = 0; count < ntask; desc++)
     {
-        if (rtf_task_info(i, &data) == RTF_ERROR)
-            printf("#%d \t Unable to get data\n", i);
+        if (rtf_task_info(desc, &data) == RTF_ERROR)
+        {
+            continue;
+        }
         else
+        {
             printf("#%d \t TID : %d \t PPID : %d \t Priority : %d \t Period : "
                    "%d \t Util : %f \t Plugin : %s \n",
-                i, data.tid, data.ppid, data.priority, data.period, data.util,
-                stringFromName(data.pluginid));
+                desc, data.tid, data.ppid, data.priority, data.period,
+                data.util, stringFromName(data.pluginid));
+            count++;
+        }
     }
 }
 

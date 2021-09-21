@@ -7,3 +7,6 @@ build
 
 # Ignore experimental results and benchmark binaries
 *.csv
+
+# Ignore monitor binary
+mon
