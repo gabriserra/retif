@@ -43,19 +43,24 @@ function get_project_path() {
 # ======================================================== #
 
 function toshortopts() {
+    local out=
+    newargs=()
     while [ $# -gt 0 ]; do
-        case $1 in
-        --help) printf ' %s' '-h' ;;
-        --verbose) printf ' %s' '-v' ;;
-        --deb) printf ' %s' '-d' ;;
-        --rpm) printf ' %s' '-r' ;;
-        --jobs) printf ' %s' '-j' ;;
-        --parallel) printf ' %s' '-J' ;;
-        --build-type) printf ' %s' '-b' ;;
-        --build-path) printf ' %s' '-p' ;;
-        *) printf ' %s' "$1" ;;
+        case "$1" in
+        --help)         printf -v out '%s' '-h' ;;
+        --verbose)      printf -v out '%s' '-v' ;;
+        --deb)          printf -v out '%s' '-d' ;;
+        --rpm)          printf -v out '%s' '-r' ;;
+        --jobs)         printf -v out '%s' '-j' ;;
+        --parallel)     printf -v out '%s' '-J' ;;
+        --generator)    printf -v out '%s' '-G' ;;
+        --build-type)   printf -v out '%s' '-b' ;;
+        --build-path)   printf -v out '%s' '-p' ;;
+        *)              printf -v out '%s' "$1" ;;
         esac
         shift
+
+        newargs+=( "$out" )
     done
 }
 
@@ -86,7 +91,7 @@ function separate_args() {
         done
 
         shift $((OPTIND - 1)) || true
-        pos_args+=($1)
+        pos_args+=("$1")
         shift || true
     done
 }
@@ -160,6 +165,13 @@ function parse_opt_args() {
             fi
             path_build="$OPTARG"
             ;;
+        G)
+            if [ -z "$OPTARG" ]; then
+                missing_argument '-G|--generator'
+                return 1
+            fi
+            generator="$OPTARG"
+            ;;
         *)
             shift $((OPTIND - 1)) || true
             unrecognized 'option' "$1"
@@ -195,11 +207,13 @@ usage: $0 [options] COMMAND [...COMMANDS]
 
 Runs the specified list of commands using the given arguments
 
-List of options (all optional):  
+List of options (all optional):
   -h, --help        Prints this help message and returns
   -v, --verbose     Prints more info during execution
   -d, --deb         Enables the generation of the deb package
   -r, --rpm         Enables the generation of the rpm package
+  -G, --generator GEN
+                    Uses the provided CMake generator to build the project
   -J, --parallel    Enables parallel build execution with a default number of
                     processes
   -j, --jobs JOBS
@@ -208,7 +222,6 @@ List of options (all optional):
                     Specifies which version of the project to build
   -p, --build-path BUILDPATH[=build]
                     Specifies which path to use to build the project
-  
 
 List of commands:
     build           (Re-)Build the project
@@ -219,6 +232,7 @@ List of commands:
     uninstall       Removes the installed files from paths
     usage           Prints this help message and returns
 EOF
+# TODO(gabrieleara): test
 }
 
 function reset_ran() {
@@ -251,7 +265,14 @@ function configure() {
         return 0
     fi
 
+    if [ "$generator" = 'Ninja' ] && ! command -v ninja &> /dev/null
+    then
+        # Fallback to Unix Makefiles on Linux
+        generator='Unix Makefiles'
+    fi
+
     cmake -S "$path_src" -B "$path_build" \
+        -G "$generator" \
         -DCMAKE_BUILD_TYPE="$build_type" \
         -DCMAKE_VERBOSE_MAKEFILE:BOOL="$verbose" \
         -DCPACK_ENABLE_DEB="$package_deb" \
@@ -325,19 +346,22 @@ function package() {
     package_rpm=OFF
     verbose=OFF
     jobs=1
+    generator=Ninja
 
     commands=()
 
     opt_args=()
     pos_args=()
-    optstring='hvJj:drb:p:'
+    optstring='hvJj:drb:p:G:'
 
     OPTERR=0
 
     # Separate optional from positional arguments, then parse them
-    separate_args "$optstring" $(toshortopts "$@")
-    parse_opt_args "$optstring" "${opt_args[@]}"
-    parse_pos_args "${pos_args[@]}"
+    toshortopts "$@"
+
+    separate_args   "$optstring" "${newargs[@]}"
+    parse_opt_args  "$optstring" "${opt_args[@]}"
+    parse_pos_args  "${pos_args[@]}"
 
     reset_ran
 
